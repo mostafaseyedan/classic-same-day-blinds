@@ -27,5 +27,6 @@ pattern_*.png
 .agents/
 Web Scrapping/
 .env
+.readdy_token
 missing files/
 missing files/*
