@@ -1,0 +1,31 @@
+node_modules
+.codex
+out
+.next
+dist
+build
+coverage
+*.log
+.turbo
+.DS_Store
+.env.*
+**/.env
+**/.env.local
+**/.next
+**/dist
+**/*.tsbuildinfo
+services/commerce/.medusa/
+services/commerce/.medusa-config/
+services/commerce/static/[0-9]*-main_*.jpg
+Generated Image*.jpg
+Generated Image*.jpg:Zone.Identifier
+pattern_*.png
+.claude/
+.openhands/
+.playwright-cli/
+.extract-design-system/
+.agents/
+Web Scrapping/
+.env
+missing files/
+missing files/*

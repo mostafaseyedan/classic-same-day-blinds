@@ -1,0 +1,28 @@
+.gcloudignore
+.git
+.gitignore
+.claude
+.openhands
+.playwright-cli
+.extract-design-system
+.agents
+.codex
+node_modules
+**/node_modules
+apps/storefront/.next
+services/commerce/.medusa-config
+services/ops-api/dist
+services/workers/dist
+services/chat-service/dist
+apps/storefront/tsconfig.tsbuildinfo
+output
+output_v5
+docs
+skills
+Web Scrapping
+missing files
+*.pdf
+Generated Image*.jpg
+Generated Image*.jpg:Zone.Identifier
+pattern_*.png
+replace_account.js

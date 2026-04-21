@@ -1,0 +1,128 @@
+@import "../../../../design-system/tokens.css";
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+@source "../../../../packages/ui/src";
+
+:root {
+  color-scheme: light;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at top left, rgba(181, 132, 74, 0.18), transparent 24%),
+    radial-gradient(circle at 100% 0%, rgba(40, 88, 70, 0.12), transparent 25%),
+    linear-gradient(180deg, #f7f2e7 0%, #f1ecdf 100%);
+  color: #17232b;
+  font-family: var(--font-body-family), sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+:where(a) {
+  text-decoration: none;
+}
+
+:where(button),
+:where(input),
+:where(textarea),
+:where(select) {
+  font-family: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: rgba(181, 132, 74, 0.22);
+}
+
+@layer components {
+  .page-section {
+    @apply px-6 py-14 md:px-10 md:py-[3.75rem] lg:px-14 lg:py-[4.25rem];
+  }
+
+  .content-shell {
+    @apply mx-auto w-full max-w-[76rem];
+  }
+
+  .card-interactive {
+    @apply overflow-hidden rounded-card bg-white transition-[box-shadow,transform] duration-200 hover:shadow-[0_10px_24px_rgba(24,36,34,0.06)];
+  }
+
+  .dialog-shell {
+    @apply overflow-hidden rounded-container bg-white shadow-[0_24px_64px_rgba(24,36,34,0.14)];
+  }
+  .catalog-kicker {
+    @apply text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-olive;
+  }
+
+  .catalog-title {
+    @apply mt-3 font-display text-[2.15rem] font-medium leading-[1.05] tracking-tight text-slate sm:text-[2.5rem] md:text-[2.8rem];
+  }
+
+  .catalog-copy {
+    @apply mt-4 max-w-[36rem] text-[0.95rem] leading-6 text-slate/70;
+  }
+
+  .catalog-filter-chip {
+    @apply rounded-full border border-black/10 bg-white px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate transition hover:border-black/20 hover:bg-black/[0.02];
+  }
+
+  .catalog-filter-chip-active {
+    @apply border-slate bg-slate text-shell;
+  }
+
+}
+
+/* Scroll-triggered entrance transitions */
+[data-animate] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-animate][data-in-view="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+[data-animate-stagger] > [data-animate] {
+  transition-delay: calc(var(--stagger, 0) * 80ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-animate] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .grain-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+  }
+}

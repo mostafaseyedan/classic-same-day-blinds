@@ -1,0 +1,25 @@
+.git
+.gitignore
+.claude
+.openhands
+.playwright-cli
+.extract-design-system
+.agents
+.codex
+node_modules
+**/node_modules
+**/.next
+**/dist
+**/*.tsbuildinfo
+output
+output_v5
+docs
+skills
+Web Scrapping
+missing files
+*.pdf
+Generated Image*.jpg
+Generated Image*.jpg:Zone.Identifier
+pattern_*.png
+replace_account.js
+20260325_Updated phase 1.pdf

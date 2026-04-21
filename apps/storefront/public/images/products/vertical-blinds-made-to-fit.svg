@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-labelledby="title desc">
+  <title id="title">Vertical blinds</title>
+  <desc id="desc">Localized placeholder for vertical blinds.</desc>
+  <rect width="400" height="500" fill="#edf3ef"/>
+  <rect x="58" y="48" width="284" height="330" rx="18" fill="#fffdfa" stroke="#ccd7d0"/>
+  <g fill="#f8faf9" stroke="#bcc7c1" stroke-width="3">
+    <rect x="96" y="80" width="28" height="266" rx="10"/>
+    <rect x="138" y="80" width="28" height="266" rx="10"/>
+    <rect x="180" y="80" width="28" height="266" rx="10"/>
+    <rect x="222" y="80" width="28" height="266" rx="10"/>
+    <rect x="264" y="80" width="28" height="266" rx="10"/>
+  </g>
+  <text x="36" y="434" fill="#1f2e2d" font-family="Arial, sans-serif" font-size="28" font-weight="700">Vertical Blinds</text>
+  <text x="36" y="466" fill="#66736d" font-family="Arial, sans-serif" font-size="16">Made-to-fit local placeholder</text>
+</svg>

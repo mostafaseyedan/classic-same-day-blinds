@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-labelledby="title desc">
+  <title id="title">1 inch vinyl plus blinds</title>
+  <desc id="desc">Localized placeholder for upgraded vinyl blinds.</desc>
+  <rect width="400" height="500" fill="#ecf2f1"/>
+  <rect x="80" y="48" width="240" height="330" rx="18" fill="#fffdfa" stroke="#c6d4ce"/>
+  <rect x="80" y="48" width="240" height="24" rx="10" fill="#a8b8b0"/>
+  <g stroke="#c2cdc7" stroke-width="10">
+    <line x1="104" y1="106" x2="296" y2="106"/>
+    <line x1="104" y1="142" x2="296" y2="142"/>
+    <line x1="104" y1="178" x2="296" y2="178"/>
+    <line x1="104" y1="214" x2="296" y2="214"/>
+    <line x1="104" y1="250" x2="296" y2="250"/>
+    <line x1="104" y1="286" x2="296" y2="286"/>
+  </g>
+  <text x="36" y="434" fill="#1f2e2d" font-family="Arial, sans-serif" font-size="28" font-weight="700">1" Vinyl Plus</text>
+  <text x="36" y="466" fill="#66736d" font-family="Arial, sans-serif" font-size="16">Reinforced headrail placeholder</text>
+</svg>

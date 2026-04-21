@@ -1,0 +1,36 @@
+{
+  "name": "blinds-platform",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "npm@10.9.4",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "workspaces": [
+    "apps/storefront",
+    "services/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev:all",
+    "dev:all": "npm run infra:up && concurrently -k --names commerce,storefront,ops-api --prefix-colors blue,green,magenta \"npm:dev:commerce\" \"npm:dev:storefront:wait\" \"npm:dev:ops-api\"",
+    "dev:full": "npm run infra:up && concurrently -k --names commerce,storefront,ops-api,chat,workers --prefix-colors blue,green,magenta,yellow,gray \"npm:dev:commerce\" \"npm:dev:storefront:wait\" \"npm:dev:ops-api\" \"npm:dev:chat\" \"npm:dev:workers:wait\"",
+    "infra:up": "docker compose up -d postgres redis",
+    "infra:down": "docker compose down",
+    "infra:logs": "docker compose logs -f postgres redis",
+    "dev:storefront": "npm run dev -w @blinds/storefront",
+    "dev:storefront:wait": "node ./scripts/wait-for-http.mjs --url http://localhost:9000/health --label commerce -- npm run dev -w @blinds/storefront",
+    "dev:commerce": "npm run dev -w @blinds/commerce",
+    "dev:ops-api": "npm run dev -w @blinds/ops-api",
+    "dev:chat": "npm run dev -w @blinds/chat-service",
+    "dev:workers": "npm run dev -w @blinds/workers",
+    "dev:workers:wait": "node ./scripts/wait-for-http.mjs --url http://localhost:9000/health --label commerce -- npm run dev -w @blinds/workers",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "type-check": "npm run type-check --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@blinds/ops-api",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "type-check": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@blinds/config": "^0.1.0",
+    "@blinds/integrations": "^0.1.0",
+    "@blinds/types": "^0.1.0",
+    "@google-cloud/storage": "^7.19.0",
+    "dotenv": "^17.2.3",
+    "fastify": "^5.2.1",
+    "pg": "^8.16.3",
+    "stripe": "^19.3.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
+  }
+}
