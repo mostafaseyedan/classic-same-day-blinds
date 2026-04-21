@@ -65,9 +65,9 @@ steps:
 
         random_secret() {
           python3 - <<'PY'
-import secrets
-print(secrets.token_urlsafe(32))
-PY
+          import secrets
+          print(secrets.token_urlsafe(32))
+          PY
         }
 
         get_service_env() {
@@ -93,17 +93,17 @@ PY
         extract_db_password() {
           local database_url="$1"
           python3 - "$database_url" <<'PY'
-import sys
-from urllib.parse import urlparse
+          import sys
+          from urllib.parse import urlparse
 
-url = sys.argv[1]
-if not url:
-    raise SystemExit(0)
+          url = sys.argv[1]
+          if not url:
+              raise SystemExit(0)
 
-password = urlparse(url).password
-if password:
-    print(password)
-PY
+          password = urlparse(url).password
+          if password:
+              print(password)
+          PY
         }
 
         hello_image="us-docker.pkg.dev/cloudrun/container/hello"
