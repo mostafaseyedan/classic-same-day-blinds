@@ -48,9 +48,6 @@ steps:
       - -ceu
       - |
         required_values=(
-          "$_DB_PASSWORD"
-          "$_JWT_SECRET"
-          "$_COOKIE_SECRET"
           "$_MEDUSA_PUBLISHABLE_KEY"
           "$_STRIPE_PUBLISHABLE_KEY"
           "$_STRIPE_SECRET_KEY"
@@ -65,6 +62,49 @@ steps:
             exit 1
           fi
         done
+
+        random_secret() {
+          python3 - <<'PY'
+import secrets
+print(secrets.token_urlsafe(32))
+PY
+        }
+
+        get_service_env() {
+          local service_name="$1"
+          local env_name="$2"
+
+          gcloud run services describe "$service_name" \
+            --region "$_REGION" \
+            --project "$PROJECT_ID" \
+            --format export 2>/dev/null | awk -v env_name="$env_name" '
+              $1 == "- name:" && $3 == env_name { in_target = 1; next }
+              in_target && $1 == "value:" {
+                value = substr($0, index($0, ":") + 2)
+                gsub(/^"/, "", value)
+                gsub(/"$/, "", value)
+                print value
+                exit
+              }
+              $1 == "- name:" { in_target = 0 }
+            '
+        }
+
+        extract_db_password() {
+          local database_url="$1"
+          python3 - "$database_url" <<'PY'
+import sys
+from urllib.parse import urlparse
+
+url = sys.argv[1]
+if not url:
+    raise SystemExit(0)
+
+password = urlparse(url).password
+if password:
+    print(password)
+PY
+        }
 
         hello_image="us-docker.pkg.dev/cloudrun/container/hello"
 
@@ -93,6 +133,35 @@ steps:
         commerce_url="$(ensure_service_url "$_COMMERCE_SERVICE")"
         ops_api_url="$(ensure_service_url "$_OPS_API_SERVICE")"
         storefront_url="$(ensure_service_url "$_STOREFRONT_SERVICE")"
+        resolved_db_password="$_DB_PASSWORD"
+        resolved_jwt_secret="$_JWT_SECRET"
+        resolved_cookie_secret="$_COOKIE_SECRET"
+
+        if [ -z "$resolved_db_password" ]; then
+          existing_database_url="$(get_service_env "$_COMMERCE_SERVICE" DATABASE_URL)"
+          resolved_db_password="$(extract_db_password "$existing_database_url")"
+        fi
+
+        if [ -z "$resolved_jwt_secret" ]; then
+          resolved_jwt_secret="$(get_service_env "$_COMMERCE_SERVICE" JWT_SECRET)"
+        fi
+
+        if [ -z "$resolved_cookie_secret" ]; then
+          resolved_cookie_secret="$(get_service_env "$_COMMERCE_SERVICE" COOKIE_SECRET)"
+        fi
+
+        if [ -z "$resolved_db_password" ]; then
+          resolved_db_password="$(random_secret)"
+        fi
+
+        if [ -z "$resolved_jwt_secret" ]; then
+          resolved_jwt_secret="$(random_secret)"
+        fi
+
+        if [ -z "$resolved_cookie_secret" ]; then
+          resolved_cookie_secret="$(random_secret)"
+        fi
+
         instance_connection_name="$(gcloud sql instances describe "$_SQL_INSTANCE" \
           --project "$PROJECT_ID" \
           --format='value(connectionName)')"
@@ -107,7 +176,7 @@ steps:
         gcloud sql users set-password "$_SQL_USER" \
           --instance "$_SQL_INSTANCE" \
           --project "$PROJECT_ID" \
-          --password "$_DB_PASSWORD" \
+          --password "$resolved_db_password" \
           --quiet
 
         cat > /workspace/cloudrun.vars <<EOF
@@ -124,6 +193,9 @@ steps:
         redis_host=$redis_host
         redis_port=$redis_port
         build_tag=$BUILD_ID
+        db_password=$resolved_db_password
+        jwt_secret=$resolved_jwt_secret
+        cookie_secret=$resolved_cookie_secret
         EOF
 
   - name: gcr.io/cloud-builders/docker
@@ -170,15 +242,15 @@ steps:
         commerce_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/commerce:${build_tag}"
         ops_api_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/ops-api:${build_tag}"
         storefront_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/storefront:${build_tag}"
-        database_url="postgresql://${_SQL_USER}:${_DB_PASSWORD}@/${_SQL_DATABASE}?host=/cloudsql/${instance_connection_name}"
+        database_url="postgresql://${_SQL_USER}:${db_password}@/${_SQL_DATABASE}?host=/cloudsql/${instance_connection_name}"
         redis_url="redis://${redis_host}:${redis_port}"
 
         cat > /workspace/commerce-env.yaml <<EOF
         NODE_ENV: "production"
         DATABASE_URL: "$database_url"
         REDIS_URL: "$redis_url"
-        JWT_SECRET: "$_JWT_SECRET"
-        COOKIE_SECRET: "$_COOKIE_SECRET"
+        JWT_SECRET: "$jwt_secret"
+        COOKIE_SECRET: "$cookie_secret"
         MEDUSA_BACKEND_URL: "$commerce_url"
         MEDUSA_ADMIN_PATH: "$_MEDUSA_ADMIN_PATH"
         STORE_CORS: "$storefront_url"
