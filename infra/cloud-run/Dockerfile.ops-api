@@ -18,7 +18,8 @@ RUN npm ci --include=dev
 
 COPY . .
 
-RUN npm run build -w @blinds/ops-api
+RUN npm run build -w @blinds/integrations \
+  && npm run build -w @blinds/ops-api
 
 ENV NODE_ENV=production
 
