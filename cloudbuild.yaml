@@ -195,19 +195,47 @@ steps:
         commerce_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/commerce:${build_tag}"
         ops_api_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/ops-api:${build_tag}"
         storefront_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/storefront:${build_tag}"
+        workspace_deps_hash="$(
+          sha256sum \
+            package.json \
+            package-lock.json \
+            apps/storefront/package.json \
+            packages/config/package.json \
+            packages/integrations/package.json \
+            packages/types/package.json \
+            packages/ui/package.json \
+            services/chat-service/package.json \
+            services/commerce/package.json \
+            services/commerce/scripts/apply-medusa-compat.cjs \
+            services/ops-api/package.json \
+            services/workers/package.json | sha256sum | awk '{print $1}'
+        )"
+        workspace_deps_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/workspace-deps:${workspace_deps_hash}"
+
+        if ! docker pull "$workspace_deps_image" >/dev/null 2>&1; then
+          docker build \
+            -f infra/cloud-run/Dockerfile.workspace-base \
+            -t "$workspace_deps_image" \
+            .
+
+          docker push "$workspace_deps_image"
+        fi
 
         docker build \
           -f infra/cloud-run/Dockerfile.ops-api \
+          --build-arg BASE_IMAGE="$workspace_deps_image" \
           -t "$ops_api_image" \
           .
 
         docker build \
           -f infra/cloud-run/Dockerfile.storefront \
+          --build-arg BASE_IMAGE="$workspace_deps_image" \
           -t "$storefront_image" \
           .
 
         docker build \
           -f infra/cloud-run/Dockerfile.commerce \
+          --build-arg BASE_IMAGE="$workspace_deps_image" \
           --build-arg VITE_OPS_API_URL="$ops_api_url" \
           --build-arg VITE_STOREFRONT_URL="$storefront_url" \
           -t "$commerce_image" \
