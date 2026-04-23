@@ -8,6 +8,8 @@ export interface CommerceServiceEnv {
   cookieSecret: string;
   backendUrl: string;
   adminPath: string;
+  workerMode: "shared" | "server" | "worker";
+  adminDisabled: boolean;
 }
 
 function requireValue(key: string, fallback?: string) {
@@ -28,6 +30,10 @@ function parseCors(key: string, fallback: string) {
 }
 
 export function readCommerceServiceEnv(): CommerceServiceEnv {
+  const workerMode = (process.env.MEDUSA_WORKER_MODE ??
+    process.env.WORKER_MODE ??
+    "shared") as CommerceServiceEnv["workerMode"];
+
   return {
     databaseUrl: requireValue("DATABASE_URL"),
     redisUrl: requireValue("REDIS_URL"),
@@ -38,5 +44,9 @@ export function readCommerceServiceEnv(): CommerceServiceEnv {
     cookieSecret: requireValue("COOKIE_SECRET", "supersecret"),
     backendUrl: requireValue("MEDUSA_BACKEND_URL", "http://localhost:9000"),
     adminPath: requireValue("MEDUSA_ADMIN_PATH", "/app"),
+    workerMode,
+    adminDisabled:
+      process.env.DISABLE_MEDUSA_ADMIN === "true" ||
+      process.env.ADMIN_DISABLED === "true",
   };
 }

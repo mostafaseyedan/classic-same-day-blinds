@@ -66,6 +66,7 @@ module.exports = defineConfig({
   projectConfig: {
     databaseUrl: env.databaseUrl,
     redisUrl: env.redisUrl,
+    workerMode: env.workerMode,
     http: {
       storeCors: env.storeCors.join(","),
       adminCors: env.adminCors.join(","),
@@ -79,6 +80,7 @@ module.exports = defineConfig({
     ...(paymentModule ? [paymentModule] : []),
   ],
   admin: {
+    disable: env.adminDisabled,
     path: env.adminPath,
     backendUrl: env.backendUrl,
     // Stub the draft-order admin plugin to avoid react-router context bug in @medusajs/draft-order@2.13.5
