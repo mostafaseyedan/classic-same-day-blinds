@@ -53,7 +53,15 @@ const contexts = [
   },
   {
     name: "commerce",
+    // No lock file pre-generation: the buildpack's npm resolves fresh.
+    // All Medusa deps are pinned so npm install is deterministic.
+    // Pre-generating in node:22-bullseye-slim produces a lock file with
+    // different transitive resolutions than the buildpack's own npm.
+    skipLockfile: true,
     procfile: "web: npm run predeploy && npm start\n",
+    // Mirrors services/commerce/package.json exactly.
+    // Only @blinds/types path is adjusted: file:../../packages/types →
+    // file:./packages/types because packages/types is copied into the context.
     packageJson: {
       name: "blinds-commerce",
       private: true,
@@ -66,6 +74,7 @@ const contexts = [
         start: "medusa start",
       },
       dependencies: {
+        "@blinds/types": "file:./packages/types",
         "@medusajs/admin-sdk": "^2.13.5",
         "@medusajs/framework": "2.13.5",
         "@medusajs/medusa": "2.13.5",
@@ -73,14 +82,19 @@ const contexts = [
         "i18next": "^26.0.3",
         "pg": "^8.14.1",
         "react-i18next": "^17.0.2",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.3",
+      },
+      devDependencies: {
+        "@types/node": "^22.14.1",
       },
     },
-    // flat: files are copied directly to the context root, not under their repo path
     flatCopyPaths: [
       { from: "services/commerce/medusa-config.ts", to: "medusa-config.ts" },
       { from: "services/commerce/tsconfig.json", to: "tsconfig.json" },
       { from: "services/commerce/tsconfig.admin.json", to: "tsconfig.admin.json" },
       { from: "services/commerce/src", to: "src" },
+      { from: "packages/types", to: "packages/types" },
     ],
   },
   {
@@ -178,5 +192,7 @@ for (const context of contexts) {
     await copyFlat(repoRoot, contextRoot, entry);
   }
 
-  await runCommand("npm", ["install", "--package-lock-only", "--ignore-scripts"], contextRoot);
+  if (!context.skipLockfile) {
+    await runCommand("npm", ["install", "--package-lock-only", "--ignore-scripts"], contextRoot);
+  }
 }
