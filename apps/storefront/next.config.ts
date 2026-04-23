@@ -9,6 +9,7 @@ loadDotenv({ path: path.join(repoRoot, ".env"), override: false });
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  output: "standalone",
   outputFileTracingRoot: repoRoot,
   transpilePackages: ["@blinds/ui"],
   images: {
