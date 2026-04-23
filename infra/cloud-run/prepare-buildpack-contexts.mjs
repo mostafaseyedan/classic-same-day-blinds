@@ -85,6 +85,7 @@ const contexts = [
       { from: "services/commerce/tsconfig.json", to: "tsconfig.json" },
       { from: "services/commerce/tsconfig.admin.json", to: "tsconfig.admin.json" },
       { from: "services/commerce/src", to: "src" },
+      { from: "services/commerce/public", to: "public" },
       { from: "packages/types", to: "packages/types" },
     ],
   },
