@@ -113,6 +113,8 @@ steps:
       - -ceu
       - |
         npm ci
+        npm run build -w @blinds/config
+        npm run build -w @blinds/integrations
         npm run type-check
         npm run lint
 
