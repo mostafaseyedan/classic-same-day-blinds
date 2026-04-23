@@ -55,6 +55,7 @@ const contexts = [
       ],
       scripts: {
         build: "npm run build -w @blinds/storefront",
+        postbuild: "cp -r apps/storefront/.next/static apps/storefront/.next/standalone/apps/storefront/.next/ && cp -r apps/storefront/public apps/storefront/.next/standalone/apps/storefront/",
         start: "node apps/storefront/.next/standalone/apps/storefront/server.js",
       },
     },
