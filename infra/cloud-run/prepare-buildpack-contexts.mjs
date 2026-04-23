@@ -1,4 +1,4 @@
-import { mkdir, rm, writeFile, cp } from "node:fs/promises";
+import { mkdir, rm, writeFile, cp, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
@@ -16,6 +16,31 @@ const basePackageJson = {
   packageManager: "npm@10.9.4",
   engines: {
     node: ">=22.0.0",
+  },
+};
+
+const commerceSourcePkg = JSON.parse(
+  await readFile(path.join(repoRoot, "services/commerce/package.json"), "utf8"),
+);
+
+const commercePackageJson = {
+  name: commerceSourcePkg.name,
+  private: commerceSourcePkg.private,
+  version: commerceSourcePkg.version,
+  type: commerceSourcePkg.type,
+  engines: { node: ">=22.0.0" },
+  scripts: {
+    build: "medusa build",
+    predeploy: "medusa db:migrate",
+    start: "medusa start",
+  },
+  dependencies: {
+    ...commerceSourcePkg.dependencies,
+    "@blinds/types": "file:./packages/types",
+  },
+  devDependencies: commerceSourcePkg.devDependencies,
+  overrides: {
+    "picomatch": "^3.0.2",
   },
 };
 
@@ -55,39 +80,7 @@ const contexts = [
   {
     name: "commerce",
     procfile: "web: sh -c 'if [ \"$RUN_DB_MIGRATIONS\" = \"true\" ]; then npm run predeploy; fi && npm start'\n",
-    // Mirrors services/commerce/package.json exactly.
-    // Only @blinds/types path is adjusted: file:../../packages/types →
-    // file:./packages/types because packages/types is copied into the context.
-    packageJson: {
-      name: "blinds-commerce",
-      private: true,
-      version: "0.1.0",
-      type: "commonjs",
-      engines: { node: ">=22.0.0" },
-      scripts: {
-        build: "medusa build",
-        predeploy: "medusa db:migrate",
-        start: "medusa start",
-      },
-      dependencies: {
-        "@blinds/types": "file:./packages/types",
-        "@medusajs/admin-sdk": "^2.13.5",
-        "@medusajs/framework": "2.13.5",
-        "@medusajs/medusa": "2.13.5",
-        "@medusajs/ui": "^4.1.5",
-        "i18next": "^26.0.3",
-        "pg": "^8.14.1",
-        "react-i18next": "^17.0.2",
-        "ts-node": "^10.9.2",
-        "typescript": "^5.8.3",
-      },
-      devDependencies: {
-        "@types/node": "^22.14.1",
-      },
-      overrides: {
-        "picomatch": "^3.0.2",
-      },
-    },
+    packageJson: commercePackageJson,
     flatCopyPaths: [
       { from: "services/commerce/medusa-config.ts", to: "medusa-config.ts" },
       { from: "services/commerce/tsconfig.json", to: "tsconfig.json" },

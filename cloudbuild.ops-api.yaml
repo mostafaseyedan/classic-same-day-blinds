@@ -46,10 +46,6 @@ steps:
           fi
         done
 
-        random_secret() {
-          python3 -c 'import secrets; print(secrets.token_urlsafe(32))'
-        }
-
         get_service_env() {
           local service_name="$1"
           local env_name="$2"
@@ -57,7 +53,7 @@ steps:
           gcloud run services describe "$service_name" \
             --region "$_REGION" \
             --project "$PROJECT_ID" \
-            --format export 2>/dev/null | awk -v env_name="$env_name" '
+            --format yaml 2>/dev/null | awk -v env_name="$env_name" '
               $1 == "-" && $2 == "name:" && $3 == env_name { in_target = 1; next }
               in_target && $1 == "value:" {
                 value = substr($0, index($0, ":") + 2)
@@ -123,11 +119,13 @@ steps:
         fi
 
         if [ -z "$resolved_db_password" ]; then
-          resolved_db_password="$(random_secret)"
+          echo "ERROR: DB password not found. Deploy the commerce service first, or pass _DB_PASSWORD to this trigger." >&2
+          exit 1
         fi
 
         if [ -z "$resolved_internal_api_secret" ]; then
-          resolved_internal_api_secret="$(random_secret)"
+          echo "ERROR: INTERNAL_API_SECRET not found. Deploy the commerce service first, or pass _INTERNAL_API_SECRET to this trigger." >&2
+          exit 1
         fi
 
         instance_connection_name="$(gcloud sql instances describe "$_SQL_INSTANCE" \
@@ -162,8 +160,7 @@ steps:
     args:
       - -ceu
       - |
-        pack_version="$(curl -sSfL https://api.github.com/repos/buildpacks/pack/releases/latest \
-          | python3 -c 'import sys,json; print(json.load(sys.stdin)["tag_name"])')"
+        pack_version="v0.40.3"
         curl -sSfL "https://github.com/buildpacks/pack/releases/download/${pack_version}/pack-${pack_version}-linux.tgz" \
           | tar xz -C /workspace pack
         chmod +x /workspace/pack

@@ -84,8 +84,7 @@ steps:
     args:
       - -ceu
       - |
-        pack_version="$(curl -sSfL https://api.github.com/repos/buildpacks/pack/releases/latest \
-          | python3 -c 'import sys,json; print(json.load(sys.stdin)["tag_name"])')"
+        pack_version="v0.40.3"
         curl -sSfL "https://github.com/buildpacks/pack/releases/download/${pack_version}/pack-${pack_version}-linux.tgz" \
           | tar xz -C /workspace pack
         chmod +x /workspace/pack
@@ -111,6 +110,11 @@ steps:
           --cache-image "$storefront_cache_image" \
           --env GOOGLE_NODEJS_VERSION=22.x.x \
           --env GOOGLE_NODE_RUN_SCRIPTS=build \
+          --env NEXT_PUBLIC_MEDUSA_BACKEND_URL="$commerce_url" \
+          --env NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY="$_MEDUSA_PUBLISHABLE_KEY" \
+          --env NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="$_STRIPE_PUBLISHABLE_KEY" \
+          --env NEXT_PUBLIC_OPS_API_URL="$ops_api_url" \
+          --env NEXT_PUBLIC_CHAT_SERVICE_URL="$_NEXT_PUBLIC_CHAT_SERVICE_URL" \
           --network cloudbuild \
           --publish
 
