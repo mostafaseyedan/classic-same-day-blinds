@@ -150,7 +150,7 @@ export function VisualizerCanvas({
       : `repeating-linear-gradient(180deg, ${selectedColor}, ${selectedColor} 12px, rgba(255,255,255,0.22) 12px, rgba(255,255,255,0.22) 18px)`;
 
   return (
-    <div ref={containerRef} className="relative overflow-hidden rounded-2xl bg-shell">
+    <div ref={containerRef} className="relative overflow-hidden rounded-media bg-shell">
       <div className="aspect-[16/10]">
         {uploadedImage ? (
           <img src={uploadedImage} alt="Uploaded room" className="h-full w-full object-cover" />

@@ -3,6 +3,33 @@ import { Modules } from "@medusajs/framework/utils";
 
 const OPS_API_BASE_URL = process.env.OPS_API_BASE_URL ?? "http://localhost:4000";
 
+function getCustomSizeLabel(metadata?: Record<string, unknown> | null) {
+  if (typeof metadata?.custom_size === "string" && metadata.custom_size.trim()) {
+    return metadata.custom_size.trim();
+  }
+
+  const width = typeof metadata?.width === "string" ? metadata.width.trim() : "";
+  const height = typeof metadata?.height === "string" ? metadata.height.trim() : "";
+
+  if (!width || !height) {
+    return null;
+  }
+
+  return `${width} × ${height}`;
+}
+
+function getCustomSizeDetail(metadata?: Record<string, unknown> | null) {
+  const sizeLabel = getCustomSizeLabel(metadata);
+
+  if (!sizeLabel) {
+    return null;
+  }
+
+  return typeof metadata?.size_sqft === "number"
+    ? `${sizeLabel} — ${metadata.size_sqft} sq ft`
+    : sizeLabel;
+}
+
 export default async function orderPlacedHandler({
   event: { data },
   container,
@@ -27,13 +54,27 @@ export default async function orderPlacedHandler({
       return "";
     })();
 
-    const items = ((order as { items?: Array<{ title?: string; quantity?: number; unit_price?: number }> }).items ?? []).map(
-      (item) => ({
+    const items = ((
+      order as {
+        items?: Array<{
+          title?: string;
+          variant_title?: string | null;
+          quantity?: number;
+          unit_price?: number;
+          metadata?: Record<string, unknown> | null;
+        }>;
+      }
+    ).items ?? []).map((item) => {
+      const customSizeDetail = getCustomSizeDetail(item.metadata);
+
+      return {
         title: item.title ?? "Item",
+        subtitle: customSizeDetail ? "Custom size" : (item.variant_title ?? undefined),
+        detail: customSizeDetail ?? undefined,
         quantity: item.quantity ?? 1,
         unitPrice: item.unit_price ?? 0,
-      }),
-    );
+      };
+    });
 
     const total = (order as { total?: number }).total ?? 0;
     const shippingTotal = (order as { shipping_total?: number }).shipping_total ?? 0;

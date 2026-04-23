@@ -56,7 +56,7 @@ export function SameDaySection() {
 
         <div className="content-shell relative z-10 py-16 sm:py-20 lg:py-28">
           <div className="max-w-3xl">
-            <p className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.35em] text-white/90">
+            <p className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.35em] text-brass">
               <span className="block h-px w-10 bg-brass" />
               Same-Day Service
             </p>
@@ -121,6 +121,7 @@ export function SameDaySection() {
         </div>
       </section>
 
+      <div id="coverage" className="scroll-mt-24" />
       <AnimateOnScroll className="content-shell">
         <div className="mt-16 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] items-start">
             <SurfaceMuted className="rounded-container p-8 md:p-10">
@@ -161,7 +162,7 @@ export function SameDaySection() {
             </SurfaceMuted>
 
             <div className="flex flex-col gap-6 h-full">
-              <article className="relative h-full min-h-[14rem] w-full overflow-hidden rounded-card bg-slate">
+              <article className="relative h-full min-h-[14rem] w-full overflow-hidden rounded-media bg-slate">
                 <div className="absolute inset-0">
                   <Image
                     src="/images/same-day-delivery/warehouse.jpg"
@@ -194,7 +195,7 @@ export function SameDaySection() {
             </div>
           </div>
         {/* Coverage Areas */}
-        <section id="coverage" className="mt-16 mb-8">
+        <section className="mt-16 mb-8">
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-6">
             {coverage.map((loc) => (

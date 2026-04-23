@@ -10,6 +10,7 @@ import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-
 import { useStorefront } from "@/components/storefront/storefront-provider";
 import { Tag } from "@phosphor-icons/react";
 import { InvoiceRequestPanel } from "@/components/checkout/invoice-request-panel";
+import { getCustomSizeDetail, getCustomSizeLabel } from "@/lib/custom-size";
 import { formatPrice } from "@/lib/format-price";
 import { getBrowserMedusaClient } from "@/lib/medusa/sdk-browser";
 import { getPublicRuntimeConfig } from "@/lib/platform-config";
@@ -567,10 +568,27 @@ export function CheckoutPage() {
               className="flex items-center justify-between gap-4 py-3"
             >
               <div>
+                {(() => {
+                  const metadata = (item as typeof item & { metadata?: Record<string, unknown> | null }).metadata;
+                  const customSizeLabel = getCustomSizeLabel(metadata);
+                  const customSizeDetail = getCustomSizeDetail(metadata);
+
+                  return (
+                    <>
                 <p className="text-sm font-semibold text-slate">
                   {item.product_title ?? item.title ?? "Cart Item"}
                 </p>
-                <p className="mt-1 text-sm text-slate/68">Qty {item.quantity}</p>
+                <p className="mt-1 text-sm text-slate/68">
+                  {customSizeLabel ? "Custom size" : `Qty ${item.quantity}`}
+                </p>
+                {customSizeDetail ? (
+                  <p className="mt-1 text-[0.72rem] uppercase tracking-[0.1em] text-slate/50">
+                    Qty {item.quantity} — {customSizeDetail}
+                  </p>
+                ) : null}
+                    </>
+                  );
+                })()}
               </div>
               <p className="text-sm font-semibold text-slate">
                 {formatPrice(item.total ?? 0, currencyCode)}

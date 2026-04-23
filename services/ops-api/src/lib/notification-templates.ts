@@ -36,7 +36,13 @@ export interface OrderConfirmationDetails {
   total: number;
   shippingTotal?: number;
   currencyCode: string;
-  items: Array<{ title: string; quantity: number; unitPrice: number }>;
+  items: Array<{
+    title: string;
+    subtitle?: string;
+    detail?: string;
+    quantity: number;
+    unitPrice: number;
+  }>;
 }
 
 function formatMoney(amount: number, currencyCode: string) {
@@ -123,7 +129,11 @@ function itemTableRows(items: OrderConfirmationDetails["items"], currencyCode: s
     .map(
       (item) => `
         <tr>
-          <td style="padding:12px 0;border-bottom:1px solid ${BRAND.divider};font-size:14px;color:${BRAND.slate};font-weight:600;">${item.title}</td>
+          <td style="padding:12px 0;border-bottom:1px solid ${BRAND.divider};">
+            <p style="margin:0;font-size:14px;color:${BRAND.slate};font-weight:600;">${item.title}</p>
+            ${item.subtitle ? `<p style="margin:4px 0 0;font-size:12px;color:${BRAND.textMuted};">${item.subtitle}</p>` : ""}
+            ${item.detail ? `<p style="margin:4px 0 0;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:${BRAND.textMuted};">${item.detail}</p>` : ""}
+          </td>
           <td style="padding:12px 8px;border-bottom:1px solid ${BRAND.divider};font-size:14px;color:${BRAND.textMuted};text-align:center;">${item.quantity}</td>
           <td style="padding:12px 0;border-bottom:1px solid ${BRAND.divider};font-size:14px;color:${BRAND.slate};text-align:right;font-weight:600;">${formatMoney(item.unitPrice * item.quantity, currencyCode)}</td>
         </tr>`,

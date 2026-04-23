@@ -15,7 +15,7 @@ const serviceHighlights = [
 export function SameDayBanner() {
   return (
     <section className="px-6 py-16 md:px-10 lg:px-14">
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-slate shadow-[0_30px_90px_rgba(17,25,34,0.24)]">
+      <div className="mx-auto max-w-7xl overflow-hidden rounded-container bg-slate shadow-[0_30px_90px_rgba(17,25,34,0.24)]">
         <div className="relative">
           <img
             src="/images/home/sameday-banner.jpg"
@@ -26,7 +26,7 @@ export function SameDayBanner() {
 
           <div className="relative grid gap-8 px-6 py-10 lg:grid-cols-[1.05fr_0.95fr] lg:px-10">
             <div className="text-shell">
-              <Badge variant="soft-light" className="border-emerald-400/25 bg-emerald-400/12 text-emerald-300">
+              <Badge variant="soft-light" className="border-brass/25 bg-brass/12 text-brass">
                 DFW local advantage
               </Badge>
               <h2 className="mt-5 font-display text-4xl font-semibold tracking-tight md:text-5xl">

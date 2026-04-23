@@ -6,6 +6,7 @@ import { Eyebrow, PageCopy, TaskPageTitle } from "@blinds/ui";
 
 import Link from "next/link";
 
+import { getCustomSizeDetail, getCustomSizeLabel } from "@/lib/custom-size";
 import { formatPrice } from "@/lib/format-price";
 import { useCustomer } from "@/components/customer/customer-provider";
 
@@ -95,10 +96,27 @@ export default function OrdersPage() {
                         className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-t border-black/6 py-3 first:border-t-0 first:pt-0"
                       >
                         <div className="min-w-0">
+                          {(() => {
+                            const metadata = (item as typeof item & { metadata?: Record<string, unknown> | null }).metadata;
+                            const customSizeLabel = getCustomSizeLabel(metadata);
+                            const customSizeDetail = getCustomSizeDetail(metadata);
+
+                            return (
+                              <>
                           <p className="text-sm font-semibold text-slate">
                             {item.product_title ?? item.title ?? "Order item"}
                           </p>
-                          <p className="mt-1 text-sm text-slate/68">Qty {item.quantity}</p>
+                          <p className="mt-1 text-sm text-slate/68">
+                            {customSizeLabel ? "Custom size" : `Qty ${item.quantity}`}
+                          </p>
+                          {customSizeDetail ? (
+                            <p className="mt-1 text-[0.72rem] uppercase tracking-[0.1em] text-slate/50">
+                              Qty {item.quantity} — {customSizeDetail}
+                            </p>
+                          ) : null}
+                              </>
+                            );
+                          })()}
                         </div>
                         <p className="text-sm font-semibold text-slate">
                           {formatPrice(

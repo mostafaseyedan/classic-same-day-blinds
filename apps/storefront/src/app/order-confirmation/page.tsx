@@ -4,6 +4,7 @@ import { SectionPanel } from "@blinds/ui";
 import { Eyebrow } from "@blinds/ui";
 import Link from "next/link";
 
+import { getCustomSizeDetail, getCustomSizeLabel } from "@/lib/custom-size";
 import { formatPrice } from "@/lib/format-price";
 import { getStoreOrderById } from "@/lib/medusa/orders";
 
@@ -160,12 +161,27 @@ export default async function OrderConfirmationPage({
                       className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-4 border-t border-black/6 py-4"
                     >
                       <div className="min-w-0">
+                        {(() => {
+                          const metadata = (item as typeof item & { metadata?: Record<string, unknown> | null }).metadata;
+                          const customSizeLabel = getCustomSizeLabel(metadata);
+                          const customSizeDetail = getCustomSizeDetail(metadata);
+
+                          return (
+                            <>
                         <p className="text-sm font-semibold text-slate">
                           {item.product_title ?? item.title ?? "Order item"}
                         </p>
                         <p className="mt-1 text-sm text-slate/68">
-                          {item.variant_title ?? item.variant?.title ?? "Configured variant"}
+                          {customSizeLabel ? "Custom size" : (item.variant_title ?? item.variant?.title ?? "Configured variant")}
                         </p>
+                        {customSizeDetail ? (
+                          <p className="mt-1 text-[0.72rem] uppercase tracking-[0.1em] text-slate/50">
+                            {customSizeDetail}
+                          </p>
+                        ) : null}
+                            </>
+                          );
+                        })()}
                       </div>
                       <p className="text-sm text-slate/68">{item.quantity}</p>
                       <p className="text-sm font-semibold text-slate">

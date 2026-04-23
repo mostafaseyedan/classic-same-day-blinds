@@ -10,6 +10,7 @@ import { AffirmMessaging } from "@/components/product/affirm-messaging";
 import { RestockNotification } from "@/components/product/restock-notification";
 import { useStorefront } from "@/components/storefront/storefront-provider";
 import { formatPrice } from "@/lib/format-price";
+import { formatMeasurementValue } from "@/lib/measurement-format";
 import type { CatalogOptionGroup, CatalogProduct, CatalogVariant } from "@/lib/medusa/catalog";
 
 type AddToCartPanelProps = {
@@ -36,7 +37,7 @@ function calcDimensionPrice(basePrice: number, widthIn: number, heightIn: number
 }
 
 function sizeLabel(value: number) {
-  return `${Number.isInteger(value) ? value : value}"`;
+  return formatMeasurementValue(value);
 }
 
 // --- Size-variant helpers ---
@@ -113,25 +114,37 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
   const availableSizeDimensions = useMemo(() => {
     if (!sizeOption) {
       return {
-        widths: [24],
-        heights: [36],
+        minWidth: 24,
+        maxWidth: 24,
+        minHeight: 36,
+        maxHeight: 36,
+        defaultWidth: 24,
+        defaultHeight: 36,
       };
     }
 
     const parsed = product.variants
       .map((variant) => {
         const rawSize = variant.options[sizeOption.title];
-        return rawSize ? parseSizeOption(rawSize) : null;
+        if (!rawSize) return null;
+        const size = parseSizeOption(rawSize);
+        if (!size) return null;
+        return { w: size.w, h: size.h, price: variant.calculatedPrice };
       })
-      .filter((entry): entry is { w: number; h: number } => Boolean(entry));
+      .filter((entry): entry is { w: number; h: number; price: number } => Boolean(entry));
 
     const widths = Array.from(new Set(parsed.map((entry) => entry.w))).sort((a, b) => a - b);
     const heights = Array.from(new Set(parsed.map((entry) => entry.h))).sort((a, b) => a - b);
-    const defaultSize = parsed[0] ?? { w: 24, h: 36 };
+    // Default to the variant with the lowest calculated price
+    const defaultSize = parsed.length > 0
+      ? parsed.reduce((min, curr) => (curr.price < min.price ? curr : min), parsed[0])
+      : { w: 24, h: 36 };
 
     return {
-      widths: widths.length > 0 ? widths : [24],
-      heights: heights.length > 0 ? heights : [36],
+      minWidth: widths[0] ?? 24,
+      maxWidth: widths[widths.length - 1] ?? 24,
+      minHeight: heights[0] ?? 36,
+      maxHeight: heights[heights.length - 1] ?? 36,
       defaultWidth: defaultSize.w,
       defaultHeight: defaultSize.h,
     };
@@ -218,9 +231,16 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
         ? Math.round((selectedVariant.calculatedPrice / (BASE_AREA_SQIN / 144)) * 100) / 100
         : null;
 
-  // Dimensions exceed the largest available size
-  const dimensionsOutOfRange = sizeOption !== null && sizeMatch !== null &&
-    (dimensions.widthDecimal > sizeMatch.parsed.w || dimensions.heightDecimal > sizeMatch.parsed.h);
+  const dimensionsOutOfRange = sizeOption !== null && (
+    dimensions.widthDecimal < availableSizeDimensions.minWidth ||
+    dimensions.widthDecimal > availableSizeDimensions.maxWidth ||
+    dimensions.heightDecimal < availableSizeDimensions.minHeight ||
+    dimensions.heightDecimal > availableSizeDimensions.maxHeight
+  );
+  const selectedCustomSizeLabel = `${sizeLabel(dimensions.widthDecimal)} × ${sizeLabel(dimensions.heightDecimal)}`;
+  const pricingSizeLabel = sizeMatch
+    ? `${formatMeasurementValue(sizeMatch.parsed.w)} × ${formatMeasurementValue(sizeMatch.parsed.h)}`
+    : null;
 
   const inventoryMessage = selectedVariant
     ? !selectedVariant.manageInventory || (selectedVariant.inventoryQuantity ?? 0) > 0
@@ -241,7 +261,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
 
     if (dimensionsOutOfRange) {
       setStatusMessage(
-        `The entered dimensions exceed our maximum available size (${sizeMatch?.parsed.w}" × ${sizeMatch?.parsed.h}"). Please adjust and try again.`,
+        `Requested size is outside the allowed range. Width: ${formatMeasurementValue(availableSizeDimensions.minWidth)} to ${formatMeasurementValue(availableSizeDimensions.maxWidth)}. Height: ${formatMeasurementValue(availableSizeDimensions.minHeight)} to ${formatMeasurementValue(availableSizeDimensions.maxHeight)}.`,
       );
       return;
     }
@@ -249,12 +269,18 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
     setStatusMessage(null);
 
     const metadata: Record<string, unknown> = {
+      measurement_model: "custom-size",
+      custom_size: selectedCustomSizeLabel,
       width: sizeLabel(dimensions.widthDecimal),
       height: sizeLabel(dimensions.heightDecimal),
       width_decimal: dimensions.widthDecimal,
       height_decimal: dimensions.heightDecimal,
       size_sqft: Math.round(sqFt * 100) / 100,
     };
+
+    if (pricingSizeLabel) {
+      metadata.pricing_size = pricingSizeLabel;
+    }
 
     try {
       await addToCart(selectedVariant.id, quantity, metadata);
@@ -273,19 +299,21 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
               <DimensionSelector
                 widthDecimal={dimensions.widthDecimal}
                 heightDecimal={dimensions.heightDecimal}
-                availableWidths={availableSizeDimensions.widths}
-                availableHeights={availableSizeDimensions.heights}
+                minWidthDecimal={availableSizeDimensions.minWidth}
+                maxWidthDecimal={availableSizeDimensions.maxWidth}
+                minHeightDecimal={availableSizeDimensions.minHeight}
+                maxHeightDecimal={availableSizeDimensions.maxHeight}
                 onChange={setDimensions}
               />
             </div>
             {sizeOption && sizeMatch && !dimensionsOutOfRange && (
               <p className="mt-2 text-[0.64rem] text-slate/50">
-                Priced as {sizeMatch.parsed.w}&Prime; &times; {sizeMatch.parsed.h}&Prime; (nearest available size)
+                Priced as {formatMeasurementValue(sizeMatch.parsed.w)} × {formatMeasurementValue(sizeMatch.parsed.h)} (nearest available size)
               </p>
             )}
             {dimensionsOutOfRange && (
               <p className="mt-2 text-[0.64rem] font-semibold text-red-500">
-                Exceeds maximum size ({sizeMatch?.parsed.w}&Prime; &times; {sizeMatch?.parsed.h}&Prime;)
+                Allowed width {formatMeasurementValue(availableSizeDimensions.minWidth)} to {formatMeasurementValue(availableSizeDimensions.maxWidth)}. Allowed height {formatMeasurementValue(availableSizeDimensions.minHeight)} to {formatMeasurementValue(availableSizeDimensions.maxHeight)}.
               </p>
             )}
           </div>
@@ -302,7 +330,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
                   </p>
                 </div>
               ) : null}
-              <p className="mt-1 text-[2rem] font-semibold leading-none text-slate">
+              <p className="mt-1 text-[2rem] font-semibold leading-none text-olive">
                 {formatPrice(unitPrice ?? product.price, currencyCode)}
               </p>
               {perSqFt != null && (
@@ -336,7 +364,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
 
         {nonSizeOptions.map((option) => (
           <div key={option.id}>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate">{option.title}</p>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-olive/80">{option.title}</p>
             <div className="mt-1.5 flex flex-wrap gap-2">
               {option.values.map((value) => {
                 const active = selection[option.title] === value;
@@ -365,7 +393,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
 
         <div className="grid items-start gap-4 border-t border-black/6 pt-3 sm:grid-cols-[11rem_1fr]">
           <label className="grid gap-2">
-            <span className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate">Quantity</span>
+            <span className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-olive/80">Quantity</span>
             <QuantityStepper
               value={quantity}
               onChange={setQuantity}
@@ -375,8 +403,8 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
             />
           </label>
           <div className="pt-1">
-            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass">
-              {selectedVariant?.title ?? "Select options"}
+            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-olive">
+              {sizeOption ? `Custom size ${selectedCustomSizeLabel}` : (selectedVariant?.title ?? "Select options")}
             </p>
             <p className="mt-0.5 text-[0.62rem] uppercase tracking-[0.09em] text-slate/42">
               {sqFt.toFixed(2)} sq ft selected
@@ -397,7 +425,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
         {showRestockNotification ? (
           <RestockNotification
             productId={product.id}
-            productName={`${product.name} - ${selectedVariant?.title ?? "Selected Variant"}`}
+            productName={`${product.name} - ${sizeOption ? selectedCustomSizeLabel : (selectedVariant?.title ?? "Selected Variant")}`}
           />
         ) : null}
       </div>

@@ -67,8 +67,8 @@ export function ProductCard({ product }: ProductCardProps) {
           </Button>
         </div>
 
-        <div className="px-3 pb-3 pt-3">
-          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass/95">
+        <div className="px-3 pb-2 pt-3">
+          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-olive/95">
             {product.categoryLabel}
           </p>
           <Link
@@ -85,9 +85,14 @@ export function ProductCard({ product }: ProductCardProps) {
 
           <div className="mt-3 min-h-[4.75rem]">
             <div className="flex items-end gap-2">
-              <p className="text-[1.3rem] font-semibold leading-none text-slate">
-                {formatPrice(product.price, product.currencyCode)}
-              </p>
+              <div>
+                <p className="font-display text-[0.72rem] italic font-normal text-slate/40 mb-1">
+                  Starting from
+                </p>
+                <p className="text-[1.3rem] font-semibold leading-none text-olive">
+                  {formatPrice(product.price, product.currencyCode)}
+                </p>
+              </div>
               {product.originalPrice && product.originalPrice > product.price ? (
                 <p className="pb-[0.15rem] text-[0.8rem] font-medium text-slate/40 line-through">
                   {formatPrice(product.originalPrice, product.currencyCode)}

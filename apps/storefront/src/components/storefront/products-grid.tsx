@@ -76,7 +76,7 @@ export function ProductsGrid({ products, categories, initialCategory }: Products
             size="compact"
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
-            className="border-black/10 bg-white text-[0.72rem] font-semibold tracking-[0.08em] shadow-none hover:border-black/20"
+            className="min-w-[12rem] border-black/10 shadow-none"
           >
             <option value="featured">Featured</option>
             <option value="price-asc">Price: Low to High</option>
@@ -85,7 +85,7 @@ export function ProductsGrid({ products, categories, initialCategory }: Products
         </div>
       </div>
 
-      <p className="mb-4 text-[0.76rem] uppercase tracking-[0.12em] text-slate/46">
+      <p className="mb-4 text-[0.76rem] uppercase tracking-[0.12em] text-olive/46">
         {filtered.length} {filtered.length === 1 ? "product" : "products"}
         {activeCategoryMeta ? ` in ${activeCategoryMeta.name}` : ""}
       </p>

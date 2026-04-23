@@ -16,7 +16,7 @@ substitutions:
   _NEXT_PUBLIC_GOOGLE_PLACE_URL: ""
 
 steps:
-  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:565.0.0-slim
     id: prepare-runtime
     entrypoint: bash
     args:
@@ -92,7 +92,7 @@ steps:
       - |
         node infra/cloud-run/prepare-buildpack-contexts.mjs storefront
 
-  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:565.0.0-slim
     id: setup-pack
     entrypoint: bash
     args:
@@ -104,7 +104,7 @@ steps:
         chmod +x /workspace/pack
         /workspace/pack --version
 
-  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:565.0.0-slim
     id: build-storefront-image
     waitFor:
       - prepare-buildpack-contexts
@@ -132,7 +132,7 @@ steps:
           --network cloudbuild \
           --publish
 
-  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:565.0.0-slim
     id: deploy-storefront
     waitFor:
       - build-storefront-image

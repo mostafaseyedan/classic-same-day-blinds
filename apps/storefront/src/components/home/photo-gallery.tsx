@@ -146,7 +146,7 @@ export function PhotoGallery() {
             <button
               type="button"
               onClick={() => setLightboxPhoto(hero)}
-              className="group relative w-full overflow-hidden rounded-2xl bg-slate text-left aspect-[16/9]"
+              className="group relative w-full overflow-hidden rounded-media bg-slate text-left aspect-[16/9]"
             >
               <img
                 src={hero.src}
@@ -237,7 +237,7 @@ export function PhotoGallery() {
           <img
             src={lightboxPhoto.src}
             alt={lightboxPhoto.title}
-            className="max-h-[82vh] max-w-full rounded-2xl object-contain shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
+            className="max-h-[82vh] max-w-full rounded-media object-contain shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
             onClick={(e) => e.stopPropagation()}
           />
           {/* Caption */}

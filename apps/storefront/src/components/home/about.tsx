@@ -116,18 +116,18 @@ export function About({ googlePlace }: { googlePlace: GooglePlaceData | null }) 
 
           <div className="relative">
             <div className="grid gap-4 sm:grid-cols-[1.06fr_0.94fr]">
-              <div className="relative aspect-[4/4.8] overflow-hidden rounded-2xl bg-shell">
+              <div className="relative aspect-[4/4.8] overflow-hidden rounded-media bg-shell">
                 <Image
-                  src="/images/home/about-img-001.jpg"
+                  src="/images/home/about-consultation.png"
                   alt="Window treatment consultation"
                   fill
                   className="object-cover object-center"
                 />
               </div>
               <div className="flex flex-col gap-4 sm:pt-12">
-                <div className="relative aspect-[4/3.7] overflow-hidden rounded-2xl bg-shell">
+                <div className="relative aspect-[4/3.7] overflow-hidden rounded-media bg-shell">
                   <Image
-                    src="/images/home/about-img-002.jpg"
+                    src="/images/home/about-blinds.png"
                     alt="Installed residential blinds"
                     fill
                     className="object-cover object-center"

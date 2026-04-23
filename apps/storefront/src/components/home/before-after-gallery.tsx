@@ -47,7 +47,7 @@ export function BeforeAfterGallery() {
         </SectionHeader>
 
         <div className="mt-9 grid gap-5 lg:grid-cols-[1.02fr_0.98fr] lg:items-stretch">
-          <article className="flex h-full flex-col overflow-hidden rounded-2xl bg-slate text-white">
+          <article className="flex h-full flex-col overflow-hidden rounded-media bg-slate text-white">
             <div className="relative min-h-[22rem] flex-1 bg-slate">
               <Image
                 src={featuredStory.image}
@@ -72,7 +72,7 @@ export function BeforeAfterGallery() {
 
           <div className="grid gap-5">
             {supportingStories.map((story) => (
-              <SurfaceCard as="article" key={story.title} className="overflow-hidden">
+              <SurfaceCard as="article" key={story.title} className="overflow-hidden rounded-media">
                 <div className="grid gap-0 sm:grid-cols-[1.52fr_0.48fr]">
                   <div className="relative aspect-[3/2] bg-shell">
                     <Image

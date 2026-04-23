@@ -24,6 +24,8 @@ const orderConfirmedSchema = z.object({
     .array(
       z.object({
         title: z.string(),
+        subtitle: z.string().optional(),
+        detail: z.string().optional(),
         quantity: z.number().int().positive(),
         unitPrice: z.number().nonnegative(),
       }),

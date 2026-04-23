@@ -110,7 +110,7 @@ export function WhoWeWorkWith() {
         </SectionHeader>
 
         <div className="mt-8 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-          <article className="group relative min-h-[20rem] overflow-hidden rounded-2xl bg-slate sm:min-h-[25rem] lg:min-h-[30rem]">
+          <article className="group relative min-h-[20rem] overflow-hidden rounded-media bg-slate sm:min-h-[25rem] lg:min-h-[30rem]">
             <Image
               src={primarySegment.image}
               alt={t(primarySegment.label, primarySegment.labelEs)}
@@ -144,7 +144,7 @@ export function WhoWeWorkWith() {
             {secondaryFeaturedSegments.map(({ label, labelEs, eyebrow, eyebrowEs, Icon, image }) => (
               <article
                 key={label}
-                className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-slate"
+                className="group relative aspect-[4/3] overflow-hidden rounded-media bg-slate"
               >
                 <Image
                   src={image}
@@ -174,7 +174,7 @@ export function WhoWeWorkWith() {
           {secondarySegments.map(({ Icon, label, labelEs, eyebrow, eyebrowEs, image }) => (
             <article
               key={label}
-              className="group relative aspect-[4/3.15] overflow-hidden rounded-2xl bg-slate"
+              className="group relative aspect-[4/3.15] overflow-hidden rounded-media bg-slate"
             >
               <Image
                 src={image}

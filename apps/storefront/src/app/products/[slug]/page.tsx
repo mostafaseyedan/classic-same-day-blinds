@@ -6,6 +6,7 @@ import { Badge } from "@blinds/ui";
 import { Breadcrumbs } from "@blinds/ui";
 
 import { FrequentlyBoughtTogether } from "@/components/product/frequently-bought-together";
+import { ProductAccordion } from "@/components/product/product-accordion";
 import { ProductImageGallery } from "@/components/product/product-image-gallery";
 import { AddToCartPanel } from "@/components/storefront/add-to-cart-panel";
 import { RecentlyViewedTracker } from "@/components/storefront/recently-viewed-tracker";
@@ -196,7 +197,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             <div className="rounded-card border border-black/8 bg-white px-4 py-4 md:px-5 md:py-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-brass/95">
+                  <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-olive/95">
                     {product.categoryLabel}
                   </p>
                   <h1 className="mt-1.5 max-w-[16ch] font-display text-[1.78rem] font-medium leading-[1.02] tracking-tight text-slate md:text-[2.05rem]">
@@ -214,126 +215,105 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 {productStory || product.description}
               </div>
 
-              <div className="divide-y divide-black/5">
-                {(product.description || installTimeLabel || considerations.length > 0) && (
-                  <details className="group [&_summary::-webkit-details-marker]:hidden">
-                    <summary className="flex cursor-pointer items-center justify-between py-3.5 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-slate outline-none transition">
-                      Product Details
-                      <span className="text-slate/40 transition group-open:rotate-180">
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </span>
-                    </summary>
-                    <div className="grid gap-4 pb-4">
-                      {product.description ? (
-                        <p className="max-w-[42rem] text-[0.88rem] leading-6 text-slate/74">
-                          {product.description}
-                        </p>
-                      ) : null}
-                      {installTimeLabel ? (
-                        <div className="text-[0.84rem] leading-6 text-slate/74">
-                          <span className="font-semibold text-slate">Install time:</span>{" "}
-                          <span>{installTimeLabel}</span>
-                        </div>
-                      ) : null}
-                      {considerations.length > 0 ? (
-                        <div>
-                          <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate/48">
-                            Considerations
-                          </p>
-                          <ul className="grid gap-2">
-                            {considerations.map((item) => (
-                              <li key={item} className="flex items-start gap-2">
-                                <span className="mt-[0.55rem] h-1.5 w-1.5 shrink-0 rounded-full bg-brass/70" />
-                                <span className="text-[0.86rem] leading-6 text-slate/72">{item}</span>
+              <ProductAccordion
+                items={[
+                  ...((product.description || installTimeLabel || considerations.length > 0)
+                    ? [{
+                        key: "details",
+                        label: "Product Details",
+                        content: (
+                          <div className="grid gap-4">
+                            {product.description ? (
+                              <p className="max-w-[42rem] text-[0.88rem] leading-6 text-slate/74">
+                                {product.description}
+                              </p>
+                            ) : null}
+                            {installTimeLabel ? (
+                              <div className="text-[0.84rem] leading-6 text-slate/74">
+                                <span className="font-semibold text-slate">Install time:</span>{" "}
+                                <span>{installTimeLabel}</span>
+                              </div>
+                            ) : null}
+                            {considerations.length > 0 ? (
+                              <div>
+                                <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate/48">
+                                  Considerations
+                                </p>
+                                <ul className="grid gap-2">
+                                  {considerations.map((item) => (
+                                    <li key={item} className="flex items-start gap-2">
+                                      <span className="mt-[0.55rem] h-1.5 w-1.5 shrink-0 rounded-full bg-brass/70" />
+                                      <span className="text-[0.86rem] leading-6 text-slate/72">{item}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ) : null}
+                          </div>
+                        ),
+                      }]
+                    : []),
+                  ...(product.highlights.length > 0
+                    ? [{
+                        key: "features",
+                        label: "Key Features",
+                        content: (
+                          <ul className="grid gap-2 sm:grid-cols-2">
+                            {product.highlights.map((highlight) => (
+                              <li key={highlight} className="flex items-start gap-2">
+                                <Check className="mt-0.5 h-4 w-4 shrink-0 text-olive" />
+                                <span className="text-[0.88rem] leading-6 text-slate/72">{highlight}</span>
                               </li>
                             ))}
                           </ul>
-                        </div>
-                      ) : null}
-                    </div>
-                  </details>
-                )}
-
-                {product.highlights.length > 0 && (
-                  <details className="group [&_summary::-webkit-details-marker]:hidden">
-                    <summary className="flex cursor-pointer items-center justify-between py-3.5 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-slate outline-none transition">
-                      Key Features
-                      <span className="text-slate/40 transition group-open:rotate-180">
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </span>
-                    </summary>
-                    <div className="pb-4">
-                      <ul className="grid gap-2 sm:grid-cols-2">
-                        {product.highlights.map((highlight) => (
-                          <li key={highlight} className="flex items-start gap-2">
-                            <Check className="mt-0.5 h-4 w-4 shrink-0 text-olive" />
-                            <span className="text-[0.88rem] leading-6 text-slate/72">{highlight}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </details>
-                )}
-
-                {product.bestFor && (
-                  <details className="group [&_summary::-webkit-details-marker]:hidden">
-                    <summary className="flex cursor-pointer items-center justify-between py-3.5 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-slate outline-none transition">
-                      Ideal For
-                      <span className="text-slate/40 transition group-open:rotate-180">
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </span>
-                    </summary>
-                    <div className="pb-4 text-[0.84rem] leading-6 text-slate">
-                      {product.bestFor}
-                    </div>
-                  </details>
-                )}
-
-                <details className="group [&_summary::-webkit-details-marker]:hidden">
-                  <summary className="flex cursor-pointer items-center justify-between py-3.5 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-slate outline-none transition">
-                    Product Specifications
-                    <span className="text-slate/40 transition group-open:rotate-180">
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </span>
-                  </summary>
-                  <div className="grid gap-3 pb-4">
-                    {product.leadTime ? (
-                      <div className="text-[0.84rem] leading-6 text-slate/74">
-                        <span className="font-semibold text-slate">Lead time:</span>{" "}
-                        <span>{product.leadTime}</span>
-                      </div>
-                    ) : null}
-                    <div className="text-[0.84rem] leading-6 text-slate/74">
-                      <span className="font-semibold text-slate">Fulfillment:</span>{" "}
-                      <span>{isStock ? "Stock size" : "Made to order"}</span>
-                    </div>
-                    {product.material ? (
-                      <div className="text-[0.84rem] leading-6 text-slate/74">
-                        <span className="font-semibold text-slate">Material:</span>{" "}
-                        <span>{product.material}</span>
-                      </div>
-                    ) : null}
-                    {specEntries.length > 0 ? (
-                      <div className="grid gap-3 border-t border-black/6 pt-3 md:grid-cols-2 md:gap-x-8">
-                        {specEntries.map((entry) => (
-                          <div key={entry.key} className="text-[0.84rem] leading-6 text-slate/74">
-                            <span className="font-semibold text-slate">{entry.label}:</span>{" "}
-                            <span>{entry.value}</span>
+                        ),
+                      }]
+                    : []),
+                  ...(product.bestFor
+                    ? [{
+                        key: "ideal",
+                        label: "Ideal For",
+                        content: (
+                          <p className="text-[0.84rem] leading-6 text-slate">{product.bestFor}</p>
+                        ),
+                      }]
+                    : []),
+                  {
+                    key: "specs",
+                    label: "Product Specifications",
+                    content: (
+                      <div className="grid gap-3">
+                        {product.leadTime ? (
+                          <div className="text-[0.84rem] leading-6 text-slate/74">
+                            <span className="font-semibold text-slate">Lead time:</span>{" "}
+                            <span>{product.leadTime}</span>
                           </div>
-                        ))}
+                        ) : null}
+                        <div className="text-[0.84rem] leading-6 text-slate/74">
+                          <span className="font-semibold text-slate">Fulfillment:</span>{" "}
+                          <span>{isStock ? "Stock size" : "Made to order"}</span>
+                        </div>
+                        {product.material ? (
+                          <div className="text-[0.84rem] leading-6 text-slate/74">
+                            <span className="font-semibold text-slate">Material:</span>{" "}
+                            <span>{product.material}</span>
+                          </div>
+                        ) : null}
+                        {specEntries.length > 0 ? (
+                          <div className="grid gap-3 border-t border-black/6 pt-3 md:grid-cols-2 md:gap-x-8">
+                            {specEntries.map((entry) => (
+                              <div key={entry.key} className="text-[0.84rem] leading-6 text-slate/74">
+                                <span className="font-semibold text-slate">{entry.label}:</span>{" "}
+                                <span>{entry.value}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
                       </div>
-                    ) : null}
-                  </div>
-                </details>
-              </div>
+                    ),
+                  },
+                ]}
+              />
 
               <div className="mt-4 border-t border-black/6 pt-4">
                 <AddToCartPanel product={product} />

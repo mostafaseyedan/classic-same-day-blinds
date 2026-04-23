@@ -39,7 +39,12 @@ export function ContactInfo({
           <div key={fact.title} className={cn("flex items-start gap-4", itemClassName)}>
             <Icon className="mt-1 h-5 w-5 shrink-0 text-brass" />
             <div className="min-w-0">
-              <Eyebrow as="p" className={cn(variant === "light" ? "text-white/50" : "text-slate/40")}>
+              <Eyebrow
+                as="p"
+                className={cn(
+                  variant === "light" ? "text-white/50" : "text-slate/40"
+                )}
+              >
                 {fact.title}
               </Eyebrow>
               {fact.href ? (
@@ -48,7 +53,7 @@ export function ContactInfo({
                   target={fact.href.startsWith("http") ? "_blank" : undefined}
                   rel={fact.href.startsWith("http") ? "noopener noreferrer nofollow" : undefined}
                   className={cn(
-                    "mt-1 block text-base font-semibold transition hover:text-brass",
+                    "mt-1 block text-sm font-semibold transition hover:text-brass",
                     variant === "light" ? "text-white" : "text-slate"
                   )}
                 >
@@ -57,7 +62,7 @@ export function ContactInfo({
               ) : (
                 <p
                   className={cn(
-                    "mt-1 text-base font-semibold",
+                    "mt-1 text-sm font-semibold",
                     variant === "light" ? "text-white" : "text-slate"
                   )}
                 >
@@ -66,8 +71,8 @@ export function ContactInfo({
               )}
               <p
                 className={cn(
-                  "mt-1 text-sm leading-6",
-                  variant === "light" ? "text-white/58" : "text-slate/50"
+                  "mt-1 text-xs",
+                  variant === "light" ? "text-white/60" : "text-slate/50"
                 )}
               >
                 {fact.helper}

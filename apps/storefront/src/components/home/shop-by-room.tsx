@@ -141,7 +141,7 @@ export function ShopByRoom() {
         </SectionHeader>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <article className="relative overflow-hidden rounded-card bg-slate">
+          <article className="relative overflow-hidden rounded-media bg-slate">
             <div className="relative aspect-[5/4] min-h-[22rem] md:min-h-[26rem]">
               <Image
                 key={activeRoom.slug}

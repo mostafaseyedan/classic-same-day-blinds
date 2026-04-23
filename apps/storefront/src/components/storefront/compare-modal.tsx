@@ -48,7 +48,7 @@ export function CompareModal({ items, onClose }: CompareModalProps) {
               
               return (
                 <div key={p.id} className="flex flex-col items-center gap-3 text-center">
-                  <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-shell">
+                  <div className="relative w-full aspect-square overflow-hidden rounded-media bg-shell">
                     <img 
                       src={p.image} 
                       alt={p.name} 

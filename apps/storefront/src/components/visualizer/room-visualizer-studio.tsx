@@ -163,7 +163,7 @@ export function RoomVisualizerStudio() {
             </div>
 
             <div
-              className={`relative overflow-hidden rounded-2xl bg-shell ${
+              className={`relative overflow-hidden rounded-media bg-shell ${
                 isDraggingFile ? "ring-2 ring-olive/50" : ""
               }`}
               onDragOver={(event) => {
@@ -221,7 +221,7 @@ export function RoomVisualizerStudio() {
                         setSelectedRoom(index);
                         setUploadedImage(room.image);
                       }}
-                      className={`group relative overflow-hidden rounded-xl transition-all ${
+                      className={`group relative overflow-hidden rounded-media transition-all ${
                         isSelected ? "ring-2 ring-olive ring-offset-2" : "bg-white/70 hover:bg-white"
                       }`}
                     >
@@ -278,7 +278,7 @@ export function RoomVisualizerStudio() {
                         setSelectedStyle(product.key);
                         setSelectedColor(product.defaultColors[0]);
                       }}
-                      className={`flex items-center gap-3 rounded-xl px-3 py-2 text-left transition ${
+                      className={`flex items-center gap-3 rounded-media px-3 py-2 text-left transition ${
                         isSelected
                           ? "bg-shell"
                           : disabled
@@ -286,7 +286,7 @@ export function RoomVisualizerStudio() {
                             : "bg-white/70 hover:bg-white"
                       }`}
                     >
-                      <div className="h-12 w-12 overflow-hidden rounded-xl bg-shell">
+                      <div className="h-12 w-12 overflow-hidden rounded-media bg-shell">
                         <img
                           src={product.image}
                           alt={product.label}

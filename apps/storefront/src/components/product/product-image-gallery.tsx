@@ -51,7 +51,7 @@ export function ProductImageGallery({ images, name }: ProductImageGalleryProps) 
 
   return (
     <>
-      <div className="relative overflow-hidden rounded-2xl border border-black/8 bg-white">
+      <div className="relative overflow-hidden rounded-media border border-black/8 bg-white">
         {mainSrc ? (
           <button
             type="button"
@@ -130,7 +130,7 @@ export function ProductImageGallery({ images, name }: ProductImageGalleryProps) 
           <img
             src={mainSrc}
             alt={name}
-            className="max-h-[88vh] max-w-full rounded-2xl object-contain shadow-[0_32px_80px_rgba(0,0,0,0.6)]"
+            className="max-h-[88vh] max-w-full rounded-media object-contain shadow-[0_32px_80px_rgba(0,0,0,0.6)]"
             onClick={(e) => e.stopPropagation()}
           />
           <button

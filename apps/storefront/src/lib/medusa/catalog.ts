@@ -206,7 +206,10 @@ function normalizeProduct(product: HttpTypes.StoreProduct): CatalogProduct {
     };
   });
 
-  const primaryVariant = variants[0] ?? null;
+  // Derive lowest price across all variants so cards always show the minimum
+  const minPriceVariant = variants.length > 0
+    ? variants.reduce((min, v) => v.calculatedPrice < min.calculatedPrice ? v : min, variants[0])
+    : null;
   const options = normalizeOptions(product, variants);
   const meta = (product.metadata ?? {}) as Record<string, unknown>;
 
@@ -228,9 +231,9 @@ function normalizeProduct(product: HttpTypes.StoreProduct): CatalogProduct {
     categoryLabel: deriveCategoryLabel(product),
     description,
     story: metaStory ?? "",
-    price: primaryVariant?.calculatedPrice ?? 0,
-    originalPrice: primaryVariant?.originalPrice ?? null,
-    currencyCode: primaryVariant?.currencyCode ?? "USD",
+    price: minPriceVariant?.calculatedPrice ?? 0,
+    originalPrice: minPriceVariant?.originalPrice ?? null,
+    currencyCode: minPriceVariant?.currencyCode ?? "USD",
     image: images[0] ?? "",
     images,
     badge: metaBadge ?? "",

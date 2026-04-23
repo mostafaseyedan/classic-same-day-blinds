@@ -107,7 +107,7 @@ export function FrequentlyBoughtTogether({
                     : "hover:-translate-y-[1px] hover:shadow-[0_14px_34px_rgba(24,36,34,0.08)]"
                 }`}
               >
-                <div className="aspect-[4/3] overflow-hidden rounded-[1.15rem] bg-shell/70">
+                <div className="aspect-[4/3] overflow-hidden rounded-media bg-shell/70">
                   <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
                 </div>
                 <div className="mt-4 flex items-start justify-between gap-3">

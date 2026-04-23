@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle, MinusCircle, XCircle } from "@phosphor-icons/react";
 import { Button, Eyebrow, SectionCopy, SectionHeader, SectionTitle, cn } from "@blinds/ui";
@@ -117,18 +118,28 @@ export function CompetitiveAdvantages() {
   const { t } = useLanguage();
 
   return (
-    <section className="page-section border-t border-black/5 bg-white">
-      <div className="content-shell">
+    <section className="page-section relative overflow-hidden">
+      {/* Hero background with heavy dark overlay */}
+      <Image
+        src="/images/home/hero-v1-residential.jpg"
+        alt=""
+        fill
+        className="object-cover object-center"
+        aria-hidden
+      />
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(10,16,22,0.82)_0%,rgba(10,16,22,0.65)_100%)]" />
+
+      <div className="relative z-10 content-shell">
         <SectionHeader>
           <div>
-            <Eyebrow>{t("Why Teams Choose Us", "Por Qué Nos Eligen")}</Eyebrow>
-            <SectionTitle className="max-w-3xl">
+            <Eyebrow className="text-brass">{t("Why Teams Choose Us", "Por Qué Nos Eligen")}</Eyebrow>
+            <SectionTitle className="max-w-3xl text-white">
               {t(
                 "A better fit for fast-turn projects, property teams, and hospitality installs.",
                 "Una mejor opción para proyectos rápidos, equipos de propiedades e instalaciones de hospitalidad.",
               )}
             </SectionTitle>
-            <SectionCopy className="max-w-2xl">
+            <SectionCopy className="max-w-2xl text-white/68">
               {t(
                 "The difference is not just product selection. It is speed, support, physical samples, and a team that can handle both single-room jobs and repeat property work.",
                 "La diferencia no es solo la selección de productos. Es velocidad, soporte, muestras físicas y un equipo que puede atender tanto trabajos por habitación como proyectos repetidos de propiedad.",
@@ -136,31 +147,65 @@ export function CompetitiveAdvantages() {
             </SectionCopy>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Button asChild variant="default">
+            <Button asChild variant="accent">
               <Link href="/quote">{t("Request a Quote", "Solicitar Cotización")}</Link>
             </Button>
-            <Button asChild variant="secondary">
+            <Button asChild variant="secondary-light">
               <Link href="/contact">{t("Talk to the Team", "Hablar con el Equipo")}</Link>
             </Button>
           </div>
         </SectionHeader>
 
-        <div className="mt-8 overflow-hidden rounded-[1.4rem] border border-black/7 bg-white shadow-[0_18px_42px_-24px_rgba(23,35,43,0.12)]">
+        {/* Glass table */}
+        <div className="mt-8 overflow-hidden rounded-[1.4rem] border border-white/12 bg-[rgba(23,35,43,0.36)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_24px_56px_rgba(4,10,18,0.32)] backdrop-blur-2xl backdrop-saturate-[1.3]">
           <div className="overflow-x-auto">
             <table className="min-w-[42rem] w-full border-collapse">
               <thead>
-                <tr className="border-b border-black/7 bg-shell/58 text-slate">
-                  <th className="px-4 py-4 text-left text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-slate/56">
+                <tr className="border-b border-white/14">
+                  <th className="px-4 py-4 text-left text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-white/55">
                     {t("Feature", "Característica")}
                   </th>
-                  <th className="px-4 py-4 text-center text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-brass">
-                    Classic Same Day
+                  {/* Our brand */}
+                  <th className="px-4 py-5 text-center">
+                    <div className="inline-flex items-center gap-3">
+                      <div className="grid gap-1">
+                        {[11, 17, 23].map((w) => (
+                          <span key={w} className="rounded-full bg-olive" style={{ width: w, height: 4 }} />
+                        ))}
+                      </div>
+                      <div className="grid gap-0.5 text-left">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brass">Classic Same Day</p>
+                        <p className="font-display text-xl font-semibold leading-none text-white">Blinds</p>
+                      </div>
+                    </div>
                   </th>
-                  <th className="px-4 py-4 text-center text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-slate/54">
-                    Blinds.com
+                  {/* Blinds.com */}
+                  <th className="px-4 py-5 text-center">
+                    <div className="inline-flex items-center justify-center">
+                      <div className="rounded-md bg-white px-2.5 py-1.5">
+                        <Image
+                          src="/images/blinds-dot-com-logo.png"
+                          alt="Blinds.com"
+                          width={90}
+                          height={28}
+                          className="h-6 w-auto object-contain"
+                        />
+                      </div>
+                    </div>
                   </th>
-                  <th className="px-4 py-4 text-center text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-slate/54">
-                    Lowe&apos;s
+                  {/* Lowe's */}
+                  <th className="px-4 py-5 text-center">
+                    <div className="inline-flex items-center justify-center">
+                      <div className="rounded-md bg-white px-2.5 py-1.5">
+                        <Image
+                          src="/images/lowes-logo.svg"
+                          alt="Lowe's"
+                          width={64}
+                          height={28}
+                          className="h-6 w-auto object-contain"
+                        />
+                      </div>
+                    </div>
                   </th>
                 </tr>
               </thead>
@@ -169,11 +214,11 @@ export function CompetitiveAdvantages() {
                   <tr
                     key={row.feature}
                     className={cn(
-                      "border-t border-black/6",
-                      index % 2 === 0 ? "bg-white" : "bg-shell/38",
+                      "border-t border-white/[0.09]",
+                      index % 2 === 0 ? "bg-white/[0.04]" : "bg-white/[0.09]",
                     )}
                   >
-                    <td className="px-4 py-3.5 text-sm font-medium leading-6 text-slate">
+                    <td className="px-4 py-3.5 text-sm font-medium leading-6 text-white">
                       {t(row.feature, row.featureEs)}
                     </td>
                     <td className="px-4 py-3.5 text-center align-middle">
@@ -197,7 +242,7 @@ export function CompetitiveAdvantages() {
             </table>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-black/6 bg-shell/34 px-4 py-3 text-[0.72rem] font-medium text-slate/66">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/12 px-4 py-3 text-[0.72rem] font-medium text-white/55">
             <span className="inline-flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-[#1fb857]" weight="bold" />
               {t("Yes", "Sí")}

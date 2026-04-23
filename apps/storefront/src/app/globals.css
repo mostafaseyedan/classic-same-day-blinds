@@ -57,7 +57,7 @@ img {
   }
 
   .card-interactive {
-    @apply overflow-hidden rounded-card bg-white transition-[box-shadow,transform] duration-200 hover:shadow-[0_10px_24px_rgba(24,36,34,0.06)];
+    @apply overflow-hidden rounded-media bg-white transition-[box-shadow,transform] duration-200 hover:shadow-[0_10px_24px_rgba(24,36,34,0.06)];
   }
 
   .dialog-shell {
@@ -81,7 +81,7 @@ img {
   }
 
   .catalog-filter-chip-active {
-    @apply border-slate bg-slate text-shell;
+    @apply border-olive bg-olive text-shell;
   }
 
 }

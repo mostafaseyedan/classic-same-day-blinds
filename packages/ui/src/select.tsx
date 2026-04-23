@@ -4,6 +4,7 @@ import * as React from "react";
 
 import {
   dropdownActiveItemClassName,
+  dropdownCompactItemClassName,
   dropdownItemClassName,
   dropdownPanelClassName,
 } from "./dropdown-surface";
@@ -233,11 +234,13 @@ export function Select({
           }
         }}
         className={cn(
-          "flex w-full cursor-pointer items-center justify-between rounded-full border border-black/10 bg-white text-left text-slate outline-none transition-[border-color,box-shadow,color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+          "flex w-full cursor-pointer items-center justify-between rounded-card border border-black/10 bg-white/96 text-left text-slate outline-none shadow-[0_8px_24px_rgba(24,36,34,0.04)] transition-[border-color,box-shadow,color,transform,background-color] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
           size === "default"
-            ? "h-11 px-4 pr-3 text-[0.92rem]"
-            : "h-9 px-3.5 pr-2.5 text-[0.84rem]",
-          open ? "border-brass shadow-[0_0_0_3px_rgba(176,125,66,0.14)]" : "hover:border-black/16",
+            ? "h-12 px-4 pr-3.5 text-[0.95rem] font-medium"
+            : "h-10 px-3.5 pr-3 text-[0.88rem] font-medium",
+          open
+            ? "border-brass/48 bg-white shadow-[0_0_0_3px_rgba(176,125,66,0.12),0_14px_30px_rgba(24,36,34,0.05)]"
+            : "hover:border-black/16 hover:bg-white",
           error && "border-red-500 focus-visible:ring-red-500/40",
           className,
         )}
@@ -248,9 +251,9 @@ export function Select({
         <span
           aria-hidden="true"
           className={cn(
-            "shrink-0 text-brass/70 transition-transform",
+            "shrink-0 text-slate/42 transition-[color,transform]",
             size === "default" ? "ml-2" : "ml-1.5",
-            open && "rotate-180",
+            open && "rotate-180 text-brass/72",
           )}
         >
           <svg
@@ -296,7 +299,7 @@ export function Select({
                 className={cn(
                   dropdownItemClassName,
                   (isActive || isHighlighted) && dropdownActiveItemClassName,
-                  size === "compact" && "text-[0.72rem] py-1.5",
+                  size === "compact" && dropdownCompactItemClassName,
                 )}
               >
                 {option.label}

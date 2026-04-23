@@ -7,6 +7,7 @@ import { PageTitle } from "@blinds/ui";
 import Link from "next/link";
 import type { HttpTypes } from "@medusajs/types";
 import { useStorefront } from "@/components/storefront/storefront-provider";
+import { getCustomSizeDetail, getCustomSizeLabel } from "@/lib/custom-size";
 import { formatPrice } from "@/lib/format-price";
 
 type CartItem = NonNullable<HttpTypes.StoreCart["items"]>[number] & {
@@ -84,14 +85,13 @@ export function CartPage() {
                     {item.product_title ?? item.title ?? "Cart Item"}
                   </p>
                   <p className="mt-1 text-sm leading-6 text-slate/72">
-                    {item.variant_title ?? item.variant?.title ?? "Configured variant"}
+                    {getCustomSizeLabel(item.metadata)
+                      ? "Custom size"
+                      : (item.variant_title ?? item.variant?.title ?? "Configured variant")}
                   </p>
-                  {item.metadata?.width && item.metadata?.height ? (
+                  {getCustomSizeDetail(item.metadata) ? (
                     <p className="mt-1 text-[0.72rem] uppercase tracking-[0.1em] text-slate/50">
-                      {String(item.metadata.width)} × {String(item.metadata.height)}
-                      {typeof item.metadata.size_sqft === "number"
-                        ? ` — ${item.metadata.size_sqft} sq ft`
-                        : null}
+                      {getCustomSizeDetail(item.metadata)}
                     </p>
                   ) : null}
                 </div>
