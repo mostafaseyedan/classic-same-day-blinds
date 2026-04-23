@@ -54,12 +54,7 @@ const contexts = [
   },
   {
     name: "commerce",
-    // No lock file pre-generation: the buildpack's npm resolves fresh.
-    // All Medusa deps are pinned so npm install is deterministic.
-    // Pre-generating in node:22-bullseye-slim produces a lock file with
-    // different transitive resolutions than the buildpack's own npm.
-    skipLockfile: true,
-    procfile: "web: npm run predeploy && npm start\n",
+    procfile: "web: sh -c 'if [ \"$RUN_DB_MIGRATIONS\" = \"true\" ]; then npm run predeploy; fi && npm start'\n",
     // Mirrors services/commerce/package.json exactly.
     // Only @blinds/types path is adjusted: file:../../packages/types →
     // file:./packages/types because packages/types is copied into the context.
