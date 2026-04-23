@@ -223,10 +223,10 @@ steps:
         commerce_cache_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/commerce-build-cache:latest"
 
         /workspace/pack build "$commerce_image" \
-          --builder gcr.io/buildpacks/builder:latest \
+          --builder gcr.io/buildpacks/builder:google-22 \
           --path .cloudrun/commerce \
           --cache-image "$commerce_cache_image" \
-          --env GOOGLE_NODEJS_VERSION=22.x.x \
+          --env GOOGLE_NODEJS_VERSION=22.22.1 \
           --env GOOGLE_NODE_RUN_SCRIPTS=build \
           --env NPM_CONFIG_AUDIT=false \
           --env NPM_CONFIG_FUND=false \
@@ -255,6 +255,7 @@ steps:
 
         cat > /workspace/commerce-server-env.yaml <<EOF
         NODE_ENV: "production"
+        PGSSLMODE: "disable"
         DATABASE_URL: "$database_url"
         REDIS_URL: "$redis_url"
         JWT_SECRET: "$jwt_secret"
@@ -279,6 +280,7 @@ steps:
 
         cat > /workspace/commerce-worker-env.yaml <<EOF
         NODE_ENV: "production"
+        PGSSLMODE: "disable"
         DATABASE_URL: "$database_url"
         REDIS_URL: "$redis_url"
         JWT_SECRET: "$jwt_secret"

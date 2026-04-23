@@ -78,6 +78,7 @@ const contexts = [
   {
     name: "commerce",
     procfile: "web: sh -c 'if [ \"$RUN_DB_MIGRATIONS\" = \"true\" ]; then npm run predeploy; fi && npm start'\n",
+    checkedInLockfile: "commerce.package-lock.json",
     packageJson: commercePackageJson,
     flatCopyPaths: [
       { from: "services/commerce/medusa-config.ts", to: "medusa-config.ts" },
@@ -188,7 +189,9 @@ for (const context of contexts) {
     await copyFlat(repoRoot, contextRoot, entry);
   }
 
-  if (!context.skipLockfile) {
+  if (context.checkedInLockfile) {
+    await cp(path.join(__dirname, context.checkedInLockfile), path.join(contextRoot, "package-lock.json"));
+  } else if (!context.skipLockfile) {
     await runCommand("npm", ["install", "--package-lock-only", "--ignore-scripts"], contextRoot);
   }
 }

@@ -119,10 +119,10 @@ steps:
         storefront_cache_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/storefront-build-cache:latest"
 
         /workspace/pack build "$storefront_image" \
-          --builder gcr.io/buildpacks/builder:latest \
+          --builder gcr.io/buildpacks/builder:google-22 \
           --path .cloudrun/storefront \
           --cache-image "$storefront_cache_image" \
-          --env GOOGLE_NODEJS_VERSION=22.x.x \
+          --env GOOGLE_NODEJS_VERSION=22.22.1 \
           --env GOOGLE_NODE_RUN_SCRIPTS=build \
           --env NEXT_PUBLIC_MEDUSA_BACKEND_URL="$commerce_url" \
           --env NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY="$_MEDUSA_PUBLISHABLE_KEY" \
