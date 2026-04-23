@@ -10,7 +10,10 @@
     "seed:catalog": "mkdir -p .medusa-config/medusa && XDG_CONFIG_HOME=$PWD/.medusa-config medusa exec ./src/scripts/seed.ts",
     "export:products": "mkdir -p .medusa-config/medusa exports && XDG_CONFIG_HOME=$PWD/.medusa-config medusa exec ./src/scripts/export-products.ts",
     "start": "mkdir -p .medusa-config/medusa && XDG_CONFIG_HOME=$PWD/.medusa-config medusa start",
-    "type-check": "tsc --noEmit && tsc -p tsconfig.admin.json --noEmit"
+    "type-check": "tsc --noEmit && tsc -p tsconfig.admin.json --noEmit",
+    "deploy:build": "medusa build",
+    "deploy:predeploy": "medusa db:migrate",
+    "deploy:start": "medusa start"
   },
   "dependencies": {
     "@blinds/types": "file:../../packages/types",
@@ -26,5 +29,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.14.1"
+  },
+  "overrides": {
+    "picomatch": "^3.0.2"
   }
 }

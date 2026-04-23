@@ -30,18 +30,16 @@ const commercePackageJson = {
   type: commerceSourcePkg.type,
   engines: { node: ">=22.0.0" },
   scripts: {
-    build: "medusa build",
-    predeploy: "medusa db:migrate",
-    start: "medusa start",
+    build: commerceSourcePkg.scripts["deploy:build"],
+    predeploy: commerceSourcePkg.scripts["deploy:predeploy"],
+    start: commerceSourcePkg.scripts["deploy:start"],
   },
   dependencies: {
     ...commerceSourcePkg.dependencies,
     "@blinds/types": "file:./packages/types",
   },
   devDependencies: commerceSourcePkg.devDependencies,
-  overrides: {
-    "picomatch": "^3.0.2",
-  },
+  overrides: commerceSourcePkg.overrides,
 };
 
 const contexts = [

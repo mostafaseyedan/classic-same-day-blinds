@@ -55,9 +55,23 @@ steps:
             --format='value(status.url)'
         }
 
+        get_dependency_url() {
+          local service_name="$1"
+          local url
+          url="$(gcloud run services describe "$service_name" \
+            --region "$_REGION" \
+            --project "$PROJECT_ID" \
+            --format='value(status.url)' 2>/dev/null)"
+          if [ -z "$url" ]; then
+            echo "ERROR: Required dependency '$service_name' does not exist. Deploy it first." >&2
+            exit 1
+          fi
+          echo "$url"
+        }
+
         storefront_url="$(ensure_service_url "$_STOREFRONT_SERVICE")"
-        commerce_url="$(ensure_service_url "$_COMMERCE_SERVICE")"
-        ops_api_url="$(ensure_service_url "$_OPS_API_SERVICE")"
+        commerce_url="$(get_dependency_url "$_COMMERCE_SERVICE")"
+        ops_api_url="$(get_dependency_url "$_OPS_API_SERVICE")"
 
         cat > /workspace/cloudrun.vars <<EOF
         project_id=$PROJECT_ID

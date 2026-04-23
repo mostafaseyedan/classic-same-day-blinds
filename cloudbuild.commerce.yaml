@@ -99,9 +99,16 @@ steps:
             --format='value(status.url)'
         }
 
+        get_optional_url() {
+          gcloud run services describe "$1" \
+            --region "$_REGION" \
+            --project "$PROJECT_ID" \
+            --format='value(status.url)' 2>/dev/null || true
+        }
+
         commerce_url="$(ensure_service_url "$_COMMERCE_SERVICE")"
-        ops_api_url="$(ensure_service_url "$_OPS_API_SERVICE")"
-        storefront_url="$(ensure_service_url "$_STOREFRONT_SERVICE")"
+        ops_api_url="$(get_optional_url "$_OPS_API_SERVICE")"
+        storefront_url="$(get_optional_url "$_STOREFRONT_SERVICE")"
 
         resolved_db_password="$_DB_PASSWORD"
         resolved_jwt_secret="$_JWT_SECRET"
