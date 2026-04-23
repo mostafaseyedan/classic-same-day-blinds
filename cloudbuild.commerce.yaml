@@ -255,7 +255,6 @@ steps:
 
         cat > /workspace/commerce-server-env.yaml <<EOF
         NODE_ENV: "production"
-        PGSSLMODE: "disable"
         DATABASE_URL: "$database_url"
         REDIS_URL: "$redis_url"
         JWT_SECRET: "$jwt_secret"
@@ -280,7 +279,6 @@ steps:
 
         cat > /workspace/commerce-worker-env.yaml <<EOF
         NODE_ENV: "production"
-        PGSSLMODE: "disable"
         DATABASE_URL: "$database_url"
         REDIS_URL: "$redis_url"
         JWT_SECRET: "$jwt_secret"

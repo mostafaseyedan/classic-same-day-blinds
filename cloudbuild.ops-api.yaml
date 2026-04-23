@@ -226,7 +226,6 @@ steps:
 
         cat > /workspace/ops-api-env.yaml <<EOF
         NODE_ENV: "production"
-        PGSSLMODE: "disable"
         OPS_API_HOST: "0.0.0.0"
         OPS_API_PORT: "8080"
         OPS_DATABASE_URL: "$database_url"

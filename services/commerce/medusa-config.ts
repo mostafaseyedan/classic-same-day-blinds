@@ -65,6 +65,7 @@ const paymentModule = process.env.STRIPE_SECRET_KEY
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: env.databaseUrl,
+    databaseDriverOptions: { ssl: false },
     redisUrl: env.redisUrl,
     workerMode: env.workerMode,
     http: {
