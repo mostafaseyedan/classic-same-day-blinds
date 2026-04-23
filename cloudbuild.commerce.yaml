@@ -48,10 +48,6 @@ steps:
           fi
         done
 
-        random_secret() {
-          python3 -c 'import secrets; print(secrets.token_urlsafe(32))'
-        }
-
         get_service_env() {
           local service_name="$1"
           local env_name="$2"
@@ -137,19 +133,23 @@ steps:
         fi
 
         if [ -z "$resolved_db_password" ]; then
-          resolved_db_password="$(random_secret)"
+          echo "ERROR: DB password not found. Pass _DB_PASSWORD on first deploy, or ensure DATABASE_URL is set on the service." >&2
+          exit 1
         fi
 
         if [ -z "$resolved_jwt_secret" ]; then
-          resolved_jwt_secret="$(random_secret)"
+          echo "ERROR: JWT_SECRET not found. Pass _JWT_SECRET on first deploy, or ensure JWT_SECRET is set on the service." >&2
+          exit 1
         fi
 
         if [ -z "$resolved_cookie_secret" ]; then
-          resolved_cookie_secret="$(random_secret)"
+          echo "ERROR: COOKIE_SECRET not found. Pass _COOKIE_SECRET on first deploy, or ensure COOKIE_SECRET is set on the service." >&2
+          exit 1
         fi
 
         if [ -z "$resolved_internal_api_secret" ]; then
-          resolved_internal_api_secret="$(random_secret)"
+          echo "ERROR: INTERNAL_API_SECRET not found. Pass _INTERNAL_API_SECRET on first deploy, or ensure INTERNAL_API_SECRET is set on the service." >&2
+          exit 1
         fi
 
         instance_connection_name="$(gcloud sql instances describe "$_SQL_INSTANCE" \
@@ -208,11 +208,24 @@ steps:
         chmod +x /workspace/pack
         /workspace/pack --version
 
+  - name: node:22-bullseye-slim
+    id: pre-deploy-checks
+    waitFor:
+      - prepare-runtime
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        npm ci
+        npm run type-check
+        npm run lint
+
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk:565.0.0-slim
     id: build-commerce-image
     waitFor:
       - prepare-buildpack-contexts
       - setup-pack
+      - pre-deploy-checks
     entrypoint: bash
     args:
       - -ceu
@@ -259,7 +272,6 @@ steps:
         REDIS_URL: "$redis_url"
         JWT_SECRET: "$jwt_secret"
         COOKIE_SECRET: "$cookie_secret"
-        RUN_DB_MIGRATIONS: "true"
         MEDUSA_WORKER_MODE: "server"
         DISABLE_MEDUSA_ADMIN: "false"
         MEDUSA_BACKEND_URL: "$commerce_url"
@@ -283,7 +295,6 @@ steps:
         REDIS_URL: "$redis_url"
         JWT_SECRET: "$jwt_secret"
         COOKIE_SECRET: "$cookie_secret"
-        RUN_DB_MIGRATIONS: "false"
         MEDUSA_WORKER_MODE: "worker"
         DISABLE_MEDUSA_ADMIN: "true"
         MEDUSA_BACKEND_URL: "$commerce_url"
@@ -343,3 +354,32 @@ steps:
           --region "$region" \
           --project "$project_id" \
           --format='value(status.url)'
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:565.0.0-slim
+    id: post-deploy-health-check
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        source /workspace/cloudrun.vars
+
+        check_health() {
+          local url="$1"
+          local label="$2"
+          local attempt=0
+          local max_attempts=12
+
+          echo "Health check: $label"
+          until curl -sf --max-time 10 "${url}" -o /dev/null; do
+            attempt=$((attempt + 1))
+            if [ "$attempt" -ge "$max_attempts" ]; then
+              echo "ERROR: $label failed to become healthy after $((max_attempts * 10))s" >&2
+              exit 1
+            fi
+            echo "  attempt $attempt/$max_attempts: not ready, retrying in 10s..."
+            sleep 10
+          done
+          echo "  $label is healthy."
+        }
+
+        check_health "$commerce_url/health" "commerce"

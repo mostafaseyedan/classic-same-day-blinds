@@ -31,7 +31,6 @@ const commercePackageJson = {
   engines: { node: ">=22.0.0" },
   scripts: {
     build: commerceSourcePkg.scripts["deploy:build"],
-    predeploy: commerceSourcePkg.scripts["deploy:predeploy"],
     start: commerceSourcePkg.scripts["deploy:start"],
   },
   dependencies: {
@@ -78,7 +77,7 @@ const contexts = [
   },
   {
     name: "commerce",
-    procfile: "web: sh -c 'if [ \"$RUN_DB_MIGRATIONS\" = \"true\" ]; then npm run predeploy; fi && npm start'\n",
+    procfile: "web: npm start\n",
     checkedInLockfile: "commerce.package-lock.json",
     packageJson: commercePackageJson,
     flatCopyPaths: [

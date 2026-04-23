@@ -187,11 +187,24 @@ steps:
         chmod +x /workspace/pack
         /workspace/pack --version
 
+  - name: node:22-bullseye-slim
+    id: pre-deploy-checks
+    waitFor:
+      - prepare-runtime
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        npm ci
+        npm run type-check
+        npm run lint
+
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk:565.0.0-slim
     id: build-ops-api-image
     waitFor:
       - prepare-buildpack-contexts
       - setup-pack
+      - pre-deploy-checks
     entrypoint: bash
     args:
       - -ceu
@@ -267,3 +280,32 @@ steps:
           --region "$region" \
           --project "$project_id" \
           --format='value(status.url)'
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:565.0.0-slim
+    id: post-deploy-health-check
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        source /workspace/cloudrun.vars
+
+        check_health() {
+          local url="$1"
+          local label="$2"
+          local attempt=0
+          local max_attempts=12
+
+          echo "Health check: $label"
+          until curl -sf --max-time 10 "${url}" -o /dev/null; do
+            attempt=$((attempt + 1))
+            if [ "$attempt" -ge "$max_attempts" ]; then
+              echo "ERROR: $label failed to become healthy after $((max_attempts * 10))s" >&2
+              exit 1
+            fi
+            echo "  attempt $attempt/$max_attempts: not ready, retrying in 10s..."
+            sleep 10
+          done
+          echo "  $label is healthy."
+        }
+
+        check_health "$ops_api_url/health" "ops-api"
