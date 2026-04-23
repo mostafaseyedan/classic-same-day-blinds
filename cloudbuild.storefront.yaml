@@ -1,0 +1,158 @@
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _REGION: us-central1
+  _AR_REPO: cloud-run
+  _STOREFRONT_SERVICE: blinds-storefront
+  _COMMERCE_SERVICE: blinds-commerce
+  _OPS_API_SERVICE: blinds-ops-api
+  _RUNTIME_SERVICE_ACCOUNT: csdb-app@classic-same-day-blinds.iam.gserviceaccount.com
+  _MEDUSA_PUBLISHABLE_KEY: ""
+  _STRIPE_PUBLISHABLE_KEY: ""
+  _NEXT_PUBLIC_CHAT_SERVICE_URL: ""
+  _GOOGLE_PLACES_API_KEY: ""
+  _GOOGLE_PLACE_ID: ""
+  _NEXT_PUBLIC_GOOGLE_PLACE_URL: ""
+
+steps:
+  - name: gcr.io/google.com/cloudsdkttools/cloud-sdk:slim
+    id: prepare-runtime
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        required_values=(
+          "$_MEDUSA_PUBLISHABLE_KEY"
+          "$_STRIPE_PUBLISHABLE_KEY"
+        )
+        for value in "${required_values[@]}"; do
+          if [ -z "$value" ]; then
+            echo "Missing one or more required Cloud Build substitutions."
+            exit 1
+          fi
+        done
+
+        hello_image="us-docker.pkg.dev/cloudrun/container/hello"
+
+        ensure_service_url() {
+          local service_name="$1"
+          if ! gcloud run services describe "$service_name" \
+            --region "$_REGION" \
+            --project "$PROJECT_ID" >/dev/null 2>&1; then
+            gcloud run deploy "$service_name" \
+              --image "$hello_image" \
+              --region "$_REGION" \
+              --project "$PROJECT_ID" \
+              --platform managed \
+              --service-account "$_RUNTIME_SERVICE_ACCOUNT" \
+              --allow-unauthenticated \
+              --quiet
+          fi
+          gcloud run services describe "$service_name" \
+            --region "$_REGION" \
+            --project "$PROJECT_ID" \
+            --format='value(status.url)'
+        }
+
+        storefront_url="$(ensure_service_url "$_STOREFRONT_SERVICE")"
+        commerce_url="$(ensure_service_url "$_COMMERCE_SERVICE")"
+        ops_api_url="$(ensure_service_url "$_OPS_API_SERVICE")"
+
+        cat > /workspace/cloudrun.vars <<EOF
+        project_id=$PROJECT_ID
+        region=$_REGION
+        ar_repo=$_AR_REPO
+        storefront_service=$_STOREFRONT_SERVICE
+        storefront_url=$storefront_url
+        commerce_url=$commerce_url
+        ops_api_url=$ops_api_url
+        build_tag=$BUILD_ID
+        EOF
+
+  - name: node:22-bullseye-slim
+    id: prepare-buildpack-contexts
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        node infra/cloud-run/prepare-buildpack-contexts.mjs storefront
+
+  - name: gcr.io/google.com/cloudsdkttools/cloud-sdk:slim
+    id: setup-pack
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        pack_version="$(curl -sSfL https://api.github.com/repos/buildpacks/pack/releases/latest \
+          | python3 -c 'import sys,json; print(json.load(sys.stdin)["tag_name"])')"
+        curl -sSfL "https://github.com/buildpacks/pack/releases/download/${pack_version}/pack-${pack_version}-linux.tgz" \
+          | tar xz -C /workspace pack
+        chmod +x /workspace/pack
+        /workspace/pack --version
+
+  - name: gcr.io/google.com/cloudsdkttools/cloud-sdk:slim
+    id: build-storefront-image
+    waitFor:
+      - prepare-buildpack-contexts
+      - setup-pack
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        source /workspace/cloudrun.vars
+
+        storefront_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/storefront:${build_tag}"
+        storefront_cache_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/storefront-build-cache:latest"
+
+        /workspace/pack build "$storefront_image" \
+          --builder gcr.io/buildpacks/builder:latest \
+          --path .cloudrun/storefront \
+          --cache-image "$storefront_cache_image" \
+          --env GOOGLE_NODEJS_VERSION=22.x.x \
+          --env GOOGLE_NODE_RUN_SCRIPTS=build \
+          --network cloudbuild \
+          --publish
+
+  - name: gcr.io/google.com/cloudsdkttools/cloud-sdk:slim
+    id: deploy-storefront
+    waitFor:
+      - build-storefront-image
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        source /workspace/cloudrun.vars
+
+        storefront_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/storefront:${build_tag}"
+
+        cat > /workspace/storefront-env.yaml <<EOF
+        NODE_ENV: "production"
+        NEXT_PUBLIC_MEDUSA_BACKEND_URL: "$commerce_url"
+        NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: "$_MEDUSA_PUBLISHABLE_KEY"
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "$_STRIPE_PUBLISHABLE_KEY"
+        NEXT_PUBLIC_OPS_API_URL: "$ops_api_url"
+        NEXT_PUBLIC_CHAT_SERVICE_URL: "$_NEXT_PUBLIC_CHAT_SERVICE_URL"
+        GOOGLE_PLACES_API_KEY: "$_GOOGLE_PLACES_API_KEY"
+        GOOGLE_PLACE_ID: "$_GOOGLE_PLACE_ID"
+        NEXT_PUBLIC_GOOGLE_PLACE_URL: "$_NEXT_PUBLIC_GOOGLE_PLACE_URL"
+        EOF
+
+        gcloud run deploy "$storefront_service" \
+          --image "$storefront_image" \
+          --region "$region" \
+          --project "$project_id" \
+          --platform managed \
+          --service-account "$_RUNTIME_SERVICE_ACCOUNT" \
+          --allow-unauthenticated \
+          --port 8080 \
+          --cpu 1 \
+          --memory 512Mi \
+          --max-instances 2 \
+          --env-vars-file /workspace/storefront-env.yaml \
+          --quiet
+
+        gcloud run services describe "$storefront_service" \
+          --region "$region" \
+          --project "$project_id" \
+          --format='value(status.url)'

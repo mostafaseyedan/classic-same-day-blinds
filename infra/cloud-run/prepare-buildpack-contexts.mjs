@@ -6,7 +6,8 @@ import { spawn } from "node:child_process";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..", "..");
-const outputRoot = path.resolve(process.argv[2] ?? path.join(repoRoot, ".cloudrun"));
+const outputRoot = path.join(repoRoot, ".cloudrun");
+const contextFilter = process.argv[2] ?? null;
 
 const basePackageJson = {
   private: true,
@@ -87,6 +88,9 @@ const contexts = [
       },
       devDependencies: {
         "@types/node": "^22.14.1",
+      },
+      overrides: {
+        "picomatch": "^3.0.2",
       },
     },
     flatCopyPaths: [
@@ -171,10 +175,16 @@ async function runCommand(command, args, cwd) {
   });
 }
 
-await rm(outputRoot, { recursive: true, force: true });
+if (contextFilter) {
+  await rm(path.join(outputRoot, contextFilter), { recursive: true, force: true });
+} else {
+  await rm(outputRoot, { recursive: true, force: true });
+}
 await mkdir(outputRoot, { recursive: true });
 
 for (const context of contexts) {
+  if (contextFilter && context.name !== contextFilter) continue;
+
   const contextRoot = path.join(outputRoot, context.name);
 
   await mkdir(contextRoot, { recursive: true });

@@ -1,0 +1,250 @@
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _REGION: us-central1
+  _AR_REPO: cloud-run
+  _OPS_API_SERVICE: blinds-ops-api
+  _COMMERCE_SERVICE: blinds-commerce
+  _STOREFRONT_SERVICE: blinds-storefront
+  _SQL_INSTANCE: blinds-postgres
+  _SQL_DATABASE: blinds_commerce
+  _SQL_USER: blindsapp
+  _RUNTIME_SERVICE_ACCOUNT: csdb-app@classic-same-day-blinds.iam.gserviceaccount.com
+  _MEDUSA_PUBLISHABLE_KEY: ""
+  _MEDUSA_ADMIN_EMAIL: ""
+  _MEDUSA_ADMIN_PASSWORD: ""
+  _DB_PASSWORD: ""
+  _INTERNAL_API_SECRET: ""
+  _STRIPE_SECRET_KEY: ""
+  _RESEND_API_KEY: ""
+  _EMAIL_FROM: orders@classicsamedayblinds.local
+  _EMAIL_ADMIN_RECIPIENTS: ops@classicsamedayblinds.local
+  _GOOGLE_PLACES_API_KEY: ""
+  _GOOGLE_PLACE_ID: ""
+  _LLM_PROVIDER: ""
+  _VERTEX_PROJECT_ID: ""
+  _VERTEX_LOCATION: ""
+  _VERTEX_MODEL: ""
+
+steps:
+  - name: gcr.io/google.com/cloudsdkttools/cloud-sdk:slim
+    id: prepare-runtime
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        required_values=(
+          "$_MEDUSA_PUBLISHABLE_KEY"
+          "$_MEDUSA_ADMIN_EMAIL"
+          "$_MEDUSA_ADMIN_PASSWORD"
+        )
+        for value in "${required_values[@]}"; do
+          if [ -z "$value" ]; then
+            echo "Missing one or more required Cloud Build substitutions."
+            exit 1
+          fi
+        done
+
+        random_secret() {
+          python3 -c 'import secrets; print(secrets.token_urlsafe(32))'
+        }
+
+        get_service_env() {
+          local service_name="$1"
+          local env_name="$2"
+
+          gcloud run services describe "$service_name" \
+            --region "$_REGION" \
+            --project "$PROJECT_ID" \
+            --format export 2>/dev/null | awk -v env_name="$env_name" '
+              $1 == "- name:" && $3 == env_name { in_target = 1; next }
+              in_target && $1 == "value:" {
+                value = substr($0, index($0, ":") + 2)
+                gsub(/^"/, "", value)
+                gsub(/"$/, "", value)
+                print value
+                exit
+              }
+              $1 == "- name:" { in_target = 0 }
+            '
+        }
+
+        extract_db_password() {
+          local database_url="$1"
+          python3 -c 'import sys; from urllib.parse import urlparse; url = sys.argv[1]; password = urlparse(url).password if url else None; print(password or "")' "$database_url"
+        }
+
+        hello_image="us-docker.pkg.dev/cloudrun/container/hello"
+
+        ensure_service_url() {
+          local service_name="$1"
+          if ! gcloud run services describe "$service_name" \
+            --region "$_REGION" \
+            --project "$PROJECT_ID" >/dev/null 2>&1; then
+            gcloud run deploy "$service_name" \
+              --image "$hello_image" \
+              --region "$_REGION" \
+              --project "$PROJECT_ID" \
+              --platform managed \
+              --service-account "$_RUNTIME_SERVICE_ACCOUNT" \
+              --allow-unauthenticated \
+              --quiet
+          fi
+          gcloud run services describe "$service_name" \
+            --region "$_REGION" \
+            --project "$PROJECT_ID" \
+            --format='value(status.url)'
+        }
+
+        ops_api_url="$(ensure_service_url "$_OPS_API_SERVICE")"
+        commerce_url="$(ensure_service_url "$_COMMERCE_SERVICE")"
+        storefront_url="$(ensure_service_url "$_STOREFRONT_SERVICE")"
+
+        resolved_db_password="$_DB_PASSWORD"
+        resolved_internal_api_secret="$_INTERNAL_API_SECRET"
+
+        if [ -z "$resolved_db_password" ]; then
+          existing_database_url="$(get_service_env "$_COMMERCE_SERVICE" DATABASE_URL)"
+          resolved_db_password="$(extract_db_password "$existing_database_url")"
+        fi
+
+        if [ -z "$resolved_db_password" ]; then
+          existing_database_url="$(get_service_env "$_OPS_API_SERVICE" OPS_DATABASE_URL)"
+          resolved_db_password="$(extract_db_password "$existing_database_url")"
+        fi
+
+        if [ -z "$resolved_internal_api_secret" ]; then
+          resolved_internal_api_secret="$(get_service_env "$_OPS_API_SERVICE" INTERNAL_API_SECRET)"
+        fi
+
+        if [ -z "$resolved_internal_api_secret" ]; then
+          resolved_internal_api_secret="$(get_service_env "$_COMMERCE_SERVICE" INTERNAL_API_SECRET)"
+        fi
+
+        if [ -z "$resolved_db_password" ]; then
+          resolved_db_password="$(random_secret)"
+        fi
+
+        if [ -z "$resolved_internal_api_secret" ]; then
+          resolved_internal_api_secret="$(random_secret)"
+        fi
+
+        instance_connection_name="$(gcloud sql instances describe "$_SQL_INSTANCE" \
+          --project "$PROJECT_ID" \
+          --format='value(connectionName)')"
+
+        cat > /workspace/cloudrun.vars <<EOF
+        project_id=$PROJECT_ID
+        region=$_REGION
+        ar_repo=$_AR_REPO
+        ops_api_service=$_OPS_API_SERVICE
+        ops_api_url=$ops_api_url
+        commerce_url=$commerce_url
+        storefront_url=$storefront_url
+        instance_connection_name=$instance_connection_name
+        build_tag=$BUILD_ID
+        db_password=$resolved_db_password
+        internal_api_secret=$resolved_internal_api_secret
+        EOF
+
+  - name: node:22-bullseye-slim
+    id: prepare-buildpack-contexts
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        node infra/cloud-run/prepare-buildpack-contexts.mjs ops-api
+
+  - name: gcr.io/google.com/cloudsdkttools/cloud-sdk:slim
+    id: setup-pack
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        pack_version="$(curl -sSfL https://api.github.com/repos/buildpacks/pack/releases/latest \
+          | python3 -c 'import sys,json; print(json.load(sys.stdin)["tag_name"])')"
+        curl -sSfL "https://github.com/buildpacks/pack/releases/download/${pack_version}/pack-${pack_version}-linux.tgz" \
+          | tar xz -C /workspace pack
+        chmod +x /workspace/pack
+        /workspace/pack --version
+
+  - name: gcr.io/google.com/cloudsdkttools/cloud-sdk:slim
+    id: build-ops-api-image
+    waitFor:
+      - prepare-buildpack-contexts
+      - setup-pack
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        source /workspace/cloudrun.vars
+
+        ops_api_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/ops-api:${build_tag}"
+        ops_api_cache_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/ops-api-build-cache:latest"
+
+        /workspace/pack build "$ops_api_image" \
+          --builder gcr.io/buildpacks/builder:latest \
+          --path .cloudrun/ops-api \
+          --cache-image "$ops_api_cache_image" \
+          --env GOOGLE_NODEJS_VERSION=22.x.x \
+          --env GOOGLE_NODE_RUN_SCRIPTS=build \
+          --network cloudbuild \
+          --publish
+
+  - name: gcr.io/google.com/cloudsdkttools/cloud-sdk:slim
+    id: deploy-ops-api
+    waitFor:
+      - build-ops-api-image
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        source /workspace/cloudrun.vars
+
+        ops_api_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/ops-api:${build_tag}"
+        database_url="postgresql://${_SQL_USER}:${db_password}@/${_SQL_DATABASE}?host=/cloudsql/${instance_connection_name}"
+
+        cat > /workspace/ops-api-env.yaml <<EOF
+        NODE_ENV: "production"
+        OPS_API_HOST: "0.0.0.0"
+        OPS_API_PORT: "8080"
+        OPS_DATABASE_URL: "$database_url"
+        OPS_API_ALLOWED_ORIGINS: "$storefront_url,$commerce_url"
+        MEDUSA_BACKEND_URL: "$commerce_url"
+        STOREFRONT_URL: "$storefront_url"
+        MEDUSA_PUBLISHABLE_KEY: "$_MEDUSA_PUBLISHABLE_KEY"
+        MEDUSA_ADMIN_EMAIL: "$_MEDUSA_ADMIN_EMAIL"
+        MEDUSA_ADMIN_PASSWORD: "$_MEDUSA_ADMIN_PASSWORD"
+        STRIPE_SECRET_KEY: "$_STRIPE_SECRET_KEY"
+        RESEND_API_KEY: "$_RESEND_API_KEY"
+        EMAIL_FROM: "$_EMAIL_FROM"
+        EMAIL_ADMIN_RECIPIENTS: "$_EMAIL_ADMIN_RECIPIENTS"
+        INTERNAL_API_SECRET: "$internal_api_secret"
+        GOOGLE_PLACES_API_KEY: "$_GOOGLE_PLACES_API_KEY"
+        GOOGLE_PLACE_ID: "$_GOOGLE_PLACE_ID"
+        LLM_PROVIDER: "$_LLM_PROVIDER"
+        VERTEX_PROJECT_ID: "$_VERTEX_PROJECT_ID"
+        VERTEX_LOCATION: "$_VERTEX_LOCATION"
+        VERTEX_MODEL: "$_VERTEX_MODEL"
+        EOF
+
+        gcloud run deploy "$ops_api_service" \
+          --image "$ops_api_image" \
+          --region "$region" \
+          --project "$project_id" \
+          --platform managed \
+          --service-account "$_RUNTIME_SERVICE_ACCOUNT" \
+          --allow-unauthenticated \
+          --port 8080 \
+          --cpu 1 \
+          --memory 512Mi \
+          --max-instances 2 \
+          --add-cloudsql-instances "$instance_connection_name" \
+          --env-vars-file /workspace/ops-api-env.yaml \
+          --quiet
+
+        gcloud run services describe "$ops_api_service" \
+          --region "$region" \
+          --project "$project_id" \
+          --format='value(status.url)'
