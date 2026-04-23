@@ -73,12 +73,11 @@ export function CartPage() {
             </Button>
           </SurfaceMuted>
         ) : (
-          <div className="mt-8 space-y-4">
+          <div className="mt-8 divide-y divide-black/6 border-t border-black/6">
             {items.map((item) => (
-              <SurfaceCard
-                as="article"
+              <article
                 key={item.id}
-                className="grid gap-4 px-4 py-4 md:grid-cols-[0.9fr_0.5fr_0.4fr]"
+                className="grid gap-4 py-7 md:grid-cols-[0.9fr_0.5fr_0.4fr]"
               >
                 <div>
                   <p className="text-lg font-semibold text-slate">
@@ -95,17 +94,16 @@ export function CartPage() {
                     </p>
                   ) : null}
                 </div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brass">
-                    Quantity
-                  </p>
-                  <div className="mt-2">
-                    <QuantityStepper
-                      value={item.quantity ?? 1}
-                      onChange={(nextValue) => void updateLineItem(item.id, nextValue)}
-                      disabled={isLoading}
-                    />
-                  </div>
+                <div className="flex items-center gap-3.5">
+                  <span className="text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-brass">
+                    Qty
+                  </span>
+                  <QuantityStepper
+                    value={item.quantity ?? 1}
+                    onChange={(nextValue) => void updateLineItem(item.id, nextValue)}
+                    disabled={isLoading}
+                    className="h-9 scale-90"
+                  />
                 </div>
                 <div className="flex flex-col items-start justify-between gap-3 md:items-end">
                   <p className="text-lg font-semibold text-slate">
@@ -122,7 +120,7 @@ export function CartPage() {
                     Remove
                   </Button>
                 </div>
-              </SurfaceCard>
+              </article>
             ))}
           </div>
         )}

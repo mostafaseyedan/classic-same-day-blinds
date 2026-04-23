@@ -57,11 +57,11 @@ img {
   }
 
   .card-interactive {
-    @apply overflow-hidden rounded-media bg-white transition-[box-shadow,transform] duration-200 hover:shadow-[0_10px_24px_rgba(24,36,34,0.06)];
+    @apply overflow-hidden rounded-media bg-white transition-[box-shadow, transform] duration-200 hover:shadow-[0_10px_24px_rgba(24, 36, 34, 0.06)];
   }
 
   .dialog-shell {
-    @apply overflow-hidden rounded-container bg-white shadow-[0_24px_64px_rgba(24,36,34,0.14)];
+    @apply overflow-hidden rounded-container bg-white shadow-[0_24px_64px_rgba(24, 36, 34, 0.14)];
   }
 
   .catalog-kicker {
@@ -81,7 +81,7 @@ img {
   }
 
   .catalog-filter-chip-active {
-    @apply border-olive bg-olive text-shell;
+    @apply border-slate bg-slate text-shell;
   }
 
 }

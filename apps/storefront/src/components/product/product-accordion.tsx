@@ -28,7 +28,7 @@ export function ProductAccordion({ items }: { items: AccordionItem[] }) {
             <button
               type="button"
               onClick={() => setOpenKey(isOpen ? null : item.key)}
-              className="flex w-full cursor-pointer items-center justify-between py-3.5 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-olive outline-none transition"
+              className="flex w-full cursor-pointer items-center justify-between py-3.5 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-slate outline-none transition"
               aria-expanded={isOpen}
             >
               {item.label}

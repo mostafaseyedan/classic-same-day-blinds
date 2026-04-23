@@ -197,7 +197,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             <div className="rounded-card border border-black/8 bg-white px-4 py-4 md:px-5 md:py-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-olive/95">
+                  <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-brass/95">
                     {product.categoryLabel}
                   </p>
                   <h1 className="mt-1.5 max-w-[16ch] font-display text-[1.78rem] font-medium leading-[1.02] tracking-tight text-slate md:text-[2.05rem]">
@@ -219,97 +219,92 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 items={[
                   ...((product.description || installTimeLabel || considerations.length > 0)
                     ? [{
-                        key: "details",
-                        label: "Product Details",
-                        content: (
-                          <div className="grid gap-4">
-                            {product.description ? (
-                              <p className="max-w-[42rem] text-[0.88rem] leading-6 text-slate/74">
-                                {product.description}
-                              </p>
-                            ) : null}
-                            {installTimeLabel ? (
-                              <div className="text-[0.84rem] leading-6 text-slate/74">
-                                <span className="font-semibold text-slate">Install time:</span>{" "}
-                                <span>{installTimeLabel}</span>
-                              </div>
-                            ) : null}
-                            {considerations.length > 0 ? (
-                              <div>
-                                <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate/48">
-                                  Considerations
-                                </p>
-                                <ul className="grid gap-2">
-                                  {considerations.map((item) => (
-                                    <li key={item} className="flex items-start gap-2">
-                                      <span className="mt-[0.55rem] h-1.5 w-1.5 shrink-0 rounded-full bg-brass/70" />
-                                      <span className="text-[0.86rem] leading-6 text-slate/72">{item}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            ) : null}
-                          </div>
-                        ),
-                      }]
+                      key: "details",
+                      label: "Product Details",
+                      content: (
+                        <div className="grid gap-4">
+                          {product.description ? (
+                            <p className="max-w-[42rem] text-[0.88rem] leading-6 text-slate/74">
+                              {product.description}
+                            </p>
+                          ) : null}
+                          {installTimeLabel ? (
+                            <div className="text-[0.84rem] leading-6 text-slate/74">
+                              <span className="font-semibold text-slate">Install time:</span>{" "}
+                              <span>{installTimeLabel}</span>
+                            </div>
+                          ) : null}
+                          {considerations.length > 0 ? (
+                            <div>
+                              <ul className="grid gap-2">
+                                {considerations.map((item) => (
+                                  <li key={item} className="flex items-start gap-2">
+                                    <span className="mt-[0.55rem] h-1.5 w-1.5 shrink-0 rounded-full bg-brass/70" />
+                                    <span className="text-[0.86rem] leading-6 text-slate/72">{item}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ) : null}
+                        </div>
+                      ),
+                    }]
                     : []),
                   ...(product.highlights.length > 0
                     ? [{
-                        key: "features",
-                        label: "Key Features",
-                        content: (
-                          <ul className="grid gap-2 sm:grid-cols-2">
-                            {product.highlights.map((highlight) => (
-                              <li key={highlight} className="flex items-start gap-2">
-                                <Check className="mt-0.5 h-4 w-4 shrink-0 text-olive" />
-                                <span className="text-[0.88rem] leading-6 text-slate/72">{highlight}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        ),
-                      }]
+                      key: "features",
+                      label: "Key Features",
+                      content: (
+                        <ul className="grid gap-2 sm:grid-cols-2">
+                          {product.highlights.map((highlight) => (
+                            <li key={highlight} className="flex items-start gap-2">
+                              <Check className="mt-0.5 h-4 w-4 shrink-0 text-olive" />
+                              <span className="text-[0.88rem] leading-6 text-slate/72">{highlight}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ),
+                    }]
                     : []),
                   ...(product.bestFor
                     ? [{
-                        key: "ideal",
-                        label: "Ideal For",
-                        content: (
-                          <p className="text-[0.84rem] leading-6 text-slate">{product.bestFor}</p>
-                        ),
-                      }]
+                      key: "ideal",
+                      label: "Ideal For",
+                      content: (
+                        <p className="text-[0.84rem] leading-6 text-slate">{product.bestFor}</p>
+                      ),
+                    }]
                     : []),
                   {
                     key: "specs",
                     label: "Product Specifications",
                     content: (
-                      <div className="grid gap-3">
-                        {product.leadTime ? (
-                          <div className="text-[0.84rem] leading-6 text-slate/74">
-                            <span className="font-semibold text-slate">Lead time:</span>{" "}
-                            <span>{product.leadTime}</span>
-                          </div>
-                        ) : null}
-                        <div className="text-[0.84rem] leading-6 text-slate/74">
-                          <span className="font-semibold text-slate">Fulfillment:</span>{" "}
-                          <span>{isStock ? "Stock size" : "Made to order"}</span>
-                        </div>
-                        {product.material ? (
-                          <div className="text-[0.84rem] leading-6 text-slate/74">
-                            <span className="font-semibold text-slate">Material:</span>{" "}
-                            <span>{product.material}</span>
-                          </div>
-                        ) : null}
-                        {specEntries.length > 0 ? (
-                          <div className="grid gap-3 border-t border-black/6 pt-3 md:grid-cols-2 md:gap-x-8">
-                            {specEntries.map((entry) => (
-                              <div key={entry.key} className="text-[0.84rem] leading-6 text-slate/74">
-                                <span className="font-semibold text-slate">{entry.label}:</span>{" "}
-                                <span>{entry.value}</span>
-                              </div>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
+                      <table className="w-full text-left text-[0.84rem] leading-6">
+                        <tbody className="divide-y divide-black/6">
+                          {product.leadTime && (
+                            <tr>
+                              <td className="py-2 pr-4 font-semibold text-slate">Lead time</td>
+                              <td className="py-2 text-slate/74">{product.leadTime}</td>
+                            </tr>
+                          )}
+                          <tr>
+                            <td className="py-2 pr-4 font-semibold text-slate">Fulfillment</td>
+                            <td className="py-2 text-slate/74">{isStock ? "Stock size" : "Made to order"}</td>
+                          </tr>
+                          {product.material && (
+                            <tr>
+                              <td className="py-2 pr-4 font-semibold text-slate">Material</td>
+                              <td className="py-2 text-slate/74">{product.material}</td>
+                            </tr>
+                          )}
+                          {specEntries.map((entry) => (
+                            <tr key={entry.key}>
+                              <td className="py-2 pr-4 font-semibold text-slate">{entry.label}</td>
+                              <td className="py-2 text-slate/74">{entry.value}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     ),
                   },
                 ]}

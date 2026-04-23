@@ -58,9 +58,8 @@ export function ProductCard({ product }: ProductCardProps) {
             }}
             variant="icon"
             size="icon"
-            className={`absolute right-3 top-3 z-20 border-white/40 bg-white/80 backdrop-blur-md ${
-              wishlisted ? "text-olive" : "text-slate/62 hover:text-olive"
-            }`}
+            className={`absolute right-3 top-3 z-20 border-white/40 bg-white/80 backdrop-blur-md ${wishlisted ? "text-olive" : "text-slate/62 hover:text-olive"
+              }`}
             aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
           >
             <Heart className={`h-4 w-4 ${wishlisted ? "fill-olive" : ""}`} />
@@ -68,7 +67,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <div className="px-3 pb-2 pt-3">
-          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-olive/95">
+          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass/95">
             {product.categoryLabel}
           </p>
           <Link
@@ -89,7 +88,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 <p className="font-display text-[0.72rem] italic font-normal text-slate/40 mb-1">
                   Starting from
                 </p>
-                <p className="text-[1.3rem] font-semibold leading-none text-olive">
+                <p className="text-[1.3rem] font-semibold leading-none text-slate">
                   {formatPrice(product.price, product.currencyCode)}
                 </p>
               </div>
@@ -103,7 +102,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <div className="mt-3 flex min-h-[1.5rem] items-start justify-between gap-3">
               <div className="min-w-0">
                 {primaryHighlight ? (
-                  <p className="truncate text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-slate/52">
+                  <p className="truncate text-[0.68rem] font-semibold tracking-[0.04em] text-olive">
                     {primaryHighlight}
                   </p>
                 ) : null}

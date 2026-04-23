@@ -330,7 +330,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
                   </p>
                 </div>
               ) : null}
-              <p className="mt-1 text-[2rem] font-semibold leading-none text-olive">
+              <p className="mt-1 text-[2rem] font-semibold leading-none text-slate">
                 {formatPrice(unitPrice ?? product.price, currencyCode)}
               </p>
               {perSqFt != null && (
@@ -364,7 +364,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
 
         {nonSizeOptions.map((option) => (
           <div key={option.id}>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-olive/80">{option.title}</p>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate">{option.title}</p>
             <div className="mt-1.5 flex flex-wrap gap-2">
               {option.values.map((value) => {
                 const active = selection[option.title] === value;
@@ -393,7 +393,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
 
         <div className="grid items-start gap-4 border-t border-black/6 pt-3 sm:grid-cols-[11rem_1fr]">
           <label className="grid gap-2">
-            <span className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-olive/80">Quantity</span>
+            <span className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate">Quantity</span>
             <QuantityStepper
               value={quantity}
               onChange={setQuantity}
@@ -403,7 +403,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
             />
           </label>
           <div className="pt-1">
-            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-olive">
+            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass">
               {sizeOption ? `Custom size ${selectedCustomSizeLabel}` : (selectedVariant?.title ?? "Select options")}
             </p>
             <p className="mt-0.5 text-[0.62rem] uppercase tracking-[0.09em] text-slate/42">

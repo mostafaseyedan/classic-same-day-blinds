@@ -85,7 +85,7 @@ export function ProductsGrid({ products, categories, initialCategory }: Products
         </div>
       </div>
 
-      <p className="mb-4 text-[0.76rem] uppercase tracking-[0.12em] text-olive/46">
+      <p className="mb-4 text-[0.76rem] uppercase tracking-[0.12em] text-slate/46">
         {filtered.length} {filtered.length === 1 ? "product" : "products"}
         {activeCategoryMeta ? ` in ${activeCategoryMeta.name}` : ""}
       </p>
