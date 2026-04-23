@@ -57,11 +57,17 @@ img {
   }
 
   .card-interactive {
-    @apply overflow-hidden rounded-media bg-white transition-[box-shadow, transform] duration-200 hover:shadow-[0_10px_24px_rgba(24, 36, 34, 0.06)];
+    @apply overflow-hidden rounded-media bg-white duration-200;
+    transition-property: box-shadow, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-interactive:hover {
+    box-shadow: 0 10px 24px rgba(24, 36, 34, 0.06);
   }
 
   .dialog-shell {
-    @apply overflow-hidden rounded-container bg-white shadow-[0_24px_64px_rgba(24, 36, 34, 0.14)];
+    @apply overflow-hidden rounded-container bg-white;
+    box-shadow: 0 24px 64px rgba(24, 36, 34, 0.14);
   }
 
   .catalog-kicker {
