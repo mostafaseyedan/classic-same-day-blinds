@@ -207,10 +207,24 @@ steps:
       - |
         node infra/cloud-run/prepare-buildpack-contexts.mjs
 
-  - name: gcr.io/k8s-skaffold/pack
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    id: setup-pack
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        pack_version="$(curl -sSfL https://api.github.com/repos/buildpacks/pack/releases/latest \
+          | python3 -c 'import sys,json; print(json.load(sys.stdin)["tag_name"])')"
+        curl -sSfL "https://github.com/buildpacks/pack/releases/download/${pack_version}/pack-${pack_version}-linux.tgz" \
+          | tar xz -C /workspace pack
+        chmod +x /workspace/pack
+        /workspace/pack --version
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     id: build-storefront-image
     waitFor:
       - prepare-buildpack-contexts
+      - setup-pack
     entrypoint: bash
     args:
       - -ceu
@@ -220,7 +234,7 @@ steps:
         storefront_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/storefront:${build_tag}"
         storefront_cache_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/storefront-build-cache:latest"
 
-        pack build "$storefront_image" \
+        /workspace/pack build "$storefront_image" \
           --builder gcr.io/buildpacks/builder:latest \
           --path .cloudrun/storefront \
           --cache-image "$storefront_cache_image" \
@@ -229,10 +243,11 @@ steps:
           --network cloudbuild \
           --publish
 
-  - name: gcr.io/k8s-skaffold/pack
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     id: build-ops-api-image
     waitFor:
       - prepare-buildpack-contexts
+      - setup-pack
     entrypoint: bash
     args:
       - -ceu
@@ -242,7 +257,7 @@ steps:
         ops_api_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/ops-api:${build_tag}"
         ops_api_cache_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/ops-api-build-cache:latest"
 
-        pack build "$ops_api_image" \
+        /workspace/pack build "$ops_api_image" \
           --builder gcr.io/buildpacks/builder:latest \
           --path .cloudrun/ops-api \
           --cache-image "$ops_api_cache_image" \
@@ -251,10 +266,11 @@ steps:
           --network cloudbuild \
           --publish
 
-  - name: gcr.io/k8s-skaffold/pack
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     id: build-commerce-image
     waitFor:
       - prepare-buildpack-contexts
+      - setup-pack
     entrypoint: bash
     args:
       - -ceu
@@ -264,7 +280,7 @@ steps:
         commerce_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/commerce:${build_tag}"
         commerce_cache_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/commerce-build-cache:latest"
 
-        pack build "$commerce_image" \
+        /workspace/pack build "$commerce_image" \
           --builder gcr.io/buildpacks/builder:latest \
           --path .cloudrun/commerce \
           --cache-image "$commerce_cache_image" \
