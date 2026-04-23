@@ -228,6 +228,8 @@ steps:
           --cache-image "$commerce_cache_image" \
           --env GOOGLE_NODEJS_VERSION=22.x.x \
           --env GOOGLE_NODE_RUN_SCRIPTS=build \
+          --env NPM_CONFIG_AUDIT=false \
+          --env NPM_CONFIG_FUND=false \
           --env NODE_ENV=production \
           --env MEDUSA_BACKEND_URL="$commerce_url" \
           --env DATABASE_URL="postgresql://build:build@localhost/build" \
@@ -247,7 +249,7 @@ steps:
 
         commerce_worker_service="${_COMMERCE_WORKER_SERVICE}"
         commerce_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/commerce:${build_tag}"
-        database_url="postgresql://${_SQL_USER}:${db_password}@/${_SQL_DATABASE}?host=/cloudsql/${instance_connection_name}"
+        database_url="postgresql://${_SQL_USER}:${db_password}@localhost/${_SQL_DATABASE}?host=/cloudsql/${instance_connection_name}"
         redis_url="redis://${redis_host}:${redis_port}"
 
         cat > /workspace/commerce-server-env.yaml <<EOF
