@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Fraunces, Manrope } from "next/font/google";
 
 import { SiteFooter } from "@/components/site-footer";
@@ -47,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${bodyFont.variable} ${displayFont.variable} font-sans antialiased`}>
-        <NavigationProgressBar />
+        <Suspense fallback={null}><NavigationProgressBar /></Suspense>
         <script
           dangerouslySetInnerHTML={{
             __html: `window.__BLINDS_PUBLIC_CONFIG__ = ${publicRuntimeConfig};`,

@@ -60,7 +60,7 @@ steps:
             --region "$_REGION" \
             --project "$PROJECT_ID" \
             --format export 2>/dev/null | awk -v env_name="$env_name" '
-              $1 == "- name:" && $3 == env_name { in_target = 1; next }
+              $1 == "-" && $2 == "name:" && $3 == env_name { in_target = 1; next }
               in_target && $1 == "value:" {
                 value = substr($0, index($0, ":") + 2)
                 gsub(/^"/, "", value)
@@ -68,7 +68,7 @@ steps:
                 print value
                 exit
               }
-              $1 == "- name:" { in_target = 0 }
+              $1 == "-" && $2 == "name:" { in_target = 0 }
             '
         }
 
