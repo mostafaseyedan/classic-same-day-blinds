@@ -145,9 +145,9 @@ export function SignupPromoPopup() {
 
   const activePromoCodes = useMemo(
     () =>
-      (((cart as { promotions?: Array<{ code?: string }> } | null)?.promotions ?? [])
-        .map((promotionEntry) => promotionEntry.code?.trim())
-        .filter((value): value is string => Boolean(value))),
+    (((cart as { promotions?: Array<{ code?: string }> } | null)?.promotions ?? [])
+      .map((promotionEntry) => promotionEntry.code?.trim())
+      .filter((value): value is string => Boolean(value))),
     [cart],
   );
 

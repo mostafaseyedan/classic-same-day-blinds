@@ -84,7 +84,7 @@ export function CompareBar() {
                         {product.name}
                       </p>
                       <CloseButton
-                        onClick={() => toggleCompare(product as any)}
+                        onClick={() => toggleCompare(product)}
                         variant="destructive"
                         size="sm"
                         className="mr-1 shrink-0"
@@ -123,7 +123,7 @@ export function CompareBar() {
                   {product.name}
                 </p>
                 <CloseButton
-                  onClick={() => toggleCompare(product as any)}
+                  onClick={() => toggleCompare(product)}
                   variant="destructive"
                   size="sm"
                   className="shrink-0"

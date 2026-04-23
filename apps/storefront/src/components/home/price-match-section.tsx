@@ -22,10 +22,10 @@ export function PriceMatchSection({ opsReady }: PriceMatchSectionProps) {
               Price Match
             </p>
             <h2 className="mt-4 font-display text-4xl font-semibold tracking-tight md:text-5xl">
-              We'll match any competitor's price.
+              We&apos;ll match any competitor&apos;s price.
             </h2>
             <p className="mt-4 max-w-xl text-base leading-7 text-shell/76">
-              Found the same blind for less? Share your quote and we'll beat it. Submit a request
+              Found the same blind for less? Share your quote and we&apos;ll beat it. Submit a request
               and our team will respond with a price-matched order within one business day.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">

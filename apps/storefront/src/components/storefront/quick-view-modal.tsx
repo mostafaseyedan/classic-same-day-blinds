@@ -109,9 +109,8 @@ export function QuickViewModal({ product, onClose }: QuickViewModalProps) {
                   <button
                     key={`${image}-${index}`}
                     onClick={() => setActiveImage(image)}
-                    className={`h-14 w-14 shrink-0 overflow-hidden rounded-media border bg-white/92 p-0.5 transition ${
-                      activeImage === image ? "border-olive shadow-sm" : "border-black/10 hover:border-black/20"
-                    }`}
+                    className={`h-14 w-14 shrink-0 overflow-hidden rounded-media border bg-white/92 p-0.5 transition ${activeImage === image ? "border-olive shadow-sm" : "border-black/10 hover:border-black/20"
+                      }`}
                     aria-label={`View image ${index + 1}`}
                   >
                     <img src={image} alt="" className="h-full w-full rounded-media object-cover object-center" />

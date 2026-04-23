@@ -7,7 +7,6 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@blinds/ui";
 import { SurfaceMuted } from "@blinds/ui";
-import { EyebrowAccent } from "@blinds/ui";
 import type { GoogleReview } from "@/lib/google-reviews";
 
 type GoogleReviewsCarouselProps = {
@@ -38,39 +37,29 @@ export function GoogleReviewsCarousel({
   if (reviews.length === 0) return null;
 
   return (
-    <div className="mt-20 border-t border-black/5 pt-16">
-      <div className="mb-10 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
-        <div>
-          <EyebrowAccent>Social Proof</EyebrowAccent>
-          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight text-slate md:text-3xl">
-            Homeowner Stories
-          </h2>
-        </div>
+    <div className="mt-16">
 
-        <div className="flex flex-col items-start gap-3 sm:items-end">
-          <div className="flex items-center gap-1 text-brass">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="h-4 w-4 fill-current" />
-            ))}
-            <span className="ml-2 text-sm font-bold text-slate">{rating || "4.9"} / 5</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate/50">
-              Based on {reviewCount || "120"}+ Google Reviews
-            </p>
-            {placeUrl ? (
-              <Button asChild variant="secondary" size="compact" className="hidden md:inline-flex">
-                <Link href={placeUrl} target="_blank" rel="noopener noreferrer nofollow">
-                  View on Google
-                </Link>
-              </Button>
-            ) : null}
-          </div>
+      {/* Minimal carousel header — rating + link only, no redundant title */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-2 text-brass">
+          {[...Array(5)].map((_, i) => (
+            <Star key={i} weight="fill" className="h-4 w-4" />
+          ))}
+          <span className="ml-1 text-sm font-bold text-slate">{rating || "4.9"}</span>
+          <span className="text-sm font-medium text-slate/40">/ 5</span>
         </div>
+        {placeUrl ? (
+          <Button asChild variant="secondary" size="compact">
+            <Link href={placeUrl} target="_blank" rel="noopener noreferrer nofollow">
+              View on Google
+            </Link>
+          </Button>
+        ) : null}
       </div>
 
+      {/* Desktop grid */}
       <div className="hidden md:block">
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           {desktopReviews.map((review, i) => (
             <ReviewCard
               key={`${review.author_name}-${page}-${i}`}
@@ -81,7 +70,7 @@ export function GoogleReviewsCarousel({
         </div>
 
         {pageCount > 1 ? (
-          <div className="mt-8 flex items-center justify-center gap-4">
+          <div className="mt-6 flex items-center justify-center gap-4">
             <Button
               type="button"
               variant="icon"
@@ -89,7 +78,7 @@ export function GoogleReviewsCarousel({
               onClick={() => goToPage(page - 1)}
               disabled={page === 0}
               aria-label="Previous reviews"
-              className="h-10 w-10"
+              className="h-9 w-9"
             >
               <CaretLeft className="h-4 w-4" />
             </Button>
@@ -100,7 +89,7 @@ export function GoogleReviewsCarousel({
                   <button
                     type="button"
                     onClick={() => goToPage(idx)}
-                    className="flex h-10 w-10 items-center justify-center"
+                    className="flex h-9 w-9 items-center justify-center"
                     aria-label={`Go to review page ${idx + 1}`}
                     aria-current={idx === page ? "true" : undefined}
                   >
@@ -123,22 +112,22 @@ export function GoogleReviewsCarousel({
               onClick={() => goToPage(page + 1)}
               disabled={page === pageCount - 1}
               aria-label="Next reviews"
-              className="h-10 w-10"
+              className="h-9 w-9"
             >
               <CaretRight className="h-4 w-4" />
             </Button>
           </div>
         ) : null}
-
       </div>
 
-      <div className="hide-scrollbar -mx-6 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-8 md:hidden">
+      {/* Mobile horizontal scroll */}
+      <div className="hide-scrollbar -mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-8 md:hidden">
         {reviews.map((review, i) => (
           <ReviewCard
             key={`${review.author_name}-${i}`}
             review={review}
             fallbackUrl={placeUrl}
-            className="w-[85vw] shrink-0 snap-start p-6"
+            className="w-[85vw] shrink-0 snap-start"
           />
         ))}
       </div>
@@ -163,24 +152,24 @@ function ReviewCard({
   const card = (
     <SurfaceMuted
       as="article"
-      className="h-full p-6 transition-colors hover:bg-shell md:p-8"
+      className="h-full rounded-card p-5 transition-colors hover:bg-shell"
     >
-      <div className="flex items-center gap-1.5 text-brass">
+      <div className="flex items-center gap-1 text-brass">
         {[...Array(review.rating)].map((_, i) => (
-          <Star key={i} className="h-3.5 w-3.5 fill-current" />
+          <Star key={i} weight="fill" className="h-3.5 w-3.5" />
         ))}
       </div>
 
-      <blockquote className="mt-6">
-        <p className="line-clamp-4 font-display text-lg font-medium leading-[1.6] tracking-tight text-slate md:text-xl md:leading-[1.5]">
-          "{review.text}"
+      <blockquote className="mt-4">
+        <p className="line-clamp-3 text-base font-normal leading-relaxed text-slate/80">
+          &ldquo;{review.text}&rdquo;
         </p>
       </blockquote>
 
-      <div className="mt-8 flex items-center justify-between gap-4 border-t border-black/5 pt-6">
+      <div className="mt-5 flex items-center justify-between gap-4 border-t border-black/5 pt-4">
         <div className="flex items-center gap-3">
           {review.profile_photo_url ? (
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-black/5">
+            <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-black/5">
               <Image
                 src={review.profile_photo_url}
                 alt={review.author_name}
@@ -189,7 +178,7 @@ function ReviewCard({
               />
             </div>
           ) : (
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-olive/10 text-xs font-bold text-olive">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-olive/10 text-xs font-bold text-olive">
               {review.author_name.charAt(0)}
             </div>
           )}

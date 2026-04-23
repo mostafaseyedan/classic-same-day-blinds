@@ -1,4 +1,5 @@
-import { CatalogProduct } from "@/lib/medusa/catalog";
+
+import type { CatalogProduct } from "@/lib/medusa/catalog";
 
 export const COMPARE_STORAGE_KEY = "blinds_compare_items";
 export const COMPARE_EVENT = "compare-updated";
@@ -14,7 +15,7 @@ export const getCompareItems = (): CompareItem[] => {
   }
 };
 
-export const toggleCompare = (product: CatalogProduct): void => {
+export const toggleCompare = (product: CompareItem): void => {
   if (typeof window === "undefined") return;
   const current = getCompareItems();
   let updated: CompareItem[];

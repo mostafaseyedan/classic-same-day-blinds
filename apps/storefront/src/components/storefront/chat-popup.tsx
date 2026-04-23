@@ -279,9 +279,8 @@ export function ChatPopup() {
                     className={`flex max-w-[84%] flex-col gap-1 sm:max-w-[80%] ${msg.from === "user" ? "items-end" : "items-start"}`}
                   >
                     <div
-                      className={`px-4 py-3 text-[13px] leading-relaxed shadow-sm ${
-                        msg.from === "user" ? "rounded-xl bg-olive text-white" : "rounded-xl bg-white text-slate"
-                      }`}
+                      className={`px-4 py-3 text-[13px] leading-relaxed shadow-sm ${msg.from === "user" ? "rounded-xl bg-olive text-white" : "rounded-xl bg-white text-slate"
+                        }`}
                       style={{ wordBreak: "break-word" }}
                     >
                       {msg.text}

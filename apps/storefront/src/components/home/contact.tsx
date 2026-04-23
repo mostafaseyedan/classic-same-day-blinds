@@ -63,12 +63,12 @@ export function Contact() {
                 </p>
 
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <Button variant="secondary-light" asChild className="px-6 py-3.5">
+                  <Button variant="secondary-light" asChild>
                     <a href="tel:8175409300">Call now</a>
                   </Button>
                   <Button
                     variant="secondary-light"
-                    className="px-6 py-3.5"
+                    className="relative"
                     onClick={() => {
                       const chatBtn = document.querySelector<HTMLButtonElement>(
                         '[aria-label="Open live chat"]',

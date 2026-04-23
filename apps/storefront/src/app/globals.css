@@ -63,6 +63,7 @@ img {
   .dialog-shell {
     @apply overflow-hidden rounded-container bg-white shadow-[0_24px_64px_rgba(24,36,34,0.14)];
   }
+
   .catalog-kicker {
     @apply text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-olive;
   }
@@ -99,7 +100,7 @@ img {
   transform: translateY(0);
 }
 
-[data-animate-stagger] > [data-animate] {
+[data-animate-stagger]>[data-animate] {
   transition-delay: calc(var(--stagger, 0) * 80ms);
 }
 
@@ -115,6 +116,7 @@ img {
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;

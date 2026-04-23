@@ -71,11 +71,11 @@ function findSizeVariant(
   const pool =
     nonSizeOptionTitles.length > 0
       ? variants.filter((v) =>
-          nonSizeOptionTitles.every((title) => {
-            const sel = chipSelection[title];
-            return !sel || v.options[title] === sel;
-          }),
-        )
+        nonSizeOptionTitles.every((title) => {
+          const sel = chipSelection[title];
+          return !sel || v.options[title] === sel;
+        }),
+      )
       : variants;
 
   // Parse size from each variant
@@ -205,10 +205,10 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
     ? sizeOption
       ? selectedVariant.calculatedPrice
       : calcDimensionPrice(
-          selectedVariant.calculatedPrice,
-          dimensions.widthDecimal,
-          dimensions.heightDecimal,
-        )
+        selectedVariant.calculatedPrice,
+        dimensions.widthDecimal,
+        dimensions.heightDecimal,
+      )
     : null;
 
   const perSqFt =
@@ -265,7 +265,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
   }
 
   return (
-    <div id="add-to-cart">
+    <div>
       <div className="grid gap-4">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_14rem] lg:items-end">
           <div>

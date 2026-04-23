@@ -24,7 +24,7 @@ const rooms = [
     categoryEs: "Madera Sintética",
     badgeEn: "Most requested",
     badgeEs: "Más solicitado",
-    image: "/images/home/room-living.jpg",
+    image: "/images/home/room-living-new.png",
   },
   {
     slug: "bedroom",
@@ -34,12 +34,12 @@ const rooms = [
       "Privacy-first options with tighter light control and quieter operation for earlier nights and slower mornings.",
     descriptionEs:
       "Opciones pensadas para la privacidad con mejor control de luz y operación más silenciosa para noches más tranquilas.",
-    categorySlug: "vinyl-blinds",
-    categoryEn: "Vinyl Blinds",
-    categoryEs: "Persianas de Vinilo",
+    categorySlug: "faux-wood-blinds",
+    categoryEn: "Faux Wood",
+    categoryEs: "Madera Sintética",
     badgeEn: "Privacy-led",
     badgeEs: "Enfoque en privacidad",
-    image: "/images/home/room-bedroom.jpg",
+    image: "/images/home/room-bedroom-new.png",
   },
   {
     slug: "kitchen",
@@ -69,7 +69,7 @@ const rooms = [
     categoryEs: "Aluminio",
     badgeEn: "Commercial clean",
     badgeEs: "Acabado comercial",
-    image: "/images/home/room-office.jpg",
+    image: "/images/home/room-office-new.png",
   },
   {
     slug: "patio-doors",
@@ -84,7 +84,7 @@ const rooms = [
     categoryEs: "Persianas Verticales",
     badgeEn: "Wide-span fit",
     badgeEs: "Para grandes aperturas",
-    image: "/images/home/room-patio.jpg",
+    image: "/images/home/room-patio-new.png",
   },
   {
     slug: "property-turns",
@@ -94,12 +94,12 @@ const rooms = [
       "Fast, repeatable replacements for rentals, hospitality rooms, and maintenance teams managing multiple openings.",
     descriptionEs:
       "Reposiciones rápidas y repetibles para rentas, habitaciones de hotel y equipos que gestionan múltiples ventanas.",
-    categorySlug: "vinyl-blinds",
-    categoryEn: "Vinyl Blinds",
-    categoryEs: "Persianas de Vinilo",
+    categorySlug: "faux-wood-blinds",
+    categoryEn: "Faux Wood",
+    categoryEs: "Madera Sintética",
     badgeEn: "Fast replenishment",
     badgeEs: "Reposición rápida",
-    image: "/images/home/story-apartments.jpg",
+    image: "/images/home/story-apartments-new.png",
   },
 ] as const;
 
@@ -116,7 +116,7 @@ export function ShopByRoom() {
   );
 
   return (
-    <section ref={sectionRef} data-animate className="page-section bg-white">
+    <section ref={sectionRef} data-animate className="page-section border-t border-black/5 bg-white">
       <div className="content-shell max-w-[72rem]">
         <SectionHeader>
           <div>

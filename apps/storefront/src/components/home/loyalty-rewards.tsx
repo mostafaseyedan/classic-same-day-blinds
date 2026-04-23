@@ -187,7 +187,7 @@ export function LoyaltyRewards() {
                 <div className="rounded-xl border border-white/15 bg-white/10 px-4 py-4">
                   <Tag className="h-5 w-5 text-brass" />
                   <p className="mt-3 text-xl font-semibold text-white">10% Off</p>
-                  <p className="mt-0.5 text-xs text-shell/60 uppercase tracking-wide">Friend's first order</p>
+                  <p className="mt-0.5 text-xs text-shell/60 uppercase tracking-wide">Friend&apos;s first order</p>
                 </div>
               </div>
 

@@ -90,9 +90,9 @@ export function BusinessInfo() {
         {/* Informational Block */}
         <div className="mt-8 rounded-[1.5rem] bg-white border border-black/5 px-6 py-8 md:px-10 shadow-sm text-center">
           <p className="text-slate/80 text-base leading-relaxed max-w-4xl mx-auto">
-            <strong className="text-slate font-semibold">In need of new blinds right away?</strong> Look no further than Classic Same Day Blinds. If you are located in the <strong className="text-olive font-semibold">Dallas Fort Worth area</strong>, we offer convenient <strong>same day delivery and pick-up</strong> options with certain orders. Are you located outside of this area? Don't worry, we'd still love to help! You can still place an order online for your convenience for delivery.
+            <strong className="text-slate font-semibold">In need of new blinds right away?</strong> Look no further than Classic Same Day Blinds. If you are located in the <strong className="text-olive font-semibold">Dallas Fort Worth area</strong>, we offer convenient <strong>same day delivery and pick-up</strong> options with certain orders. Are you located outside of this area? Don&apos;t worry, we&apos;d still love to help! You can still place an order online for your convenience for delivery.
             <br /><br />
-            Our location in <strong className="text-olive font-semibold">Bedford, TX</strong> has a huge inventory of blinds. If we don't have your selected blinds in stock, please reach out to us in the{' '}
+            Our location in <strong className="text-olive font-semibold">Bedford, TX</strong> has a huge inventory of blinds. If we don&apos;t have your selected blinds in stock, please reach out to us in the{' '}
             <Link href="/contact" className="text-brass font-bold hover:text-brass/80 hover:underline transition-colors">
               contact us
             </Link>

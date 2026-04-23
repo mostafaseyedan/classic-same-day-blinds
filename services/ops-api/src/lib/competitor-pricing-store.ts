@@ -1,13 +1,11 @@
 import { buildCompetitorAlerts, buildCompetitorRefreshRun, buildCompetitorSummary } from "@blinds/integrations";
 import type {
-  CompetitorPricingAlert,
   CompetitorPricingDashboardResponse,
   CompetitorProductMatch,
   CompetitorRefreshRun,
 } from "@blinds/types";
-import type { Pool, PoolClient } from "pg";
+import type { PoolClient } from "pg";
 
-import type { PriceModifier } from "./medusa-admin-client.js";
 import { fetchMedusaProductsWithPrices } from "./medusa-admin-client.js";
 import type { MedusaProductForSync } from "./medusa-admin-client.js";
 
@@ -832,86 +830,6 @@ export async function initCompetitorPricingStore() {
   });
 }
 
-async function upsertMatches(client: PoolClient, matches: CompetitorProductMatch[]) {
-  for (const match of matches) {
-    await client.query(
-      `
-        insert into ops.competitor_matches (
-          id,
-          internal_sku,
-          internal_product_name,
-          internal_category,
-          competitor,
-          competitor_product_name,
-          competitor_url,
-          match_status,
-          confidence,
-          size_label,
-          currency_code,
-          internal_price,
-          competitor_price,
-          price_delta,
-          last_checked_at,
-          last_success_at,
-          scrape_status,
-          alert_severity,
-          notes,
-          medusa_product_id,
-          storefront_slug,
-          updated_at
-        )
-        values (
-          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,now()
-        )
-        on conflict (id) do update set
-          internal_sku = excluded.internal_sku,
-          internal_product_name = excluded.internal_product_name,
-          internal_category = excluded.internal_category,
-          competitor = excluded.competitor,
-          competitor_product_name = excluded.competitor_product_name,
-          competitor_url = excluded.competitor_url,
-          match_status = excluded.match_status,
-          confidence = excluded.confidence,
-          size_label = excluded.size_label,
-          currency_code = excluded.currency_code,
-          internal_price = excluded.internal_price,
-          competitor_price = excluded.competitor_price,
-          price_delta = excluded.price_delta,
-          last_checked_at = excluded.last_checked_at,
-          last_success_at = excluded.last_success_at,
-          scrape_status = excluded.scrape_status,
-          alert_severity = excluded.alert_severity,
-          notes = excluded.notes,
-          medusa_product_id = excluded.medusa_product_id,
-          storefront_slug = excluded.storefront_slug,
-          updated_at = now()
-      `,
-      [
-        match.id,
-        match.internalSku,
-        match.internalProductName,
-        match.internalCategory,
-        match.competitor,
-        match.competitorProductName,
-        match.competitorUrl,
-        match.matchStatus,
-        match.confidence,
-        match.sizeLabel,
-        match.currentPrice.currencyCode,
-        match.currentPrice.internalPrice,
-        match.currentPrice.competitorPrice,
-        match.priceDelta,
-        match.lastCheckedAt,
-        match.lastSuccessAt,
-        match.scrapeStatus,
-        match.alertSeverity ?? null,
-        match.notes ?? null,
-        match.medusaProductId ?? null,
-        match.storefrontSlug ?? null,
-      ],
-    );
-  }
-}
 
 async function insertRefreshRun(client: PoolClient, refresh: CompetitorRefreshRun) {
   await client.query(

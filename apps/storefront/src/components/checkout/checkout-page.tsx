@@ -136,6 +136,12 @@ type ShippingAddress = {
 };
 
 type ShippingOption = { id: string; name: string; amount: number; currency_code: string };
+type RawShippingOption = {
+  id: string;
+  name: string;
+  amount?: number | null;
+  calculated_price?: { calculated_amount?: number | null; currency_code?: string | null } | null;
+};
 
 export function CheckoutPage() {
   const router = useRouter();
@@ -196,10 +202,7 @@ export function CheckoutPage() {
       setShippingLoading(true);
       try {
         const response = await sdk.store.fulfillment.listCartOptions({ cart_id: cart.id });
-        const opts: ShippingOption[] = (response.shipping_options ?? []).map((o: {
-          id: string; name: string; amount?: number | null;
-          calculated_price?: { currency_code?: string | null; calculated_amount?: number | null };
-        }) => ({
+        const opts: ShippingOption[] = ((response.shipping_options ?? []) as RawShippingOption[]).map((o) => ({
           id: o.id,
           name: o.name,
           amount: o.calculated_price?.calculated_amount ?? o.amount ?? 0,

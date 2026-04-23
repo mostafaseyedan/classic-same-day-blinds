@@ -107,7 +107,7 @@ export function Select({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpen(false);
-        buttonRef.current?.focus();
+        buttonRef.current?.focus({ preventScroll: true });
       }
     };
 
@@ -139,7 +139,7 @@ export function Select({
       }
 
       setOpen(false);
-      buttonRef.current?.focus();
+      buttonRef.current?.focus({ preventScroll: true });
     },
     [isControlled],
   );
@@ -296,6 +296,7 @@ export function Select({
                 className={cn(
                   dropdownItemClassName,
                   (isActive || isHighlighted) && dropdownActiveItemClassName,
+                  size === "compact" && "text-[0.72rem] py-1.5",
                 )}
               >
                 {option.label}

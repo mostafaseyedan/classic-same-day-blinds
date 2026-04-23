@@ -1,157 +1,293 @@
 import { Button } from "@blinds/ui";
 import { Badge } from "@blinds/ui";
-import { Breadcrumbs } from "@blinds/ui";
-import { Label } from "@blinds/ui";
-import { FormShell, SectionPanel } from "@blinds/ui";
-import { Eyebrow, PageCopy, TaskPageTitle } from "@blinds/ui";
+import { Eyebrow, EyebrowAccent } from "@blinds/ui";
+import { SurfaceMuted } from "@blinds/ui";
+import Image from "next/image";
 import Link from "next/link";
+import { Truck, Clock, Star, MapPin, ShoppingCart, Scissors, House, NavigationArrow, CaretDown } from "@phosphor-icons/react/ssr";
+import { AnimateOnScroll } from "@/components/animate-on-scroll";
 
 const steps = [
-  "Choose an in-stock product and enter a delivery address inside the current same-day coverage area.",
-  "Place the order before the daily cutoff so the team can confirm routing and fulfillment timing.",
-  "Orders outside the service area or after cutoff continue through the normal shipping path.",
+  {
+    title: "Place Your Order",
+    description: "Browse online or call us. Confirm your measurements and checkout before the daily cutoff.",
+    icon: ShoppingCart,
+  },
+  {
+    title: "Cut & Prepare",
+    description: "We pull from our in-stock inventory and custom-cut to your exact specifications in Bedford, TX.",
+    icon: Scissors,
+  },
+  {
+    title: "Same-Day Dispatch",
+    description: "DFW orders are dispatched to our fleet or prepped for pick-up. Outside DFW? We ship immediately.",
+    icon: Truck,
+  },
+  {
+    title: "Enjoy Your Blinds",
+    description: "Get your blinds the same day in DFW. Every order includes an easy installation guide.",
+    icon: House,
+  },
 ];
 
 const coverage = [
-  "Bedford",
-  "Fort Worth",
-  "Arlington",
-  "Dallas",
-  "Irving",
-  "Plano",
-  "Frisco",
-  "Grapevine",
-  "Denton",
-];
-
-const details = [
-  {
-    label: "Service area",
-    value: "DFW metro",
-  },
-  {
-    label: "Operations base",
-    value: "Bedford, Texas",
-  },
-  {
-    label: "Fallback",
-    value: "Standard shipping when same-day is unavailable",
-  },
+  { city: "Bedford", county: "Tarrant" },
+  { city: "Fort Worth", county: "Tarrant" },
+  { city: "Arlington", county: "Tarrant" },
+  { city: "Dallas", county: "Dallas" },
+  { city: "Irving", county: "Dallas" },
+  { city: "Plano", county: "Collin" },
+  { city: "Frisco", county: "Collin" },
+  { city: "Grapevine", county: "Tarrant" },
+  { city: "Denton", county: "Denton" },
+  { city: "Southlake", county: "Tarrant" },
+  { city: "Keller", county: "Tarrant" },
+  { city: "Euless", county: "Tarrant" },
 ];
 
 const faqs = [
   {
-    question: "What is the cutoff time?",
+    question: "What is the daily cutoff time?",
     answer:
-      "Cutoff timing depends on product availability, route demand, and operating capacity for that day.",
+      "Our standard cutoff is 2:00 PM CST Monday through Friday, and 11:00 AM on Saturdays. Orders placed after this time will be scheduled for the next delivery day.",
   },
   {
-    question: "Does every product qualify?",
+    question: "Does every product qualify for same-day delivery?",
     answer:
-      "No. Same-day service is limited to qualifying products, available inventory, and delivery areas inside the active route.",
+      "No. Same-day service is limited to specific in-stock products and available inventory. Custom cut-to-size items require standard production time.",
+  },
+  {
+    question: "What happens if I live outside the coverage area?",
+    answer:
+      "Orders outside our primary delivery zone will be shipped through our standard carrier network and usually arrive within 2-3 business days.",
   },
   {
     question: "Can I pick up the order instead?",
     answer:
-      "Pickup can be arranged for qualifying orders. Contact the team if you need same-day collection instead of delivery.",
+      "Yes, pickup can be arranged for qualifying orders at our Bedford location. Please contact our support team immediately after ordering to change your delivery method.",
+  },
+];
+
+const reviews = [
+  {
+    quote:
+      "I couldn't believe they actually delivered the same afternoon. The blinds were exactly what we needed to finish the living room before guests arrived.",
+    author: "Sarah M.",
+    location: "Arlington, TX",
+  },
+  {
+    quote:
+      "We needed replacements fast for an apartment unit turnover. The local fleet had the order to our property manager in under 4 hours.",
+    author: "David R.",
+    location: "Dallas, TX",
   },
 ];
 
 export default function SameDayDeliveryPage() {
   return (
-    <main className="page-section pb-20 pt-10">
-      <div className="content-shell max-w-6xl">
-        <Breadcrumbs
-          items={[
-            { label: "Home", href: "/" },
-            { label: "Services" },
-            { label: "Same-Day Delivery" },
-          ]}
+    <main className="pb-24">
+      <AnimateOnScroll className="relative w-full overflow-hidden bg-slate shadow-xl">
+        <Image
+          src="/images/same-day-delivery/hero.jpg"
+          alt="Same-Day Delivery truck in Dallas-Fort Worth"
+          fill
+          className="object-cover object-center opacity-60"
+          priority
         />
-        <SectionPanel as="section" className="px-6 py-10 md:px-8">
-          <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
-            <div className="grid gap-8">
-              <div>
-                <Eyebrow>Same-Day Delivery</Eyebrow>
-                <TaskPageTitle>Get qualifying blinds delivered the same day in DFW.</TaskPageTitle>
-                <PageCopy className="max-w-[35rem]">
-                  When an order qualifies, the local team can route it for same-day delivery across
-                  the Dallas-Fort Worth service area. Orders outside coverage continue through the
-                  regular shipping flow.
-                </PageCopy>
-              </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-slate/95 via-slate/70 to-transparent" />
 
-              <div className="border-t border-black/6 pt-6">
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-brass">
-                  How it works
-                </p>
-                <div className="mt-4 grid gap-4">
-                  {steps.map((step, index) => (
-                    <article
-                      key={step}
-                      className="border-t border-black/6 pt-4 first:border-t-0 first:pt-0"
-                    >
-                      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-brass">
-                        Step {index + 1}
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-slate/76">{step}</p>
-                    </article>
-                  ))}
+        <div className="content-shell relative z-10 py-16 sm:py-20 lg:py-28">
+          <div className="max-w-3xl">
+            <p className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.35em] text-white/90">
+              <span className="block h-px w-10 bg-brass" />
+              Same-Day Service
+            </p>
+            
+            <h1 className="mt-6 font-display text-4xl font-semibold tracking-tight text-white md:text-5xl lg:leading-[1.1]">
+              Get it installed today in Dallas-Fort Worth.
+            </h1>
+            <p className="mt-6 text-lg leading-8 text-white/80">
+              When your order qualifies, our local team routes it for same-day delivery across the
+              DFW metro area. Skip the shipping wait and finish your project faster.
+            </p>
+
+            {/* Minimal Inline Location Data */}
+            <div className="mt-10 flex items-start sm:items-center gap-3 border-l-2 border-brass/50 pl-4">
+              <MapPin className="h-6 w-6 text-brass shrink-0 mt-0.5 sm:mt-0" weight="fill" />
+              <div>
+                <p className="font-semibold text-white text-sm">Local Fleet Dispatch</p>
+                <div className="mt-1 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                  <p className="text-[0.82rem] font-medium text-white/60">2801 Brasher Ln, Bedford, TX</p>
+                  <a
+                    href="https://maps.google.com/?q=2801+Brasher+Ln,+Bedford,+TX+76021"
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                    className="inline-flex items-center gap-1 text-[0.82rem] font-semibold text-brass transition hover:text-white"
+                  >
+                    Get Directions <NavigationArrow className="h-3 w-3" weight="bold" />
+                  </a>
                 </div>
               </div>
             </div>
 
-            <FormShell>
-              <div className="grid gap-6">
-                <div className="grid gap-4 border-b border-black/6 pb-6">
-                  {details.map((item) => (
-                    <div key={item.label} className="grid gap-1">
-                      <Label as="p" variant="utility">{item.label}</Label>
-                      <p className="text-sm leading-6 text-slate">{item.value}</p>
-                    </div>
-                  ))}
-                </div>
+            <div className="mt-12 flex flex-wrap gap-4">
+              <Button asChild variant="accent">
+                <Link href="/products">Shop eligible products</Link>
+              </Button>
+              <Button asChild variant="secondary-light">
+                <Link href="#coverage">Check coverage map</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </AnimateOnScroll>
 
-                <div className="border-b border-black/6 pb-6">
-                  <Label as="p" variant="utility">Current coverage</Label>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {coverage.map((city) => (
-                      <Badge key={city} variant="pill-light">
-                        {city}
-                      </Badge>
-                    ))}
-                    <Badge variant="pill">Outside DFW: standard shipping</Badge>
-                  </div>
-                </div>
-
-                <div>
-                  <Label as="p" variant="utility">Common questions</Label>
-                  <div className="mt-4 grid gap-4">
-                    {faqs.map((item) => (
-                      <article
-                        key={item.question}
-                        className="border-t border-black/6 pt-4 first:border-t-0 first:pt-0"
-                      >
-                        <p className="text-sm font-semibold text-slate">{item.question}</p>
-                        <p className="mt-2 text-sm leading-6 text-slate/72">{item.answer}</p>
-                      </article>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-3 border-t border-black/6 pt-6">
-                  <Button asChild variant="default"><Link href="/products">
-                    Shop products
-                  </Link></Button>
-                  <Button asChild variant="secondary"><Link href="/contact">
-                    Contact support
-                  </Link></Button>
+      {/* How It Works Ribbon */}
+      <section className="relative z-30 w-full bg-slate py-5 border-t border-white/10">
+        <div className="mx-auto max-w-7xl px-6 sm:px-10 md:px-12 lg:px-16">
+          <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
+            {steps.map((step, idx) => (
+              <div key={step.title} className="flex items-center gap-4 border-white/10 py-1 transition-opacity hover:opacity-80 lg:border-l lg:pl-6 lg:first:border-l-0 lg:first:pl-0">
+                <step.icon className="h-6 w-6 shrink-0 text-brass" weight="light" />
+                <div className="flex flex-col">
+                  <span className="text-[0.85rem] font-semibold text-white leading-[1.2]">
+                    {idx + 1}. {step.title}
+                  </span>
+                  <span className="text-[0.8rem] text-white/70 leading-[1.2] mt-0.5">
+                    {step.description}
+                  </span>
                 </div>
               </div>
-            </FormShell>
+            ))}
           </div>
-        </SectionPanel>
-      </div>
+        </div>
+      </section>
+
+      <AnimateOnScroll className="content-shell">
+        <div className="mt-16 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] items-start">
+            <SurfaceMuted className="rounded-container p-8 md:p-10">
+              <div className="flex items-center gap-3 text-olive">
+                <Clock className="h-6 w-6" weight="fill" />
+                <h3 className="font-display text-xl font-semibold text-slate">
+                  When to Order for Same-Day
+                </h3>
+              </div>
+              <div className="mt-8 grid gap-4 text-[0.88rem]">
+                <div className="grid grid-cols-3 border-b border-black/5 pb-2 font-semibold text-slate/50">
+                  <span>Day</span>
+                  <span>Order By</span>
+                  <span>Fulfillment</span>
+                </div>
+                <div className="grid grid-cols-3 border-b border-black/5 pb-4 items-center">
+                  <span className="font-medium text-slate">Mon - Fri</span>
+                  <span className="font-semibold text-brass">10:00 AM CST</span>
+                  <span className="inline-flex w-fit items-center gap-1 rounded-full bg-olive/10 px-2 py-0.5 text-xs font-bold text-olive">
+                    <Truck className="h-3 w-3" /> Same Day
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 border-b border-black/5 pb-4 items-center">
+                  <span className="font-medium text-slate">Saturday</span>
+                  <span className="text-slate/60 text-xs">Online only</span>
+                  <span className="inline-flex w-fit items-center gap-1 rounded-full bg-slate/5 px-2 py-0.5 text-xs font-bold text-slate/70">
+                    <Clock className="h-3 w-3" /> Mon / Tue
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 pb-2 items-center">
+                  <span className="font-medium text-slate">Sunday</span>
+                  <span className="text-slate/60 text-xs">Online only</span>
+                  <span className="inline-flex w-fit items-center gap-1 rounded-full bg-slate/5 px-2 py-0.5 text-xs font-bold text-slate/70">
+                    <Clock className="h-3 w-3" /> Mon / Tue
+                  </span>
+                </div>
+              </div>
+            </SurfaceMuted>
+
+            <div className="flex flex-col gap-6 h-full">
+              <article className="relative h-full min-h-[14rem] w-full overflow-hidden rounded-card bg-slate">
+                <div className="absolute inset-0">
+                  <Image
+                    src="/images/same-day-delivery/warehouse.jpg"
+                    alt="Warehouse inventory"
+                    fill
+                    className="object-cover object-center"
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,30,0.12)_0%,rgba(15,23,30,0.28)_52%,rgba(15,23,30,0.78)_100%)]" />
+                </div>
+                <div className="absolute inset-x-0 bottom-0 z-10 p-6 text-white">
+                  <div className="flex items-center gap-3 mb-4">
+                    <House className="h-6 w-6 text-brass" weight="fill" />
+                    <div>
+                      <h3 className="font-bold text-white text-[0.95rem]">Pick-Up Location</h3>
+                      <p className="text-xs text-white/70">Bedford, TX Warehouse</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-[0.82rem] text-white/80">
+                    <div className="flex items-start gap-2">
+                      <MapPin className="h-4 w-4 text-brass shrink-0 mt-0.5" />
+                      <span>2801 Brasher Ln, Bedford, TX 76021</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Clock className="h-4 w-4 text-brass shrink-0 mt-0.5" />
+                      <span>Mon–Fri: 8:00 AM – 5:00 PM</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        {/* Coverage Areas */}
+        <div id="coverage" className="mt-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-6">
+            {coverage.map((loc) => (
+              <div
+                key={loc.city}
+                className="group flex flex-col items-start transition-colors"
+              >
+                <div className="flex w-full items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 shrink-0 text-olive/80 transition-colors group-hover:text-olive" weight="fill" />
+                    <span className="text-[0.95rem] font-semibold text-slate">{loc.city}</span>
+                  </div>
+                  <Badge variant="soft-brass" className="px-1.5 py-0 text-[0.55rem] tracking-wider opacity-0 transition-opacity group-hover:opacity-100">
+                    SAME DAY
+                  </Badge>
+                </div>
+                <p className="mt-1 pl-6 text-[0.75rem] text-slate/50">{loc.county} County</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+
+
+        {/* FAQs */}
+        <div className="mb-10 mt-16">
+          <div className="mx-auto max-w-3xl">
+            <div className="divide-y divide-black/5">
+              {faqs.map((faq) => (
+                <details
+                  key={faq.question}
+                  name="faq"
+                  className="group [&_summary::-webkit-details-marker]:hidden"
+                >
+                  <summary className="flex cursor-pointer items-center justify-between py-5 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-slate outline-none transition">
+                    {faq.question}
+                    <span className="text-slate/40 transition group-open:rotate-180">
+                      <CaretDown className="h-4 w-4" weight="bold" />
+                    </span>
+                  </summary>
+                  <div className="grid gap-4 pb-6">
+                    <p className="max-w-[42rem] text-[0.88rem] leading-6 text-slate/74">
+                      {faq.answer}
+                    </p>
+                  </div>
+                </details>
+              ))}
+            </div>
+            
+          </div>
+        </div>
+      </AnimateOnScroll>
     </main>
   );
 }

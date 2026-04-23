@@ -97,7 +97,7 @@ export default async function OrderConfirmationPage({
                 Thank you for your order.
               </h1>
               <p className="mt-4 max-w-3xl text-base leading-7 text-slate/72">
-                Your order has been placed and is being processed. You'll receive a confirmation email
+                Your order has been placed and is being processed. You&apos;ll receive a confirmation email
                 at <span className="font-semibold text-slate break-all">{orderEmail}</span> shortly.
               </p>
             </div>
@@ -222,7 +222,7 @@ export default async function OrderConfirmationPage({
             <p className="text-sm font-semibold text-slate">What happens next</p>
             <div className="mt-4 grid gap-3 text-sm leading-6 text-slate/72">
               <p>Our team in Bedford, TX will cut and prepare your order.</p>
-              <p>You'll receive a shipping notification once your order is on its way.</p>
+              <p>You&apos;ll receive a shipping notification once your order is on its way.</p>
               <p>Custom-size orders typically ship within 2–6 business days depending on the product.</p>
             </div>
           </div>

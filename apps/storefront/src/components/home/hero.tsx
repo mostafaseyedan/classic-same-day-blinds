@@ -212,12 +212,12 @@ export function Hero() {
               }}
               className="flex flex-wrap gap-5"
             >
-              <Button asChild variant="accent" className="px-12 py-4 text-sm font-bold">
+              <Button asChild variant="accent">
                 <Link href="/products">
                   {t("Shop Products", "Comprar Ahora")}
                 </Link>
               </Button>
-              <Button asChild variant="secondary-light" className="border-white/20 bg-white/5 px-12 py-4 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] hover:border-brass hover:text-brass">
+              <Button asChild variant="secondary-light" className="border-white/20 bg-white/5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] hover:border-brass hover:text-brass">
                 <Link href="/free-sample">
                   {t("Free Samples", "Muestras Gratis")}
                 </Link>

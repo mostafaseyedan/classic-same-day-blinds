@@ -30,21 +30,68 @@ const storyProof = [
 
 export function About({ googlePlace }: { googlePlace: GooglePlaceData | null }) {
   const reviews = googlePlace?.reviews?.slice(0, 8) ?? [];
+  const reviewCount = googlePlace?.user_ratings_total;
+  const rating = googlePlace?.rating;
+
+  const stats = [
+    {
+      value: "37",
+      unit: "Years",
+      label: "in window coverings — since 1986",
+    },
+    {
+      value: reviewCount ? `${reviewCount}+` : "1,200+",
+      unit: rating ? `${rating}-star` : "5-star",
+      label: "Google reviews from homeowners and property teams",
+    },
+    {
+      value: "Same-Day",
+      unit: "DFW",
+      label: "fulfillment on eligible stock items",
+    },
+  ] as const;
 
   return (
     <section id="about" className="page-section border-t border-black/5 bg-white">
       <AnimateOnScroll className="content-shell">
-        <div className="grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
+
+        {/* Section intro */}
+        <div className="flex flex-col gap-3">
+          <Eyebrow>Homeowner Stories</Eyebrow>
+          <SectionTitle className="max-w-3xl">
+            Trusted by homeowners and property teams across DFW for over three decades.
+          </SectionTitle>
+        </div>
+
+        {/* Large typographic stat block */}
+        <div className="mt-10 grid grid-cols-1 divide-y sm:grid-cols-3 sm:divide-x sm:divide-y-0 divide-black/8 border-y border-black/8 py-2">
+          {stats.map((stat) => (
+            <div
+              key={stat.value}
+              className="flex flex-col gap-1 py-8 sm:py-6 sm:px-10 first:pl-0 last:pr-0"
+            >
+              <p className="font-display text-[3rem] font-medium leading-none tracking-tighter text-slate">
+                {stat.value}
+              </p>
+              <p className="mt-1.5 text-[0.7rem] font-bold uppercase tracking-[0.2em] text-brass">
+                {stat.unit}
+              </p>
+              <p className="mt-1 text-[0.85rem] leading-5 text-slate/60">
+                {stat.label}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Story grid */}
+        <div className="mt-14 grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
           <div>
-            <Eyebrow>Our Story</Eyebrow>
-            <SectionTitle className="max-w-2xl">
-              Thirty years of helping homes feel considered, finished, and easier to live in.
-            </SectionTitle>
-            <SectionCopy>
+            <EyebrowAccent>Our Story</EyebrowAccent>
+            <p className="mt-4 max-w-[52ch] text-sm leading-6 text-slate/70 sm:text-base sm:leading-7">
               Classic Same Day Blinds grew out of hands-on product knowledge, local measuring help,
               and the practical reality that most customers do not want to become experts just to buy
               the right window treatment.
-            </SectionCopy>
+            </p>
 
             <div className="mt-12 lg:mt-16">
               <div className="space-y-8 border-t border-black/10 pt-8 lg:space-y-10 lg:pt-10">
@@ -86,13 +133,7 @@ export function About({ googlePlace }: { googlePlace: GooglePlaceData | null }) 
                     className="object-cover object-center"
                   />
                 </div>
-                <div className="border-t border-black/10 pt-4">
-                  <EyebrowAccent>Why it still works</EyebrowAccent>
-                  <p className="mt-3 text-lg font-semibold leading-7 text-slate">
-                    Product guidance, samples, and local support all point toward the same outcome:
-                    ordering the right blind once.
-                  </p>
-                </div>
+
               </div>
             </div>
             <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full bg-olive/10 blur-3xl sm:h-36 sm:w-36" />

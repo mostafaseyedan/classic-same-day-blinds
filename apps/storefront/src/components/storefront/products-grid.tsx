@@ -102,7 +102,7 @@ export function ProductsGrid({ products, categories, initialCategory }: Products
           <p className="text-sm leading-6 text-slate/58">Try a different category or clear your filters.</p>
           <Button variant="default"
             onClick={() => setActiveCategory("all")}
-            
+
           >
             Show all products
           </Button>

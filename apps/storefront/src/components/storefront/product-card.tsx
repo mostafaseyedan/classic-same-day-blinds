@@ -113,7 +113,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
           <div className="mt-4 border-t border-black/6 pt-3">
             <div className="flex items-center justify-between gap-3">
-              <Button asChild variant="default" className="relative z-10 px-4 py-2 text-sm">
+              <Button asChild variant="default" size="compact" className="relative z-10">
                 <Link
                   href={`/products/${product.slug}#add-to-cart`}
                   onClick={(e) => e.stopPropagation()}
@@ -131,7 +131,8 @@ export function ProductCard({ product }: ProductCardProps) {
                 }}
                 title={leadCopy}
                 variant="secondary"
-                className="relative z-10 px-4 py-2 text-sm"
+                size="compact"
+                className="relative z-10"
               >
                 Quick view
               </Button>

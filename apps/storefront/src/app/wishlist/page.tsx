@@ -11,7 +11,7 @@ export default function WishlistPage() {
             Your wishlist
           </PageTitle>
           <p className="mt-4 text-base leading-7 text-slate/70">
-            Products you've saved for later. They're stored in your browser until you're ready to order.
+            Products you&apos;ve saved for later. They&apos;re stored in your browser until you&apos;re ready to order.
           </p>
         </div>
         <WishlistGrid />
