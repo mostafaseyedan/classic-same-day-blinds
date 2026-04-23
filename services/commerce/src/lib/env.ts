@@ -7,7 +7,7 @@ export interface CommerceServiceEnv {
   jwtSecret: string;
   cookieSecret: string;
   backendUrl: string;
-  adminPath: string;
+  adminPath: `/${string}`;
   workerMode: "shared" | "server" | "worker";
   adminDisabled: boolean;
 }
@@ -43,7 +43,7 @@ export function readCommerceServiceEnv(): CommerceServiceEnv {
     jwtSecret: requireValue("JWT_SECRET", "supersecret"),
     cookieSecret: requireValue("COOKIE_SECRET", "supersecret"),
     backendUrl: requireValue("MEDUSA_BACKEND_URL", "http://localhost:9000"),
-    adminPath: requireValue("MEDUSA_ADMIN_PATH", "/app"),
+    adminPath: requireValue("MEDUSA_ADMIN_PATH", "/app") as `/${string}`,
     workerMode,
     adminDisabled:
       process.env.DISABLE_MEDUSA_ADMIN === "true" ||
