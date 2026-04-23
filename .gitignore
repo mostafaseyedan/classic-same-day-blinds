@@ -28,5 +28,6 @@ pattern_*.png
 Web Scrapping/
 .env
 .readdy_token
+.cloudrun/
 missing files/
 missing files/*

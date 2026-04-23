@@ -5,6 +5,7 @@ substitutions:
   _REGION: us-central1
   _AR_REPO: cloud-run
   _COMMERCE_SERVICE: blinds-commerce
+  _COMMERCE_WORKER_SERVICE: blinds-commerce-worker
   _OPS_API_SERVICE: blinds-ops-api
   _STOREFRONT_SERVICE: blinds-storefront
   _SQL_INSTANCE: blinds-postgres
@@ -122,6 +123,7 @@ steps:
         resolved_db_password="$_DB_PASSWORD"
         resolved_jwt_secret="$_JWT_SECRET"
         resolved_cookie_secret="$_COOKIE_SECRET"
+        resolved_internal_api_secret="$_INTERNAL_API_SECRET"
 
         if [ -z "$resolved_db_password" ]; then
           existing_database_url="$(get_service_env "$_COMMERCE_SERVICE" DATABASE_URL)"
@@ -136,6 +138,14 @@ steps:
           resolved_cookie_secret="$(get_service_env "$_COMMERCE_SERVICE" COOKIE_SECRET)"
         fi
 
+        if [ -z "$resolved_internal_api_secret" ]; then
+          resolved_internal_api_secret="$(get_service_env "$_COMMERCE_SERVICE" INTERNAL_API_SECRET)"
+        fi
+
+        if [ -z "$resolved_internal_api_secret" ]; then
+          resolved_internal_api_secret="$(get_service_env "$_OPS_API_SERVICE" INTERNAL_API_SECRET)"
+        fi
+
         if [ -z "$resolved_db_password" ]; then
           resolved_db_password="$(random_secret)"
         fi
@@ -146,6 +156,10 @@ steps:
 
         if [ -z "$resolved_cookie_secret" ]; then
           resolved_cookie_secret="$(random_secret)"
+        fi
+
+        if [ -z "$resolved_internal_api_secret" ]; then
+          resolved_internal_api_secret="$(random_secret)"
         fi
 
         instance_connection_name="$(gcloud sql instances describe "$_SQL_INSTANCE" \
@@ -182,10 +196,65 @@ steps:
         db_password=$resolved_db_password
         jwt_secret=$resolved_jwt_secret
         cookie_secret=$resolved_cookie_secret
+        internal_api_secret=$resolved_internal_api_secret
         EOF
 
-  - name: gcr.io/cloud-builders/docker
-    id: build-images
+  - name: node:22-bullseye-slim
+    id: prepare-buildpack-contexts
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        node infra/cloud-run/prepare-buildpack-contexts.mjs
+
+  - name: gcr.io/k8s-skaffold/pack
+    id: build-storefront-image
+    waitFor:
+      - prepare-buildpack-contexts
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        source /workspace/cloudrun.vars
+
+        storefront_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/storefront:${build_tag}"
+        storefront_cache_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/storefront-build-cache:latest"
+
+        pack build "$storefront_image" \
+          --builder gcr.io/buildpacks/builder:latest \
+          --path .cloudrun/storefront \
+          --cache-image "$storefront_cache_image" \
+          --env GOOGLE_NODEJS_VERSION=22.x.x \
+          --env GOOGLE_NODE_RUN_SCRIPTS=build \
+          --network cloudbuild \
+          --publish
+
+  - name: gcr.io/k8s-skaffold/pack
+    id: build-ops-api-image
+    waitFor:
+      - prepare-buildpack-contexts
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        source /workspace/cloudrun.vars
+
+        ops_api_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/ops-api:${build_tag}"
+        ops_api_cache_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/ops-api-build-cache:latest"
+
+        pack build "$ops_api_image" \
+          --builder gcr.io/buildpacks/builder:latest \
+          --path .cloudrun/ops-api \
+          --cache-image "$ops_api_cache_image" \
+          --env GOOGLE_NODEJS_VERSION=22.x.x \
+          --env GOOGLE_NODE_RUN_SCRIPTS=build \
+          --network cloudbuild \
+          --publish
+
+  - name: gcr.io/k8s-skaffold/pack
+    id: build-commerce-image
+    waitFor:
+      - prepare-buildpack-contexts
     entrypoint: bash
     args:
       - -ceu
@@ -193,85 +262,80 @@ steps:
         source /workspace/cloudrun.vars
 
         commerce_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/commerce:${build_tag}"
-        ops_api_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/ops-api:${build_tag}"
-        storefront_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/storefront:${build_tag}"
-        workspace_deps_hash="$(
-          sha256sum \
-            package.json \
-            package-lock.json \
-            apps/storefront/package.json \
-            packages/config/package.json \
-            packages/integrations/package.json \
-            packages/types/package.json \
-            packages/ui/package.json \
-            services/chat-service/package.json \
-            services/commerce/package.json \
-            services/commerce/scripts/apply-medusa-compat.cjs \
-            services/ops-api/package.json \
-            services/workers/package.json | sha256sum | awk '{print $1}'
-        )"
-        workspace_deps_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/workspace-deps:${workspace_deps_hash}"
+        commerce_cache_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/commerce-build-cache:latest"
 
-        if ! docker pull "$workspace_deps_image" >/dev/null 2>&1; then
-          docker build \
-            -f infra/cloud-run/Dockerfile.workspace-base \
-            -t "$workspace_deps_image" \
-            .
-
-          docker push "$workspace_deps_image"
-        fi
-
-        docker build \
-          -f infra/cloud-run/Dockerfile.ops-api \
-          --build-arg BASE_IMAGE="$workspace_deps_image" \
-          -t "$ops_api_image" \
-          .
-
-        docker build \
-          -f infra/cloud-run/Dockerfile.storefront \
-          --build-arg BASE_IMAGE="$workspace_deps_image" \
-          -t "$storefront_image" \
-          .
-
-        docker build \
-          -f infra/cloud-run/Dockerfile.commerce \
-          --build-arg BASE_IMAGE="$workspace_deps_image" \
-          --build-arg VITE_OPS_API_URL="$ops_api_url" \
-          --build-arg VITE_STOREFRONT_URL="$storefront_url" \
-          -t "$commerce_image" \
-          .
-
-        docker push "$ops_api_image"
-        docker push "$storefront_image"
-        docker push "$commerce_image"
+        pack build "$commerce_image" \
+          --builder gcr.io/buildpacks/builder:latest \
+          --path .cloudrun/commerce \
+          --cache-image "$commerce_cache_image" \
+          --env GOOGLE_NODEJS_VERSION=22.x.x \
+          --env GOOGLE_NODE_RUN_SCRIPTS=build \
+          --env NODE_ENV=production \
+          --env MEDUSA_BACKEND_URL="$commerce_url" \
+          --env DATABASE_URL="postgresql://build:build@localhost/build" \
+          --env REDIS_URL="redis://localhost:6379" \
+          --network cloudbuild \
+          --publish
 
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     id: deploy-services
+    waitFor:
+      - build-storefront-image
+      - build-ops-api-image
+      - build-commerce-image
     entrypoint: bash
     args:
       - -ceu
       - |
         source /workspace/cloudrun.vars
 
+        commerce_worker_service="${_COMMERCE_WORKER_SERVICE}"
         commerce_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/commerce:${build_tag}"
         ops_api_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/ops-api:${build_tag}"
         storefront_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/storefront:${build_tag}"
         database_url="postgresql://${_SQL_USER}:${db_password}@/${_SQL_DATABASE}?host=/cloudsql/${instance_connection_name}"
         redis_url="redis://${redis_host}:${redis_port}"
 
-        cat > /workspace/commerce-env.yaml <<EOF
+        cat > /workspace/commerce-server-env.yaml <<EOF
         NODE_ENV: "production"
         DATABASE_URL: "$database_url"
         REDIS_URL: "$redis_url"
         JWT_SECRET: "$jwt_secret"
         COOKIE_SECRET: "$cookie_secret"
+        RUN_DB_MIGRATIONS: "true"
+        MEDUSA_WORKER_MODE: "server"
+        DISABLE_MEDUSA_ADMIN: "false"
         MEDUSA_BACKEND_URL: "$commerce_url"
         MEDUSA_ADMIN_PATH: "$_MEDUSA_ADMIN_PATH"
         STORE_CORS: "$storefront_url"
         ADMIN_CORS: "$commerce_url"
         AUTH_CORS: "$storefront_url,$commerce_url"
         OPS_API_BASE_URL: "$ops_api_url"
-        INTERNAL_API_SECRET: "$_INTERNAL_API_SECRET"
+        INTERNAL_API_SECRET: "$internal_api_secret"
+        STRIPE_SECRET_KEY: "$_STRIPE_SECRET_KEY"
+        STRIPE_WEBHOOK_SECRET: "$_STRIPE_WEBHOOK_SECRET"
+        GCS_BUCKET_NAME: "$_GCS_BUCKET_NAME"
+        GCS_ACCESS_KEY_ID: "$_GCS_ACCESS_KEY_ID"
+        GCS_SECRET_ACCESS_KEY: "$_GCS_SECRET_ACCESS_KEY"
+        GCS_REGION: "$_GCS_REGION"
+        EOF
+
+        cat > /workspace/commerce-worker-env.yaml <<EOF
+        NODE_ENV: "production"
+        DATABASE_URL: "$database_url"
+        REDIS_URL: "$redis_url"
+        JWT_SECRET: "$jwt_secret"
+        COOKIE_SECRET: "$cookie_secret"
+        RUN_DB_MIGRATIONS: "false"
+        MEDUSA_WORKER_MODE: "worker"
+        DISABLE_MEDUSA_ADMIN: "true"
+        MEDUSA_BACKEND_URL: "$commerce_url"
+        MEDUSA_ADMIN_PATH: "$_MEDUSA_ADMIN_PATH"
+        STORE_CORS: "$storefront_url"
+        ADMIN_CORS: "$commerce_url"
+        AUTH_CORS: "$storefront_url,$commerce_url"
+        OPS_API_BASE_URL: "$ops_api_url"
+        INTERNAL_API_SECRET: "$internal_api_secret"
         STRIPE_SECRET_KEY: "$_STRIPE_SECRET_KEY"
         STRIPE_WEBHOOK_SECRET: "$_STRIPE_WEBHOOK_SECRET"
         GCS_BUCKET_NAME: "$_GCS_BUCKET_NAME"
@@ -295,7 +359,7 @@ steps:
         RESEND_API_KEY: "$_RESEND_API_KEY"
         EMAIL_FROM: "$_EMAIL_FROM"
         EMAIL_ADMIN_RECIPIENTS: "$_EMAIL_ADMIN_RECIPIENTS"
-        INTERNAL_API_SECRET: "$_INTERNAL_API_SECRET"
+        INTERNAL_API_SECRET: "$internal_api_secret"
         GOOGLE_PLACES_API_KEY: "$_GOOGLE_PLACES_API_KEY"
         GOOGLE_PLACE_ID: "$_GOOGLE_PLACE_ID"
         LLM_PROVIDER: "$_LLM_PROVIDER"
@@ -345,7 +409,24 @@ steps:
           --vpc-connector "$_VPC_CONNECTOR" \
           --vpc-egress private-ranges-only \
           --add-cloudsql-instances "$instance_connection_name" \
-          --env-vars-file /workspace/commerce-env.yaml \
+          --env-vars-file /workspace/commerce-server-env.yaml \
+          --quiet
+
+        gcloud run deploy "$commerce_worker_service" \
+          --image "$commerce_image" \
+          --region "$region" \
+          --project "$project_id" \
+          --platform managed \
+          --service-account "$_RUNTIME_SERVICE_ACCOUNT" \
+          --no-allow-unauthenticated \
+          --port 9000 \
+          --cpu 1 \
+          --memory 1Gi \
+          --max-instances 1 \
+          --vpc-connector "$_VPC_CONNECTOR" \
+          --vpc-egress private-ranges-only \
+          --add-cloudsql-instances "$instance_connection_name" \
+          --env-vars-file /workspace/commerce-worker-env.yaml \
           --quiet
 
         gcloud run deploy "$storefront_service" \
@@ -363,6 +444,10 @@ steps:
           --quiet
 
         gcloud run services describe "$commerce_service" \
+          --region "$region" \
+          --project "$project_id" \
+          --format='value(status.url)'
+        gcloud run services describe "$commerce_worker_service" \
           --region "$region" \
           --project "$project_id" \
           --format='value(status.url)'

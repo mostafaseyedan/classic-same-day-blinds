@@ -3,5 +3,19 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "main": "./env.ts"
+  "main": "./dist/env.js",
+  "types": "./dist/env.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/env.d.ts",
+      "default": "./dist/env.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "type-check": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
 }

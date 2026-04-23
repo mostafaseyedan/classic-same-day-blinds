@@ -4,27 +4,27 @@
   "version": "0.1.0",
   "type": "commonjs",
   "scripts": {
-    "postinstall": "node ./scripts/apply-medusa-compat.cjs",
-    "dev": "npm run db:migrate && mkdir -p .medusa-config/medusa && XDG_CONFIG_HOME=$PWD/.medusa-config node -r ts-node/register ./scripts/run-medusa-cli.cjs develop",
-    "build": "mkdir -p .medusa-config/medusa && XDG_CONFIG_HOME=$PWD/.medusa-config node -r ts-node/register ./scripts/run-medusa-cli.cjs build",
-    "db:migrate": "mkdir -p .medusa-config/medusa && XDG_CONFIG_HOME=$PWD/.medusa-config node -r ts-node/register ./scripts/run-medusa-cli.cjs db:migrate --skip-scripts",
-    "seed:catalog": "mkdir -p .medusa-config/medusa && XDG_CONFIG_HOME=$PWD/.medusa-config node -r ts-node/register ./scripts/run-medusa-cli.cjs exec ./src/scripts/seed.ts",
-    "export:products": "mkdir -p .medusa-config/medusa exports && XDG_CONFIG_HOME=$PWD/.medusa-config node -r ts-node/register ./scripts/run-medusa-cli.cjs exec ./src/scripts/export-products.ts",
-    "start": "mkdir -p .medusa-config/medusa && XDG_CONFIG_HOME=$PWD/.medusa-config node -r ts-node/register ./scripts/run-medusa-cli.cjs start",
+    "dev": "npm run db:migrate && mkdir -p .medusa-config/medusa && XDG_CONFIG_HOME=$PWD/.medusa-config medusa develop",
+    "build": "mkdir -p .medusa-config/medusa && XDG_CONFIG_HOME=$PWD/.medusa-config medusa build",
+    "db:migrate": "mkdir -p .medusa-config/medusa && XDG_CONFIG_HOME=$PWD/.medusa-config medusa db:migrate --skip-scripts",
+    "seed:catalog": "mkdir -p .medusa-config/medusa && XDG_CONFIG_HOME=$PWD/.medusa-config medusa exec ./src/scripts/seed.ts",
+    "export:products": "mkdir -p .medusa-config/medusa exports && XDG_CONFIG_HOME=$PWD/.medusa-config medusa exec ./src/scripts/export-products.ts",
+    "start": "mkdir -p .medusa-config/medusa && XDG_CONFIG_HOME=$PWD/.medusa-config medusa start",
     "type-check": "tsc --noEmit && tsc -p tsconfig.admin.json --noEmit"
   },
   "dependencies": {
+    "@blinds/types": "file:../../packages/types",
     "@medusajs/admin-sdk": "^2.13.5",
     "@medusajs/framework": "2.13.5",
     "@medusajs/medusa": "2.13.5",
     "@medusajs/ui": "^4.1.5",
     "i18next": "^26.0.3",
     "pg": "^8.14.1",
-    "react-i18next": "^17.0.2"
-  },
-  "devDependencies": {
-    "@types/node": "^22.14.1",
+    "react-i18next": "^17.0.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1"
   }
 }
