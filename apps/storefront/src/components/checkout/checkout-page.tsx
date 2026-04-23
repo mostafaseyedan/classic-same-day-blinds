@@ -198,7 +198,7 @@ export function CheckoutPage() {
         const response = await sdk.store.fulfillment.listCartOptions({ cart_id: cart.id });
         const opts: ShippingOption[] = (response.shipping_options ?? []).map((o: {
           id: string; name: string; amount?: number | null;
-          calculated_price?: { currency_code?: string; calculated_amount?: number | null };
+          calculated_price?: { currency_code?: string | null; calculated_amount?: number | null };
         }) => ({
           id: o.id,
           name: o.name,
