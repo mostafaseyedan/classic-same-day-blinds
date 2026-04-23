@@ -221,7 +221,8 @@ steps:
         source /workspace/cloudrun.vars
 
         ops_api_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/ops-api:${build_tag}"
-        database_url="postgresql://${_SQL_USER}:${db_password}@localhost/${_SQL_DATABASE}?host=/cloudsql/${instance_connection_name}"
+        socket_host="$(python3 -c "import urllib.parse; print(urllib.parse.quote('/cloudsql/${instance_connection_name}', safe=''))")"
+        database_url="postgresql://${_SQL_USER}:${db_password}@${socket_host}/${_SQL_DATABASE}"
 
         cat > /workspace/ops-api-env.yaml <<EOF
         NODE_ENV: "production"

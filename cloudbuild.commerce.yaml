@@ -249,7 +249,8 @@ steps:
 
         commerce_worker_service="${_COMMERCE_WORKER_SERVICE}"
         commerce_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/commerce:${build_tag}"
-        database_url="postgresql://${_SQL_USER}:${db_password}@localhost/${_SQL_DATABASE}?host=/cloudsql/${instance_connection_name}"
+        socket_host="$(python3 -c "import urllib.parse; print(urllib.parse.quote('/cloudsql/${instance_connection_name}', safe=''))")"
+        database_url="postgresql://${_SQL_USER}:${db_password}@${socket_host}/${_SQL_DATABASE}"
         redis_url="redis://${redis_host}:${redis_port}"
 
         cat > /workspace/commerce-server-env.yaml <<EOF
