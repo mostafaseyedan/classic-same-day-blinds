@@ -89,7 +89,7 @@ export function DesktopNav({
             { Icon: Buildings, en: "Hospitality Grade", es: "Calidad Hotelera", lgOnly: true },
           ].map(({ Icon, en, es, mdOnly, lgOnly }) => (
             <span key={en} className={`flex items-center gap-3 ${mdOnly ? "hidden md:flex" : lgOnly ? "hidden lg:flex" : "flex"}`}>
-              <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white">
+              <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white">
                 <Icon className="h-3.5 w-3.5 shrink-0 text-brass" />
                 {t(en, es)}
               </span>
@@ -105,7 +105,7 @@ export function DesktopNav({
                 asChild
                 variant="ghost-light"
                 size="compact"
-                className="gap-1.5 rounded-full border border-white/22 bg-transparent px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white shadow-none hover:border-brass/40 hover:bg-transparent hover:text-brass hover:shadow-none"
+                className="gap-1.5 rounded-full border border-white/22 bg-transparent px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-white shadow-none hover:border-brass/40 hover:bg-transparent hover:text-brass hover:shadow-none"
               >
                 <Link href={item.href}>
                   {item.label}
@@ -138,7 +138,7 @@ export function DesktopNav({
             trigger={({ open, buttonProps }) => (
               <button
                 {...buttonProps}
-                className="flex items-center gap-1.5 rounded-full border border-white/22 px-2.5 py-1 text-[11px] font-semibold text-white transition hover:border-white/34 hover:text-brass"
+                className="flex items-center gap-1.5 rounded-full border border-white/22 px-2.5 py-1 text-[11px] font-medium text-white transition hover:border-white/34 hover:text-brass"
               >
                 <Globe className="h-3.5 w-3.5 text-brass" weight="regular" />
                 {language === "en" ? "EN" : "ES"}
@@ -159,7 +159,7 @@ export function DesktopNav({
       <div className={isHomepage ? "hidden md:absolute md:left-0 md:right-0 md:top-full md:z-30 md:block" : "hidden md:block"}>
         <div
           className={cn(
-            "transform-gpu will-change-[backdrop-filter,transform] transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500",
+            "transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500",
             desktopShellSurface,
           )}
           onMouseEnter={clearMenuClose}

@@ -176,7 +176,7 @@ export interface CompetitorPricingDashboardResponse {
 
 export interface CustomerOpsRequestRecord {
   id: string;
-  type: "quote" | "invoice";
+  type: "quote" | "invoice" | "restock" | "account_deletion";
   email: string;
   status: string;
   submittedAt: string;
@@ -185,6 +185,9 @@ export interface CustomerOpsRequestRecord {
   purchaseOrderNumber?: string;
   cartId?: string;
   orderId?: string;
+  customerId?: string;
+  productId?: string;
+  productName?: string;
   notes?: string;
 }
 
@@ -201,6 +204,7 @@ export type NotificationKind =
   | "invoice-received-admin"
   | "order-confirmation-customer"
   | "order-confirmation-admin"
+  | "password-reset-customer"
   | "restock-alert-admin"
   | "account-deletion-admin";
 
@@ -247,4 +251,58 @@ export interface CustomerPaymentSetupIntentResponse {
   customerEmail?: string;
   stripeCustomerId?: string;
   clientSecret?: string;
+}
+
+export interface CustomerAccountActivityResponse {
+  requests: CustomerOpsRequestRecord[];
+  notifications: NotificationRecord[];
+}
+
+export interface CustomerAccountAdminCustomer {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  companyName?: string;
+  phone?: string;
+  hasAccount: boolean;
+  createdAt: string;
+  updatedAt: string;
+  metadata: Record<string, unknown>;
+}
+
+export interface CustomerAccountAdminAddress {
+  id: string;
+  label?: string;
+  company?: string;
+  firstName?: string;
+  lastName?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
+  countryCode?: string;
+  phone?: string;
+  isDefaultShipping: boolean;
+  isDefaultBilling: boolean;
+}
+
+export interface CustomerAccountAdminOrder {
+  id: string;
+  displayId?: number;
+  status: string;
+  email: string;
+  currencyCode: string;
+  total: number;
+  itemCount: number;
+  createdAt: string;
+}
+
+export interface CustomerAccountAdminResponse {
+  customer: CustomerAccountAdminCustomer;
+  addresses: CustomerAccountAdminAddress[];
+  orders: CustomerAccountAdminOrder[];
+  requests: CustomerOpsRequestRecord[];
+  notifications: NotificationRecord[];
 }

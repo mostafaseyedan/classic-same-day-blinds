@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { HttpTypes } from "@medusajs/types";
-import type { CustomerOpsRequestRecord } from "@blinds/types";
 
 import { useStorefront } from "@/components/storefront/storefront-provider";
 import { getPublicRuntimeConfig } from "@/lib/platform-config";
@@ -15,7 +14,6 @@ type CustomerContextValue = {
   customer: HttpTypes.StoreCustomer | null;
   orders: HttpTypes.StoreOrder[];
   addresses: HttpTypes.StoreCustomerAddress[];
-  requests: CustomerOpsRequestRecord[];
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (input: {
@@ -45,15 +43,7 @@ type CustomerContextValue = {
 };
 
 const CustomerContext = createContext<CustomerContextValue | null>(null);
-
-function normalizeRequests(payload: unknown): CustomerOpsRequestRecord[] {
-  if (!payload || typeof payload !== "object") {
-    return [];
-  }
-
-  const records = (payload as { requests?: CustomerOpsRequestRecord[] }).requests;
-  return Array.isArray(records) ? records : [];
-}
+const CUSTOMER_JWT_STORAGE_KEY = "blinds_storefront_customer_jwt";
 
 export function CustomerProvider({ children }: { children: React.ReactNode }) {
   const sdk = useMemo(() => getBrowserMedusaClient(), []);
@@ -62,27 +52,8 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null);
   const [orders, setOrders] = useState<HttpTypes.StoreOrder[]>([]);
   const [addresses, setAddresses] = useState<HttpTypes.StoreCustomerAddress[]>([]);
-  const [requests, setRequests] = useState<CustomerOpsRequestRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  async function loadOpsRequests(customerEmail: string) {
-    if (!config.opsApiBaseUrl) {
-      setRequests([]);
-      return;
-    }
-
-    const response = await fetch(
-      `${config.opsApiBaseUrl}/api/v1/customer-requests?email=${encodeURIComponent(customerEmail)}`,
-    );
-
-    if (!response.ok) {
-      throw new Error(`Unable to load customer requests (${response.status})`);
-    }
-
-    const payload = (await response.json()) as unknown;
-    setRequests(normalizeRequests(payload));
-  }
 
   async function refresh() {
     if (!sdk || !config.commerceEnabled) {
@@ -104,17 +75,10 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
       setCustomer(nextCustomer);
       setOrders(nextOrders ?? []);
       setAddresses(nextAddresses ?? []);
-
-      if (nextCustomer.email) {
-        await loadOpsRequests(nextCustomer.email);
-      } else {
-        setRequests([]);
-      }
     } catch (refreshError) {
       setCustomer(null);
       setOrders([]);
       setAddresses([]);
-      setRequests([]);
       const message =
         refreshError instanceof Error
           ? refreshError.message
@@ -202,7 +166,6 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
     setCustomer(null);
     setOrders([]);
     setAddresses([]);
-    setRequests([]);
     setError(null);
   }
 
@@ -220,10 +183,7 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
       first_name: input.first_name,
       last_name: input.last_name,
       phone: input.phone,
-      metadata: {
-        ...(customer?.metadata ?? {}),
-        company_name: input.company_name ?? String(customer?.metadata?.company_name ?? ""),
-      },
+      company_name: input.company_name,
     });
     await refresh();
   }
@@ -292,10 +252,20 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
       throw new Error("Ops API is not configured.");
     }
 
+    const token =
+      typeof window === "undefined"
+        ? null
+        : window.localStorage.getItem(CUSTOMER_JWT_STORAGE_KEY);
+
+    if (!token) {
+      throw new Error("Customer session token is missing.");
+    }
+
     const res = await fetch(`${opsApiUrl}/api/v1/account/delete-request`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: customer.email, customerId: customer.id }),
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
     });
 
     if (!res.ok) {
@@ -315,7 +285,6 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
       customer,
       orders,
       addresses,
-      requests,
       error,
       login,
       register,
@@ -329,7 +298,14 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
       resetPassword,
       requestAccountDeletion,
     }),
-    [config.commerceEnabled, isLoading, customer, orders, addresses, requests, error],
+    [
+      config.commerceEnabled,
+      isLoading,
+      customer,
+      orders,
+      addresses,
+      error,
+    ],
   );
 
   return <CustomerContext.Provider value={value}>{children}</CustomerContext.Provider>;

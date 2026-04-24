@@ -25,7 +25,7 @@ export function SegmentedControl({
   return (
     <div
       className={cn(
-        "mx-auto inline-grid min-w-[16.5rem] grid-cols-2 gap-1 rounded-full bg-white p-1",
+        "hide-scrollbar inline-flex max-w-full flex-nowrap gap-1 overflow-x-auto rounded-full bg-white p-1",
         className,
       )}
       role="tablist"
@@ -42,7 +42,7 @@ export function SegmentedControl({
             aria-selected={active}
             onClick={() => onValueChange(item.value)}
             className={cn(
-              "inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition",
+              "inline-flex shrink-0 items-center justify-center rounded-full px-4 py-2 text-sm font-semibold whitespace-nowrap transition",
               active ? "bg-slate text-shell" : "text-slate/70",
             )}
           >

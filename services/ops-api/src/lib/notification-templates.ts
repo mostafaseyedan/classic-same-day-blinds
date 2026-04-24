@@ -322,3 +322,39 @@ export function buildAccountDeletionAdminEmail(email: string, customerId: string
     html: `<p>A customer has requested account deletion.</p><p>Email: <strong>${email}</strong></p><p>Medusa customer ID: <strong>${customerId}</strong></p><p>Please delete this customer from the Medusa admin and confirm with the customer within 48 hours.</p>`,
   };
 }
+
+export function buildPasswordResetCustomerEmail(email: string, token: string) {
+  const resetUrl = `${opsApiEnv.storefrontUrl}/reset-password?token=${encodeURIComponent(token)}`;
+  const content = `
+    <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:${BRAND.brass};">Account Recovery</p>
+    <h1 style="margin:0 0 16px;font-size:26px;font-weight:700;color:${BRAND.slate};line-height:1.2;">Reset your password</h1>
+    <p style="margin:0 0 24px;font-size:15px;color:${BRAND.textMuted};line-height:1.6;">
+      We received a password reset request for <strong style="color:${BRAND.slate};">${email}</strong>.
+      Use the secure link below to choose a new password.
+    </p>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:26px 0;">
+      <tr>
+        <td align="center">
+          <a href="${resetUrl}"
+             style="display:inline-block;padding:14px 32px;background-color:${BRAND.olive};color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;border-radius:6px;letter-spacing:0.02em;">
+            Reset Password
+          </a>
+        </td>
+      </tr>
+    </table>
+
+    <p style="margin:0 0 18px;font-size:13px;color:${BRAND.textMuted};line-height:1.6;">
+      This link expires in 15 minutes. If you did not request a password reset, you can ignore this email.
+    </p>
+    <p style="margin:0;font-size:12px;color:${BRAND.textMuted};line-height:1.6;word-break:break-all;">
+      If the button does not work, paste this link into your browser:<br/>
+      <a href="${resetUrl}" style="color:${BRAND.brass};text-decoration:none;">${resetUrl}</a>
+    </p>
+  `;
+
+  return {
+    subject: "Reset your Classic Same Day Blinds password",
+    html: emailWrapper(content),
+  };
+}

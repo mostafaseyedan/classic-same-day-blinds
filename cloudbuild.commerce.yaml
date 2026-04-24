@@ -5,7 +5,6 @@ substitutions:
   _REGION: us-central1
   _AR_REPO: cloud-run
   _COMMERCE_SERVICE: blinds-commerce
-  _COMMERCE_WORKER_SERVICE: blinds-commerce-worker
   _OPS_API_SERVICE: blinds-ops-api
   _STOREFRONT_SERVICE: blinds-storefront
   _SQL_INSTANCE: blinds-postgres
@@ -170,6 +169,11 @@ steps:
           --password "$resolved_db_password" \
           --quiet
 
+        project_number="$(gcloud projects describe "$PROJECT_ID" \
+          --format='value(projectNumber)')"
+        storefront_alt_url="https://${_STOREFRONT_SERVICE}-${project_number}.us-central1.run.app"
+        commerce_alt_url="https://${_COMMERCE_SERVICE}-${project_number}.us-central1.run.app"
+
         cat > /workspace/cloudrun.vars <<EOF
         project_id=$PROJECT_ID
         region=$_REGION
@@ -177,7 +181,9 @@ steps:
         commerce_service=$_COMMERCE_SERVICE
         ops_api_url=$ops_api_url
         storefront_url=$storefront_url
+        storefront_alt_url=$storefront_alt_url
         commerce_url=$commerce_url
+        commerce_alt_url=$commerce_alt_url
         instance_connection_name=$instance_connection_name
         redis_host=$redis_host
         redis_port=$redis_port
@@ -262,7 +268,6 @@ steps:
       - |
         source /workspace/cloudrun.vars
 
-        commerce_worker_service="${_COMMERCE_WORKER_SERVICE}"
         commerce_image="${region}-docker.pkg.dev/${project_id}/${ar_repo}/commerce:${build_tag}"
         socket_host="$(python3 -c "import urllib.parse; print(urllib.parse.quote('/cloudsql/${instance_connection_name}', safe=''))")"
         database_url="postgresql://${_SQL_USER}:${db_password}@${socket_host}/${_SQL_DATABASE}"
@@ -274,36 +279,13 @@ steps:
         REDIS_URL: "$redis_url"
         JWT_SECRET: "$jwt_secret"
         COOKIE_SECRET: "$cookie_secret"
-        MEDUSA_WORKER_MODE: "server"
+        MEDUSA_WORKER_MODE: "shared"
         DISABLE_MEDUSA_ADMIN: "false"
         MEDUSA_BACKEND_URL: "$commerce_url"
         MEDUSA_ADMIN_PATH: "$_MEDUSA_ADMIN_PATH"
-        STORE_CORS: "$storefront_url"
-        ADMIN_CORS: "$commerce_url"
-        AUTH_CORS: "$storefront_url,$commerce_url"
-        OPS_API_BASE_URL: "$ops_api_url"
-        INTERNAL_API_SECRET: "$internal_api_secret"
-        STRIPE_SECRET_KEY: "$_STRIPE_SECRET_KEY"
-        STRIPE_WEBHOOK_SECRET: "$_STRIPE_WEBHOOK_SECRET"
-        GCS_BUCKET_NAME: "$_GCS_BUCKET_NAME"
-        GCS_ACCESS_KEY_ID: "$_GCS_ACCESS_KEY_ID"
-        GCS_SECRET_ACCESS_KEY: "$_GCS_SECRET_ACCESS_KEY"
-        GCS_REGION: "$_GCS_REGION"
-        EOF
-
-        cat > /workspace/commerce-worker-env.yaml <<EOF
-        NODE_ENV: "production"
-        DATABASE_URL: "$database_url"
-        REDIS_URL: "$redis_url"
-        JWT_SECRET: "$jwt_secret"
-        COOKIE_SECRET: "$cookie_secret"
-        MEDUSA_WORKER_MODE: "worker"
-        DISABLE_MEDUSA_ADMIN: "true"
-        MEDUSA_BACKEND_URL: "$commerce_url"
-        MEDUSA_ADMIN_PATH: "$_MEDUSA_ADMIN_PATH"
-        STORE_CORS: "$storefront_url"
-        ADMIN_CORS: "$commerce_url"
-        AUTH_CORS: "$storefront_url,$commerce_url"
+        STORE_CORS: "$storefront_url,$storefront_alt_url"
+        ADMIN_CORS: "$commerce_url,$commerce_alt_url"
+        AUTH_CORS: "$storefront_url,$storefront_alt_url,$commerce_url,$commerce_alt_url"
         OPS_API_BASE_URL: "$ops_api_url"
         INTERNAL_API_SECRET: "$internal_api_secret"
         STRIPE_SECRET_KEY: "$_STRIPE_SECRET_KEY"
@@ -331,28 +313,7 @@ steps:
           --env-vars-file /workspace/commerce-server-env.yaml \
           --quiet
 
-        gcloud run deploy "$commerce_worker_service" \
-          --image "$commerce_image" \
-          --region "$region" \
-          --project "$project_id" \
-          --platform managed \
-          --service-account "$_RUNTIME_SERVICE_ACCOUNT" \
-          --no-allow-unauthenticated \
-          --port 9000 \
-          --cpu 1 \
-          --memory 1Gi \
-          --max-instances 1 \
-          --vpc-connector "$_VPC_CONNECTOR" \
-          --vpc-egress private-ranges-only \
-          --add-cloudsql-instances "$instance_connection_name" \
-          --env-vars-file /workspace/commerce-worker-env.yaml \
-          --quiet
-
         gcloud run services describe "$commerce_service" \
-          --region "$region" \
-          --project "$project_id" \
-          --format='value(status.url)'
-        gcloud run services describe "$commerce_worker_service" \
           --region "$region" \
           --project "$project_id" \
           --format='value(status.url)'

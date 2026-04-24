@@ -7,18 +7,8 @@ import type {
 } from "@blinds/types";
 
 import { opsApiEnv } from "../config.js";
-
-type AuthenticatedCustomer = {
-  email: string;
-  first_name?: string | null;
-  last_name?: string | null;
-  metadata?: Record<string, unknown> | null;
-};
-
-type CustomerContext = {
-  token: string;
-  customer: AuthenticatedCustomer;
-};
+import type { AuthenticatedCustomer, CustomerContext } from "../lib/customer-auth.js";
+import { getCustomerContext } from "../lib/customer-auth.js";
 
 let stripeClient: Stripe | null = null;
 
@@ -32,65 +22,6 @@ function getStripeClient() {
   }
 
   return stripeClient;
-}
-
-function getBearerToken(request: FastifyRequest) {
-  const header = request.headers.authorization;
-
-  if (!header?.startsWith("Bearer ")) {
-    return null;
-  }
-
-  return header.slice("Bearer ".length).trim() || null;
-}
-
-async function getAuthenticatedCustomer(request: FastifyRequest): Promise<AuthenticatedCustomer | null> {
-  const token = getBearerToken(request);
-
-  if (!token || !opsApiEnv.medusaPublishableKey) {
-    return null;
-  }
-
-  const response = await fetch(`${opsApiEnv.medusaBackendUrl}/store/customers/me`, {
-    headers: {
-      accept: "application/json",
-      authorization: `Bearer ${token}`,
-      "x-publishable-api-key": opsApiEnv.medusaPublishableKey,
-    },
-  });
-
-  if (response.status === 401 || response.status === 403) {
-    return null;
-  }
-
-  if (!response.ok) {
-    throw new Error(`Unable to validate customer session (${response.status})`);
-  }
-
-  const payload = (await response.json()) as {
-    customer?: AuthenticatedCustomer;
-  };
-
-  return payload.customer?.email ? payload.customer : null;
-}
-
-async function getCustomerContext(request: FastifyRequest): Promise<CustomerContext | null> {
-  const token = getBearerToken(request);
-
-  if (!token) {
-    return null;
-  }
-
-  const customer = await getAuthenticatedCustomer(request);
-
-  if (!customer) {
-    return null;
-  }
-
-  return {
-    token,
-    customer,
-  };
 }
 
 async function updateCustomerMetadata(

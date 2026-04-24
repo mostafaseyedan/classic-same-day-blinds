@@ -89,6 +89,25 @@ export async function listNotifications(limit = 25): Promise<NotificationRecord[
   return result.rows.map(mapNotification);
 }
 
+export async function listNotificationsByEmail(
+  email: string,
+  limit = 25,
+): Promise<NotificationRecord[]> {
+  const pool = getOpsDbPool();
+  const result = await pool.query<NotificationRow>(
+    `
+      select id, kind, to_email, subject, html, status, created_at, processed_at, failure_reason
+      from ops.notifications
+      where lower(to_email) = lower($1)
+      order by created_at desc
+      limit $2
+    `,
+    [email, limit],
+  );
+
+  return result.rows.map(mapNotification);
+}
+
 async function getPendingNotifications(limit = 10): Promise<NotificationRecord[]> {
   const pool = getOpsDbPool();
   const result = await pool.query<NotificationRow>(

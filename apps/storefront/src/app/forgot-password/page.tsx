@@ -1,8 +1,10 @@
 "use client";
+import { Breadcrumbs } from "@blinds/ui";
 import { Button } from "@blinds/ui";
 import { Input } from "@blinds/ui";
-import { SectionPanel, SurfaceMuted } from "@blinds/ui";
-import { PageTitle } from "@blinds/ui";
+import { Label } from "@blinds/ui";
+import { FormShell, SectionPanel, SurfaceMuted } from "@blinds/ui";
+import { Eyebrow, PageCopy, TaskPageTitle } from "@blinds/ui";
 
 import Link from "next/link";
 import { useState } from "react";
@@ -34,19 +36,50 @@ export default function ForgotPasswordPage() {
   return (
     <main className="page-section pb-20 pt-10">
       <div className="content-shell max-w-6xl">
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Sign In", href: "/auth" },
+            { label: "Password Reset" },
+          ]}
+        />
         <SectionPanel as="section" className="px-6 py-10 md:px-8">
-          <div className="mx-auto max-w-md">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-olive">
-              Account Recovery
-            </p>
-            <PageTitle className="text-4xl md:text-4xl">Reset your password</PageTitle>
+          <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
+            <div>
+              <Eyebrow>Account Recovery</Eyebrow>
+              <TaskPageTitle>
+                Get a secure password reset link.
+              </TaskPageTitle>
+              <PageCopy className="max-w-[34rem]">
+                Enter the email tied to your customer account. We will send a short-lived reset link
+                so you can choose a new password without contacting support.
+              </PageCopy>
 
+              <div className="mt-8 border-t border-black/6 pt-6">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-brass">
+                  Security note
+                </p>
+                <div className="mt-4 grid gap-4">
+                  {[
+                    "Reset links expire after 15 minutes.",
+                    "We do not confirm whether an email exists on the storefront.",
+                    "Use the newest reset email if you request more than one link.",
+                  ].map((item) => (
+                    <div key={item} className="border-t border-black/6 pt-4 first:border-t-0 first:pt-0">
+                      <p className="text-sm leading-6 text-slate/76">{item}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <FormShell>
             {!commerceEnabled ? (
               <p className="mt-6 text-sm leading-6 text-slate/72">
-                Medusa is not configured in this environment.
+                Customer account recovery is not available in this environment yet.
               </p>
             ) : submitted ? (
-              <SurfaceMuted className="mt-8 px-6 py-6">
+              <SurfaceMuted className="px-6 py-6">
                 <p className="text-sm font-semibold text-slate">Check your email</p>
                 <p className="mt-2 text-sm leading-6 text-slate/72">
                   If an account exists for <strong>{email}</strong>, you will receive a password
@@ -59,12 +92,12 @@ export default function ForgotPasswordPage() {
                 </Button>
               </SurfaceMuted>
             ) : (
-              <form className="mt-8 grid gap-4" onSubmit={handleSubmit}>
+              <form className="grid gap-4" onSubmit={handleSubmit}>
                 <p className="text-sm leading-6 text-slate/72">
                   Enter your account email and we will send you a link to reset your password.
                 </p>
                 <label className="grid gap-2">
-                  <span className="text-sm font-semibold text-slate">Email address</span>
+                  <Label as="span" variant="default">Email address</Label>
                   <Input
                     type="email"
                     value={email}
@@ -81,12 +114,17 @@ export default function ForgotPasswordPage() {
                 >
                   {isSubmitting ? "Sending..." : "Send reset link"}
                 </Button>
-                {error && <p className="text-sm text-red-600">{error}</p>}
+                {error ? (
+                  <SurfaceMuted className="border-red-200 px-4 py-3 text-sm leading-6 text-red-700">
+                    {error}
+                  </SurfaceMuted>
+                ) : null}
                 <Link href="/auth" className="text-center text-sm text-slate/60 hover:text-slate transition">
                   Back to sign in
                 </Link>
               </form>
             )}
+            </FormShell>
           </div>
         </SectionPanel>
       </div>

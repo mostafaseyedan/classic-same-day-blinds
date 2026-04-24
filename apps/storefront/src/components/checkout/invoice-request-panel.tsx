@@ -62,7 +62,7 @@ export function InvoiceRequestPanel({
       setStatus("success");
       setPurchaseOrderNumber("");
       setNotes("");
-      setMessage("Invoice request submitted to the ops queue.");
+      setMessage("Invoice request submitted.");
     } catch (submitError) {
       setStatus("error");
       setMessage(
@@ -78,7 +78,7 @@ export function InvoiceRequestPanel({
       </p>
       <p className="mt-3 text-sm leading-6 text-slate/72">
         Use this if the customer needs an invoice-driven order flow instead of immediate card
-        payment. Requests are persisted in the ops API and appear in the account area.
+        payment. Requests appear in account activity after submission.
       </p>
       <form onSubmit={handleSubmit} className="mt-4 grid gap-4">
         <Input

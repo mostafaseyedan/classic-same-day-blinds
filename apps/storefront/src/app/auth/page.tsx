@@ -8,7 +8,8 @@ import { FormShell, SectionPanel } from "@blinds/ui";
 import { Eyebrow, PageCopy, TaskPageTitle } from "@blinds/ui";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useCustomer } from "@/components/customer/customer-provider";
 
 type Mode = "login" | "register";
@@ -27,6 +28,7 @@ const initialRegister = {
 };
 
 export default function AuthPage() {
+  const router = useRouter();
   const { isAuthenticated, customer, login, register, logout, commerceEnabled, error } =
     useCustomer();
   const [mode, setMode] = useState<Mode>("login");
@@ -35,6 +37,24 @@ export default function AuthPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("reset") === "success") {
+      setMode("login");
+      setMessage("Password updated. Sign in with your new password.");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated && customer) {
+      router.replace("/account");
+    }
+  }, [customer, isAuthenticated, router]);
+
   async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
@@ -42,7 +62,7 @@ export default function AuthPage() {
 
     try {
       await login(loginForm.email, loginForm.password);
-      setMessage("Customer session is active.");
+      router.push("/account");
     } catch (submitError) {
       setMessage(submitError instanceof Error ? submitError.message : "Unable to sign in.");
     } finally {
@@ -57,7 +77,7 @@ export default function AuthPage() {
 
     try {
       await register(registerForm);
-      setMessage("Customer account created and signed in.");
+      router.push("/account");
     } catch (submitError) {
       setMessage(
         submitError instanceof Error ? submitError.message : "Unable to create account.",
@@ -114,34 +134,15 @@ export default function AuthPage() {
                 </p>
               ) : isAuthenticated && customer ? (
                 <div className="space-y-5">
-                  <div className="border-b border-black/6 pb-5">
-                    <Label as="p" variant="default">Signed in as</Label>
-                    <p className="mt-2 text-lg font-semibold text-slate break-all">{customer.email}</p>
-                    <p className="mt-1 text-sm text-slate/68">
-                      {[customer.first_name, customer.last_name].filter(Boolean).join(" ") || "Profile name not set yet"}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-3">
-                    <Button asChild variant="default">
-                      <Link href="/account">
-                        Open account
-                      </Link>
-                    </Button>
-                    <Button asChild variant="secondary">
-                      <Link href="/orders">
-                        View orders
-                      </Link>
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => void logout()}
-                      className="hover:border-red-400 hover:text-red-700"
-                    >
-                      Sign out
-                    </Button>
-                  </div>
+                  <p className="text-sm leading-6 text-slate/72">Opening your account...</p>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => void logout()}
+                    className="hover:border-red-400 hover:text-red-700"
+                  >
+                    Sign out
+                  </Button>
                 </div>
               ) : (
                 <>

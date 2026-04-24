@@ -30,6 +30,7 @@ export function createOpsApiApp() {
         "/api/v1/customer/payment-methods",
         "/api/v1/customer/payment-methods/setup-intent",
         "/api/v1/notifications",
+        "/api/v1/internal/password-reset-requested",
         "/api/v1/quotes",
         "/api/v1/invoice-requests",
         "/api/v1/customer-requests",

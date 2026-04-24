@@ -120,7 +120,7 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full transform-gpu will-change-transform">
+    <header className="sticky top-0 z-50 w-full antialiased">
       <DesktopNav
         isHomepage={isHomepage}
         desktopGlass={isHomepage}

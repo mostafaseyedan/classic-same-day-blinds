@@ -87,7 +87,7 @@ export function QuoteRequestForm() {
 
       setState("success");
       setForm(initialForm);
-      setMessage("Quote request accepted. The ops queue now owns the next step.");
+      setMessage("Quote request submitted. Our team will review it next.");
     } catch (error) {
       setState("error");
       setMessage(

@@ -1,6 +1,5 @@
 "use client";
 import { Button } from "@blinds/ui";
-import { SurfaceInset } from "@blinds/ui";
 
 import { FormEvent, useMemo, useState } from "react";
 import { CardElement, Elements, useElements, useStripe } from "@stripe/react-stripe-js";
@@ -128,13 +127,17 @@ function PaymentMethodSetupFields({
 
   return (
     <form onSubmit={handleSubmit} className="mt-4 grid gap-4">
-      <SurfaceInset className="px-4 py-4">
-        <CardElement options={cardElementOptions} />
-      </SurfaceInset>
-      <Button variant="default"
+      <div className="min-h-11 rounded-full border border-black/12 bg-shell/78 px-4 py-[13px] text-[0.92rem] text-slate transition-colors focus-within:border-brass focus-within:bg-white">
+        <div className="w-full">
+          <CardElement options={cardElementOptions} />
+        </div>
+      </div>
+      <Button
+        variant="default"
+        size="compact"
         type="submit"
         disabled={isSubmitting || !stripe || !elements}
-        className="disabled:opacity-60"
+        className="justify-self-start self-start disabled:opacity-60"
       >
         {isSubmitting ? "Saving card..." : "Add card"}
       </Button>

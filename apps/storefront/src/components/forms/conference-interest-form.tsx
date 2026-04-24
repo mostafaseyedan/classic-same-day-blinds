@@ -69,7 +69,7 @@ export function ConferenceInterestForm() {
       }
 
       setState("success");
-      setMessage("Conference interest accepted. The ops queue now owns follow-up.");
+      setMessage("Conference interest submitted. Our team will follow up.");
       setForm(initialForm);
     } catch (error) {
       setState("error");

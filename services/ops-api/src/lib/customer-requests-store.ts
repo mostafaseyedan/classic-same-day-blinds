@@ -7,7 +7,7 @@ import { getOpsDbPool } from "./db.js";
 
 type CustomerRequestRow = {
   id: string;
-  type: "quote" | "invoice";
+  type: CustomerOpsRequestRecord["type"];
   email: string;
   status: CustomerOpsRequestStatus;
   submitted_at: Date;
@@ -16,6 +16,9 @@ type CustomerRequestRow = {
   purchase_order_number: string | null;
   cart_id: string | null;
   order_id: string | null;
+  customer_id: string | null;
+  product_id: string | null;
+  product_name: string | null;
   notes: string | null;
 };
 
@@ -31,6 +34,9 @@ function mapCustomerRequest(row: CustomerRequestRow): CustomerOpsRequestRecord {
     purchaseOrderNumber: row.purchase_order_number ?? undefined,
     cartId: row.cart_id ?? undefined,
     orderId: row.order_id ?? undefined,
+    customerId: row.customer_id ?? undefined,
+    productId: row.product_id ?? undefined,
+    productName: row.product_name ?? undefined,
     notes: row.notes ?? undefined,
   };
 }
@@ -52,6 +58,9 @@ export async function initCustomerRequestsStore() {
       purchase_order_number text null,
       cart_id text null,
       order_id text null,
+      customer_id text null,
+      product_id text null,
+      product_name text null,
       notes text null,
       created_at timestamptz not null default now()
     );
@@ -61,6 +70,9 @@ export async function initCustomerRequestsStore() {
     alter table ops.customer_requests add column if not exists purchase_order_number text null;
     alter table ops.customer_requests add column if not exists cart_id text null;
     alter table ops.customer_requests add column if not exists order_id text null;
+    alter table ops.customer_requests add column if not exists customer_id text null;
+    alter table ops.customer_requests add column if not exists product_id text null;
+    alter table ops.customer_requests add column if not exists product_name text null;
   `);
 }
 
@@ -80,8 +92,11 @@ export async function createCustomerOpsRequest(record: CustomerOpsRequestRecord)
         purchase_order_number,
         cart_id,
         order_id,
+        customer_id,
+        product_id,
+        product_name,
         notes
-      ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       on conflict (id) do nothing
     `,
     [
@@ -95,6 +110,9 @@ export async function createCustomerOpsRequest(record: CustomerOpsRequestRecord)
       record.purchaseOrderNumber ?? null,
       record.cartId ?? null,
       record.orderId ?? null,
+      record.customerId ?? null,
+      record.productId ?? null,
+      record.productName ?? null,
       record.notes ?? null,
     ],
   );
@@ -121,6 +139,9 @@ export async function updateCustomerOpsRequestStatus(
         purchase_order_number,
         cart_id,
         order_id,
+        customer_id,
+        product_id,
+        product_name,
         notes
     `,
     [id, status],
@@ -130,7 +151,7 @@ export async function updateCustomerOpsRequestStatus(
 }
 
 export async function listAllCustomerOpsRequests(filters?: {
-  type?: "quote" | "invoice";
+  type?: CustomerOpsRequestRecord["type"];
   status?: string;
   limit?: number;
   offset?: number;
@@ -171,6 +192,9 @@ export async function listAllCustomerOpsRequests(filters?: {
         purchase_order_number,
         cart_id,
         order_id,
+        customer_id,
+        product_id,
+        product_name,
         notes
       from ops.customer_requests
       ${where}
@@ -202,6 +226,9 @@ export async function listCustomerOpsRequests(email: string): Promise<CustomerOp
         purchase_order_number,
         cart_id,
         order_id,
+        customer_id,
+        product_id,
+        product_name,
         notes
       from ops.customer_requests
       where lower(email) = lower($1)

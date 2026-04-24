@@ -1,6 +1,8 @@
 import type { FastifyInstance } from "fastify";
 import type {
+  CustomerAccountActivityResponse,
   ConferenceInterestRequest,
+  CustomerOpsRequestRecord,
   CustomerOpsRequestStatus,
   InvoiceRequest,
   MembershipInquiryRequest,
@@ -26,7 +28,9 @@ import {
   buildRestockAdminEmail,
 } from "../lib/notification-templates.js";
 import { enqueueNotification } from "../lib/notifications-store.js";
+import { listNotificationsByEmail } from "../lib/notifications-store.js";
 import { opsApiEnv } from "../config.js";
+import { getAuthenticatedCustomer } from "../lib/customer-auth.js";
 
 const quoteRequestSchema: z.ZodType<QuoteRequest> = z.object({
   customerName: z.string().min(1),
@@ -92,6 +96,13 @@ const customerRequestStatuses: [
   CustomerOpsRequestStatus,
 ] = ["received", "reviewed", "approved", "completed"];
 
+const customerRequestTypes: [
+  CustomerOpsRequestRecord["type"],
+  CustomerOpsRequestRecord["type"],
+  CustomerOpsRequestRecord["type"],
+  CustomerOpsRequestRecord["type"],
+] = ["quote", "invoice", "restock", "account_deletion"];
+
 export async function registerIntakeRoutes(app: FastifyInstance) {
   app.post("/api/v1/quotes", async (request, reply) => {
     const parsed = quoteRequestSchema.safeParse(request.body);
@@ -152,6 +163,17 @@ export async function registerIntakeRoutes(app: FastifyInstance) {
     }
 
     const accepted = buildAcceptedResponse("inventory-watch", parsed.data);
+    await createCustomerOpsRequest({
+      id: accepted.referenceId,
+      type: "restock",
+      email: parsed.data.email,
+      status: "received",
+      submittedAt: accepted.receivedAt,
+      customerName: parsed.data.customerName,
+      productId: parsed.data.productId,
+      productName: parsed.data.productName,
+      notes: `Restock notification requested for ${parsed.data.productName}.`,
+    });
     const adminEmail = buildRestockAdminEmail(parsed.data.productName, parsed.data.email);
 
     for (const recipient of opsApiEnv.emailAdminRecipients) {
@@ -257,30 +279,41 @@ export async function registerIntakeRoutes(app: FastifyInstance) {
   });
 
   app.get("/api/v1/customer-requests", async (request, reply) => {
-    const querySchema = z.object({
-      email: z.string().email(),
-    });
+    const customer = await getAuthenticatedCustomer(request);
 
-    const parsed = querySchema.safeParse(request.query);
-
-    if (!parsed.success) {
-      return reply.status(400).send({
-        error: "Invalid customer request query",
-        details: parsed.error.flatten(),
-      });
+    if (!customer) {
+      return reply.status(401).send({ error: "Customer authentication required" });
     }
 
-    const requests = await listCustomerOpsRequests(parsed.data.email);
+    const requests = await listCustomerOpsRequests(customer.email);
 
     return {
       requests,
     };
   });
 
+  app.get("/api/v1/customer/activity", async (request, reply) => {
+    const customer = await getAuthenticatedCustomer(request);
+
+    if (!customer) {
+      return reply.status(401).send({ error: "Customer authentication required" });
+    }
+
+    const [requests, notifications] = await Promise.all([
+      listCustomerOpsRequests(customer.email),
+      listNotificationsByEmail(customer.email),
+    ]);
+
+    return {
+      requests,
+      notifications,
+    } satisfies CustomerAccountActivityResponse;
+  });
+
   // Admin: list all requests (used by Medusa admin extension)
   app.get("/api/v1/admin/requests", async (request, reply) => {
     const querySchema = z.object({
-      type: z.enum(["quote", "invoice"]).optional(),
+      type: z.enum(customerRequestTypes).optional(),
       status: z.string().optional(),
       limit: z.coerce.number().int().positive().max(100).default(50),
       offset: z.coerce.number().int().min(0).default(0),
@@ -333,22 +366,26 @@ export async function registerIntakeRoutes(app: FastifyInstance) {
     };
   });
 
-  // Account deletion request
-  const accountDeletionSchema = z.object({
-    email: z.string().email(),
-    customerId: z.string().min(1),
-  });
-
   app.post("/api/v1/account/delete-request", async (request, reply) => {
-    const parsed = accountDeletionSchema.safeParse(request.body);
+    const customer = await getAuthenticatedCustomer(request);
 
-    if (!parsed.success) {
-      return reply.status(400).send({ error: "Invalid payload", details: parsed.error.flatten() });
+    if (!customer) {
+      return reply.status(401).send({ error: "Customer authentication required" });
     }
 
-    const { email, customerId } = parsed.data;
     const referenceId = `del_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const adminEmail = buildAccountDeletionAdminEmail(email, customerId);
+    await createCustomerOpsRequest({
+      id: referenceId,
+      type: "account_deletion",
+      email: customer.email,
+      status: "received",
+      submittedAt: new Date().toISOString(),
+      customerName: [customer.first_name, customer.last_name].filter(Boolean).join(" ") || undefined,
+      customerId: customer.id,
+      notes: "Customer requested account deletion.",
+    });
+
+    const adminEmail = buildAccountDeletionAdminEmail(customer.email, customer.id);
 
     for (const recipient of opsApiEnv.emailAdminRecipients) {
       await enqueueNotification({
