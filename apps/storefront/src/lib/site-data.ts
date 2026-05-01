@@ -149,5 +149,5 @@ export const storefrontProducts: StorefrontProduct[] = [
 ];
 
 export const faqItems = [
-  ...legacyFaqReference.slice(0, 6),
+  ...legacyFaqReference,
 ];

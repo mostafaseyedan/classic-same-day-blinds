@@ -44,6 +44,5 @@ export {
   PageTitleLight,
   SectionCopy,
   SectionTitle,
-  TaskPageTitle,
 } from "./typography";
 export { cn } from "./utils";

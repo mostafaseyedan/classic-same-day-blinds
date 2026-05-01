@@ -1,13 +1,18 @@
 import { WishlistGrid } from "@/components/storefront/wishlist-grid";
-import { Eyebrow, PageTitle } from "@blinds/ui";
+import { Breadcrumbs, PageTitle } from "@blinds/ui";
 
 export default function WishlistPage() {
   return (
-    <main className="px-6 pb-24 pt-10 md:px-10 lg:px-14">
+    <main className="page-section pb-24 pt-10">
       <div className="mx-auto max-w-7xl">
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Wishlist" },
+          ]}
+        />
         <div className="mb-10">
-          <Eyebrow>Saved Products</Eyebrow>
-          <PageTitle className="mt-3">
+          <PageTitle>
             Your wishlist
           </PageTitle>
           <p className="mt-4 text-base leading-7 text-slate/70">

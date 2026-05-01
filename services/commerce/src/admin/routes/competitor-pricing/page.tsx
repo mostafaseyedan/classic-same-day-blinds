@@ -1,5 +1,14 @@
 /// <reference types="vite/client" />
 import { defineRouteConfig } from "@medusajs/admin-sdk";
+import {
+  Adjustments,
+  ArchiveBox,
+  ArrowPath,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  CurrencyDollar,
+} from "@medusajs/icons";
 import { Button, Container, Heading, StatusBadge, Text } from "@medusajs/ui";
 import { useEffect, useRef, useState } from "react";
 
@@ -187,8 +196,6 @@ function SortTh({
 function UnifiedMatchTable({
   matches,
   colVis,
-  costPrices,
-  variantMap,
   actingMatchId,
   onApprove,
   onSuppressAlert,
@@ -198,14 +205,12 @@ function UnifiedMatchTable({
 }: {
   matches: CompetitorProductMatch[];
   colVis: ColumnVisibility;
-  costPrices: Record<string, number | null>;
-  variantMap: Record<string, { variantId: string; price: number } | null>;
   actingMatchId: string | null;
   onApprove: (id: string) => void;
   onSuppressAlert: (id: string) => void;
   onIgnore: (id: string) => void;
   onPriceUpdate: (sku: string, sizeLabel: string, value: number) => Promise<void>;
-  onStorePriceUpdate: (variantId: string, matchKey: string, value: number) => Promise<void>;
+  onStorePriceUpdate: (variantId: string, matchId: string, value: number) => Promise<void>;
 }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
@@ -394,7 +399,7 @@ function UnifiedMatchTable({
                   {colVis.sourcePrice && (
                     <td className="py-3 px-4">
                       <EditableCell
-                        value={costPrices[`${match.internalSku}__${match.sizeLabel}`] ?? null}
+                        value={match.currentPrice.sourcePrice ?? null}
                         currency={match.currentPrice.currencyCode}
                         onSave={(v) => onPriceUpdate(match.internalSku, match.sizeLabel, v)}
                       />
@@ -403,7 +408,7 @@ function UnifiedMatchTable({
 
                   {/* Margin = Store Price − Source Price */}
                   {colVis.margin && (() => {
-                    const cost = costPrices[`${match.internalSku}__${match.sizeLabel}`] ?? null;
+                    const cost = match.currentPrice.sourcePrice ?? null;
                     const margin = cost != null ? match.currentPrice.internalPrice - cost : null;
                     const color = margin == null ? "" : margin >= 0 ? "text-ui-tag-green-text" : "text-ui-tag-red-text";
                     return (
@@ -415,23 +420,17 @@ function UnifiedMatchTable({
                     );
                   })()}
 
-                  {/* Store Price — inline editable via variant ID lookup */}
-                  {(() => {
-                    const key = `${match.internalSku}__${match.sizeLabel}`;
-                    const entry = variantMap[key];
-                    return (
-                      <td className="py-3 px-4">
-                        <EditableCell
-                          value={entry?.price ?? match.currentPrice.internalPrice}
-                          currency={match.currentPrice.currencyCode}
-                          onSave={(v) => {
-                            if (!entry) return Promise.reject(new Error("Variant not found"));
-                            return onStorePriceUpdate(entry.variantId, key, v);
-                          }}
-                        />
-                      </td>
-                    );
-                  })()}
+                  {/* Store Price — inline editable via dashboard-provided variant ID */}
+                  <td className="py-3 px-4">
+                    <EditableCell
+                      value={match.currentPrice.internalPrice}
+                      currency={match.currentPrice.currencyCode}
+                      onSave={(v) => {
+                        if (!match.medusaVariantId) return Promise.reject(new Error("Variant not found"));
+                        return onStorePriceUpdate(match.medusaVariantId, match.id, v);
+                      }}
+                    />
+                  </td>
 
                   {/* Their Price */}
                   <td className="py-3 px-4 tabular-nums text-sm">
@@ -459,6 +458,7 @@ function UnifiedMatchTable({
                         disabled={actingMatchId === match.id}
                         onClick={() => onApprove(match.id)}
                       >
+                        <CheckCircle />
                         {actingMatchId === match.id ? "…" : "Approve"}
                       </Button>
                       <button
@@ -494,8 +494,9 @@ function UnifiedMatchTable({
           <button
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
-            className="text-sm text-ui-fg-interactive hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1 text-sm text-ui-fg-interactive hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
           >
+            <ChevronLeft />
             Previous
           </button>
           <Text size="small" className="text-ui-fg-muted">
@@ -504,9 +505,10 @@ function UnifiedMatchTable({
           <button
             disabled={page === totalPages}
             onClick={() => setPage((p) => p + 1)}
-            className="text-sm text-ui-fg-interactive hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1 text-sm text-ui-fg-interactive hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Next
+            <ChevronRight />
           </button>
         </div>
       )}
@@ -526,9 +528,6 @@ export default function CompetitorPricingPage() {
   const [colVis, setColVis] = useState<ColumnVisibility>(DEFAULT_COLUMN_VISIBILITY);
   const [viewOpen, setViewOpen] = useState(false);
   const [competitorTab, setCompetitorTab] = useState<string>("blinds.com");
-  const [costPrices, setCostPrices] = useState<Record<string, number | null>>({});
-  // variantMap: keyed by "handle__sizeLabel" → { variantId, price }
-  const [variantMap, setVariantMap] = useState<Record<string, { variantId: string; price: number } | null>>({});
   const viewDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -542,68 +541,6 @@ export default function CompetitorPricingPage() {
     return () => document.removeEventListener("mousedown", handle);
   }, [viewOpen]);
 
-  async function loadCostPrices(matches: Array<{ internalSku: string; sizeLabel: string }>) {
-    if (!matches.length) return;
-    try {
-      // Key format: "handle__sizeLabel"
-      const variants = matches.map((m) => `${m.internalSku}__${m.sizeLabel}`).join(",");
-      const res = await fetch(
-        `/admin/variants/cost-prices?variants=${encodeURIComponent(variants)}`,
-        { credentials: "include" },
-      );
-      if (res.ok) {
-        const data = (await res.json()) as { cost_prices: Record<string, number | null> };
-        setCostPrices(data.cost_prices);
-      }
-    } catch {
-      // non-fatal — margin column just shows —
-    }
-  }
-
-  function parseDims(str: string): { w: number; h: number } | null {
-    const nums = str.match(/(\d+(?:\.\d+)?)/g);
-    if (!nums || nums.length < 2) return null;
-    return { w: parseFloat(nums[0]), h: parseFloat(nums[1]) };
-  }
-
-  async function loadVariantMap(matches: CompetitorProductMatch[]) {
-    if (!matches.length) return;
-    try {
-      const handles = [...new Set(matches.map((m) => m.internalSku))];
-      const res = await fetch(
-        `/admin/variants/by-product?handles=${handles.join(",")}`,
-        { credentials: "include" },
-      );
-      if (!res.ok) return;
-      const data = (await res.json()) as {
-        variants: Record<string, Array<{ id: string; title: string; price_usd: number | null }>>;
-      };
-
-      const map: Record<string, { variantId: string; price: number } | null> = {};
-      for (const match of matches) {
-        const key = `${match.internalSku}__${match.sizeLabel}`;
-        const variants = data.variants[match.internalSku] ?? [];
-        const matchDims = parseDims(match.sizeLabel);
-        if (!matchDims || !variants.length) { map[key] = null; continue; }
-
-        let best: typeof variants[0] | null = null;
-        let bestDist = Infinity;
-        for (const v of variants) {
-          const vd = parseDims(v.title);
-          if (!vd) continue;
-          const dist = (vd.w - matchDims.w) ** 2 + (vd.h - matchDims.h) ** 2;
-          if (dist < bestDist) { bestDist = dist; best = v; }
-        }
-        map[key] = best && best.price_usd != null
-          ? { variantId: best.id, price: best.price_usd }
-          : null;
-      }
-      setVariantMap(map);
-    } catch {
-      // non-fatal
-    }
-  }
-
   async function loadDashboard() {
     setLoading(true);
     setError(null);
@@ -615,8 +552,6 @@ export default function CompetitorPricingPage() {
 
       const data = (await dashboardRes.json()) as CompetitorPricingDashboardResponse;
       setDashboard(data);
-      void loadCostPrices(data.matches.map((m) => ({ internalSku: m.internalSku, sizeLabel: m.sizeLabel })));
-      void loadVariantMap(data.matches);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
@@ -629,17 +564,34 @@ export default function CompetitorPricingPage() {
       method: "POST",
       headers: { "content-type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ sku, sizeLabel, value }),
+      body: JSON.stringify({ field: "source_price", sku, sizeLabel, value }),
     });
     if (!res.ok) {
       const body = (await res.json()) as { error?: string };
       throw new Error(body.error ?? `Update failed: ${res.status}`);
     }
-    const key = `${sku}__${sizeLabel}`;
-    setCostPrices((prev) => ({ ...prev, [key]: value }));
+    setDashboard((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        matches: prev.matches.map((match) => {
+          if (match.internalSku !== sku || match.sizeLabel !== sizeLabel) {
+            return match;
+          }
+
+          return {
+            ...match,
+            currentPrice: {
+              ...match.currentPrice,
+              sourcePrice: value,
+            },
+          };
+        }),
+      };
+    });
   }
 
-  async function handleStorePriceUpdate(variantId: string, matchKey: string, value: number) {
+  async function handleStorePriceUpdate(variantId: string, matchId: string, value: number) {
     const res = await fetch("/admin/variants/update-price", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -650,10 +602,26 @@ export default function CompetitorPricingPage() {
       const body = (await res.json()) as { error?: string };
       throw new Error(body.error ?? `Update failed: ${res.status}`);
     }
-    setVariantMap((prev) => {
-      const entry = prev[matchKey];
-      if (!entry) return prev;
-      return { ...prev, [matchKey]: { ...entry, price: value } };
+    setDashboard((prev) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        matches: prev.matches.map((match) => {
+          if (match.id !== matchId) {
+            return match;
+          }
+
+          return {
+            ...match,
+            currentPrice: {
+              ...match.currentPrice,
+              internalPrice: value,
+            },
+            priceDelta: value - match.currentPrice.competitorPrice,
+          };
+        }),
+      };
     });
   }
 
@@ -697,7 +665,10 @@ export default function CompetitorPricingPage() {
         { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) },
       );
 
-      if (!res.ok) throw new Error(`${action} failed: ${res.status}`);
+      if (!res.ok) {
+        const body = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(body?.error ?? `${action} failed: ${res.status}`);
+      }
       await loadDashboard();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
@@ -726,6 +697,7 @@ export default function CompetitorPricingPage() {
           isLoading={refreshing}
           onClick={() => void runRefresh()}
         >
+          <ArrowPath className={refreshing ? "animate-spin" : ""} />
           Run refresh
         </Button>
       </div>
@@ -853,7 +825,7 @@ export default function CompetitorPricingPage() {
                   onClick={() => setViewOpen((v) => !v)}
                   className="flex items-center gap-1 text-sm border border-ui-border-base rounded-md px-3 py-1.5 bg-ui-bg-base text-ui-fg-base hover:bg-ui-bg-base-hover"
                 >
-                  Columns <span className="text-xs opacity-60">▾</span>
+                  <Adjustments className="text-ui-fg-muted" /> Columns <span className="text-xs opacity-60">▾</span>
                 </button>
                 {viewOpen && (
                   <div className="absolute left-0 top-full mt-1 z-20 w-44 rounded-md border border-ui-border-base bg-ui-bg-base shadow-lg py-1">
@@ -915,7 +887,7 @@ export default function CompetitorPricingPage() {
               if (!competitorSource) {
                 return (
                   <div className="flex flex-col items-center justify-center py-16 text-ui-fg-muted gap-2">
-                    <span className="text-2xl">🚧</span>
+                    <ArchiveBox className="text-ui-fg-muted" />
                     <Text weight="plus">Coming soon</Text>
                     <Text size="small">Scraping for this competitor is not yet configured.</Text>
                   </div>
@@ -926,8 +898,6 @@ export default function CompetitorPricingPage() {
                 <UnifiedMatchTable
                   matches={tabMatches}
                   colVis={colVis}
-                  costPrices={costPrices}
-                  variantMap={variantMap}
                   actingMatchId={actingMatchId}
                   onApprove={(id) => void runMatchAction(id, "approve")}
                   onSuppressAlert={(id) => void runMatchAction(id, "suppress-alert")}
@@ -947,4 +917,6 @@ export default function CompetitorPricingPage() {
 
 export const config = defineRouteConfig({
   label: "Competitor Pricing",
+  icon: CurrencyDollar,
+  rank: 20,
 });

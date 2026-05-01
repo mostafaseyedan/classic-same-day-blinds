@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { RefObject } from "react";
-import { CaretDown, Heart, List, MagnifyingGlass, ShoppingCart, X } from "@phosphor-icons/react";
+import { CaretDown, Heart, List, MagnifyingGlass, Tote, X } from "@phosphor-icons/react";
 
 import { Button, CloseButton } from "@blinds/ui";
 
@@ -53,14 +53,15 @@ export function MobileNav({
               setMobileOpen(true);
               setTimeout(() => mobileSearchRef.current?.focus(), 100);
             }}
+            className="active:scale-[0.98] transition-transform"
             aria-label={t("Search", "Buscar")}
           >
-            <MagnifyingGlass className="h-[20px] w-[20px]" weight="light" />
+            <MagnifyingGlass className="h-5 w-5" />
           </Button>
 
-          <Button asChild variant="ghost" size="icon" className="relative">
+          <Button asChild variant="ghost" size="icon" className="relative active:scale-[0.98] transition-transform">
             <Link href="/wishlist">
-              <Heart className="h-[20px] w-[20px]" weight="light" />
+              <Heart className="h-5 w-5" />
               {wishlistCount > 0 ? (
                 <span className="absolute right-0 top-0 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-olive px-1 text-[9px] font-bold text-white ring-2 ring-white">
                   {wishlistCount}
@@ -69,9 +70,9 @@ export function MobileNav({
             </Link>
           </Button>
 
-          <Button asChild variant="ghost" size="icon" className="relative">
+          <Button asChild variant="ghost" size="icon" className="relative active:scale-[0.98] transition-transform">
             <Link href="/cart">
-              <ShoppingCart className="h-[20px] w-[20px]" weight="light" />
+              <Tote className="h-5 w-5" />
               {cartQuantity > 0 ? (
                 <span className="absolute right-0 top-0 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-olive px-1 text-[9px] font-bold text-white ring-2 ring-white">
                   {cartQuantity}
@@ -84,13 +85,13 @@ export function MobileNav({
             variant="ghost"
             magnetic
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden"
+            className="md:hidden active:scale-[0.98] transition-transform"
             aria-label={mobileOpen ? t("Close menu", "Cerrar menú") : t("Open menu", "Abrir menú")}
           >
             {mobileOpen ? (
-              <X className="h-[22px] w-[22px]" weight="bold" />
+              <X className="h-[22px] w-[22px]" />
             ) : (
-              <List className="h-[22px] w-[22px]" weight="light" />
+              <List className="h-[22px] w-[22px]" />
             )}
           </CloseButton>
         </div>
@@ -117,7 +118,7 @@ export function MobileNav({
 
           <div className="grid gap-3">
             <div className="px-1">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brass">Browse</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-green-400">Browse</p>
             </div>
             {browseNavItems.map((item) => (
               <details key={item.key as MegaMenuKey} className="overflow-hidden rounded-2xl border border-black/5 bg-shell/55">
@@ -131,7 +132,7 @@ export function MobileNav({
                   <div className="space-y-5">
                     {megaMenus[item.key].sections.map((section) => (
                       <div key={section.heading}>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brass">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-green-400">
                           {section.heading}
                         </p>
                         <div className="mt-2 grid gap-1">
@@ -140,7 +141,7 @@ export function MobileNav({
                               key={`${section.heading}-${link.label}-${link.href}`}
                               href={link.href}
                               onClick={() => setMobileOpen(false)}
-                              className="rounded-xl px-3 py-2 text-sm text-slate/78 transition hover:bg-white hover:text-olive"
+                              className="rounded-xl px-3 py-2 text-sm text-slate/78 transition hover:bg-white hover:text-green-400"
                             >
                               {link.label}
                             </Link>
@@ -159,14 +160,14 @@ export function MobileNav({
             ))}
 
             <div className="mt-2 border-t border-black/5 pt-4">
-              <p className="px-1 text-[10px] font-bold uppercase tracking-[0.2em] text-brass">Tools and Programs</p>
+              <p className="px-1 text-[10px] font-bold uppercase tracking-[0.2em] text-green-400">Tools and Programs</p>
               <div className="mt-2 grid gap-1">
                 {programNavItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
-                    className="rounded-xl px-4 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] text-slate transition hover:bg-shell hover:text-olive"
+                    className="rounded-xl px-4 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] text-slate transition hover:bg-shell hover:text-green-400"
                   >
                     {item.label}
                   </Link>
@@ -175,14 +176,14 @@ export function MobileNav({
             </div>
 
             <div className="mt-2 border-t border-black/5 pt-4">
-              <p className="px-1 text-[10px] font-bold uppercase tracking-[0.2em] text-brass">Quick Links</p>
+              <p className="px-1 text-[10px] font-bold uppercase tracking-[0.2em] text-green-400">Quick Links</p>
               <div className="mt-2 grid gap-1">
                 {utilityTaskLinks.concat(supportLinks).map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
-                    className="rounded-xl px-4 py-2 text-sm text-slate/62 transition hover:bg-shell hover:text-olive"
+                    className="rounded-xl px-4 py-2 text-sm text-slate/62 transition hover:bg-shell hover:text-green-400"
                   >
                     {item.label}
                   </Link>

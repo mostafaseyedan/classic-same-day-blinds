@@ -26,6 +26,7 @@ type MatchRow = {
   currency_code: string;
   internal_price: number;
   competitor_price: number;
+  source_price: number | null;
   price_delta: number;
   last_checked_at: Date;
   last_success_at: Date;
@@ -33,6 +34,7 @@ type MatchRow = {
   alert_severity: CompetitorProductMatch["alertSeverity"] | null;
   notes: string | null;
   medusa_product_id: string | null;
+  medusa_variant_id: string | null;
   storefront_slug: string | null;
 };
 
@@ -63,6 +65,7 @@ function mapMatchRow(row: MatchRow): CompetitorProductMatch {
       label: row.size_label,
       internalPrice: Number(row.internal_price),
       competitorPrice: Number(row.competitor_price),
+      sourcePrice: row.source_price != null ? Number(row.source_price) : undefined,
       currencyCode: row.currency_code,
     },
     priceDelta: Number(row.price_delta),
@@ -72,6 +75,7 @@ function mapMatchRow(row: MatchRow): CompetitorProductMatch {
     alertSeverity: row.alert_severity ?? undefined,
     notes: row.notes ?? undefined,
     medusaProductId: row.medusa_product_id ?? undefined,
+    medusaVariantId: row.medusa_variant_id ?? undefined,
     storefrontSlug: row.storefront_slug ?? undefined,
   };
 }
@@ -208,6 +212,21 @@ export async function upsertScrapedProducts(products: ScrapedProduct[], competit
 }
 
 type PriceEntry = { width: number; height: number; price_usd: number };
+
+type MatchCandidate = {
+  matchId: string;
+  sku: string;
+  name: string;
+  category: string;
+  competitorProductName: string;
+  competitorUrl: string;
+  sizeLabel: string;
+  internalPrice: number;
+  competitorPrice: number;
+  notes: string;
+  medusaProductId?: string;
+  storefrontSlug?: string;
+};
 
 type ScrapedCatalogRowForMatch = {
   competitor_product_id: string;
@@ -401,23 +420,12 @@ export async function buildMatchesFromScrapedCatalog(ourProducts: Array<{
     );
     const priceEntriesCache = new Map<string, PriceEntry[]>();
     const generatedMatchIds = new Set<string>();
+    const cheapestMatchByInternalVariant = new Map<string, MatchCandidate>();
+    const keepCheapestMatchPerInternalVariant = competitor === "hd-supply";
     let created = 0;
     const now = new Date().toISOString();
 
-    const upsertMatch = async (params: {
-      matchId: string;
-      sku: string;
-      name: string;
-      category: string;
-      competitorProductName: string;
-      competitorUrl: string;
-      sizeLabel: string;
-      internalPrice: number;
-      competitorPrice: number;
-      notes: string;
-      medusaProductId?: string;
-      storefrontSlug?: string;
-    }) => {
+    const upsertMatch = async (params: MatchCandidate) => {
       const priceDelta = params.internalPrice - params.competitorPrice;
       const alertSeverity = priceDelta < 0 ? "critical" : priceDelta < 5 ? "warning" : null;
 
@@ -468,6 +476,20 @@ export async function buildMatchesFromScrapedCatalog(ourProducts: Array<{
           competitor,
         ],
       );
+    };
+
+    const recordMatch = async (params: MatchCandidate) => {
+      if (!keepCheapestMatchPerInternalVariant) {
+        await upsertMatch(params);
+        created++;
+        return;
+      }
+
+      const key = `${params.sku}__${params.sizeLabel}`;
+      const current = cheapestMatchByInternalVariant.get(key);
+      if (!current || params.competitorPrice < current.competitorPrice) {
+        cheapestMatchByInternalVariant.set(key, params);
+      }
     };
 
     for (const [normalizedUrl, mapping] of mappedUrls.entries()) {
@@ -530,7 +552,7 @@ export async function buildMatchesFromScrapedCatalog(ourProducts: Array<{
               ? `Exact size match at ${w}"×${h}".`
               : `Competitor price estimated from nearest anchor (${closest.width}"×${closest.height}").`;
 
-            await upsertMatch({
+            await recordMatch({
               matchId: `cmp_${competitor.replace(/[^a-z0-9]/g, "_")}_${skuSlug}_${competitorKey}_${sizeKey}`,
               sku: our.sku,
               name: our.name,
@@ -544,7 +566,6 @@ export async function buildMatchesFromScrapedCatalog(ourProducts: Array<{
               medusaProductId: our.medusaProductId,
               storefrontSlug: our.storefrontSlug,
             });
-            created++;
           }
           continue;
         }
@@ -570,7 +591,7 @@ export async function buildMatchesFromScrapedCatalog(ourProducts: Array<{
         internalPrice = Math.round(competitorPrice * 0.85 * 100) / 100;
       }
 
-      await upsertMatch({
+      await recordMatch({
         matchId: `cmp_${competitor.replace(/[^a-z0-9]/g, "_")}_${skuSlug}_${competitorKey}`,
         sku: our.sku,
         name: our.name,
@@ -584,7 +605,6 @@ export async function buildMatchesFromScrapedCatalog(ourProducts: Array<{
         medusaProductId: our.medusaProductId,
         storefrontSlug: our.storefrontSlug,
       });
-      created++;
     }
 
     // ── Second pass: keyword-based matching ───────────────────────────────────
@@ -659,7 +679,7 @@ export async function buildMatchesFromScrapedCatalog(ourProducts: Array<{
               ? `Exact size match at ${w}"×${h}".`
               : `Competitor price estimated from nearest anchor (${closest.width}"×${closest.height}").`;
             const sizeKey = `${w}x${h}`;
-            await upsertMatch({
+            await recordMatch({
               matchId: `cmp_${competitor.replace(/[^a-z0-9]/g, "_")}_${skuSlug}_${competitorKey}_${sizeKey}`,
               sku: our.sku, name: our.name, category: our.category,
               competitorProductName: row.product_name,
@@ -671,7 +691,6 @@ export async function buildMatchesFromScrapedCatalog(ourProducts: Array<{
               medusaProductId: our.medusaProductId,
               storefrontSlug: our.storefrontSlug,
             });
-            created++;
           }
           continue;
         }
@@ -696,7 +715,7 @@ export async function buildMatchesFromScrapedCatalog(ourProducts: Array<{
       } else {
         internalPrice = Math.round(competitorPrice * 0.85 * 100) / 100;
       }
-      await upsertMatch({
+      await recordMatch({
         matchId: `cmp_${competitor.replace(/[^a-z0-9]/g, "_")}_${skuSlug}_${competitorKey}`,
         sku: our.sku, name: our.name, category: our.category,
         competitorProductName: row.product_name,
@@ -706,6 +725,10 @@ export async function buildMatchesFromScrapedCatalog(ourProducts: Array<{
         medusaProductId: our.medusaProductId,
         storefrontSlug: our.storefrontSlug,
       });
+    }
+
+    for (const match of cheapestMatchByInternalVariant.values()) {
+      await upsertMatch(match);
       created++;
     }
 
@@ -865,31 +888,57 @@ export async function getCompetitorPricingDashboard(): Promise<CompetitorPricing
     const matchResult = await client.query<MatchRow>(
       `
         select
-          id,
-          internal_sku,
-          internal_product_name,
-          internal_category,
-          competitor,
-          competitor_product_name,
-          competitor_url,
-          match_status,
-          confidence,
-          size_label,
-          currency_code,
-          internal_price,
-          competitor_price,
-          price_delta,
-          last_checked_at,
-          last_success_at,
-          scrape_status,
-          alert_severity,
-          notes,
-          medusa_product_id,
-          storefront_slug
-        from ops.competitor_matches
+          m.id,
+          m.internal_sku,
+          m.internal_product_name,
+          m.internal_category,
+          m.competitor,
+          m.competitor_product_name,
+          m.competitor_url,
+          m.match_status,
+          m.confidence,
+          m.size_label,
+          m.currency_code,
+          coalesce(mv.store_price, m.internal_price) as internal_price,
+          m.competitor_price,
+          (p.metadata->'cost_prices'->>m.size_label)::numeric as source_price,
+          coalesce(mv.store_price, m.internal_price) - m.competitor_price as price_delta,
+          m.last_checked_at,
+          m.last_success_at,
+          m.scrape_status,
+          m.alert_severity,
+          m.notes,
+          m.medusa_product_id,
+          mv.medusa_variant_id,
+          m.storefront_slug
+        from ops.competitor_matches m
+        left join product p on p.handle = m.internal_sku
+        left join lateral (
+          select
+            pv.id as medusa_variant_id,
+            prc.amount::numeric as store_price
+          from product_variant pv
+          join product_variant_option pvo on pvo.variant_id = pv.id
+          join product_option_value ov on ov.id = pvo.option_value_id
+          join product_option o on o.id = ov.option_id
+          left join product_variant_price_set pvps on pvps.variant_id = pv.id
+          left join price prc on prc.price_set_id = pvps.price_set_id
+            and prc.currency_code = m.currency_code
+            and prc.deleted_at is null
+          where pv.product_id = p.id
+            and o.title = 'Size'
+            and ov.value ~* '^\\s*\\d+(\\.\\d+)?\\s*x\\s*\\d+(\\.\\d+)?\\s*$'
+            and concat(
+              (split_part(lower(ov.value), 'x', 1)::numeric)::text,
+              '" W × ',
+              (split_part(lower(ov.value), 'x', 2)::numeric)::text,
+              '" H'
+            ) = m.size_label
+          limit 1
+        ) mv on true
         order by
-          case alert_severity when 'critical' then 0 when 'warning' then 1 else 2 end,
-          last_checked_at desc
+          case when coalesce(mv.store_price, m.internal_price) - m.competitor_price > 0 then 0 else 1 end,
+          m.last_checked_at desc
       `,
     );
 
@@ -963,15 +1012,11 @@ export async function runCompetitorRefreshPreview() {
     }
   }
 
-  // Step 3 — record the refresh run and return dashboard
-  return withClient(async (client) => {
-    const matchRows = await client.query<MatchRow>(
-      `SELECT * FROM ops.competitor_matches ORDER BY last_checked_at DESC`,
-    );
-    const matches = matchRows.rows.map(mapMatchRow);
-    const alerts = buildCompetitorAlerts(matches);
-    const refresh = buildCompetitorRefreshRun(matches, alerts);
+  // Step 3 — record the refresh run from the dashboard shape operators see.
+  const dashboard = await getCompetitorPricingDashboard();
+  const refresh = buildCompetitorRefreshRun(dashboard.matches, dashboard.alerts);
 
+  return withClient(async (client) => {
     await client.query("begin");
     try {
       await insertRefreshRun(client, { ...refresh, id: `refresh_${Date.now()}` });
@@ -1003,57 +1048,133 @@ export async function updateCompetitorMatchState(
   },
 ) {
   return withClient(async (client) => {
-    await client.query(
-      `
-        update ops.competitor_matches
-        set
-          match_status   = coalesce($2, match_status),
-          alert_severity = $3,
-          notes          = coalesce($4, notes),
-          internal_price = coalesce($5, internal_price),
-          price_delta    = case when $5 is not null then $5 - competitor_price else price_delta end,
-          updated_at     = now()
-        where id = $1
-      `,
-      [
-        matchId,
-        update.matchStatus ?? null,
-        update.alertSeverity ?? null,
-        update.notes ?? null,
-        update.internalPrice ?? null,
-      ],
-    );
+    await client.query("begin");
+    try {
+      if (update.internalPrice != null) {
+        const priceResult = await client.query<{ updated_count: number }>(
+          `
+            with target_variant as (
+              select pv.id as variant_id
+              from ops.competitor_matches m
+              join product p on p.handle = m.internal_sku
+              join product_variant pv on pv.product_id = p.id
+              join product_variant_option pvo on pvo.variant_id = pv.id
+              join product_option_value ov on ov.id = pvo.option_value_id
+              join product_option o on o.id = ov.option_id
+              where m.id = $1
+                and o.title = 'Size'
+                and ov.value ~* '^\\s*\\d+(\\.\\d+)?\\s*x\\s*\\d+(\\.\\d+)?\\s*$'
+                and concat(
+                  (split_part(lower(ov.value), 'x', 1)::numeric)::text,
+                  '" W × ',
+                  (split_part(lower(ov.value), 'x', 2)::numeric)::text,
+                  '" H'
+                ) = m.size_label
+              limit 1
+            ),
+            updated_price as (
+              update price p
+                 set amount = $2,
+                     updated_at = now()
+                from price_set ps
+                join product_variant_price_set pvps on pvps.price_set_id = ps.id
+                join target_variant tv on tv.variant_id = pvps.variant_id
+               where p.price_set_id = ps.id
+                 and p.currency_code = 'usd'
+               returning p.id
+            )
+            select count(*)::int as updated_count from updated_price
+          `,
+          [matchId, update.internalPrice],
+        );
 
-    const result = await client.query<MatchRow>(
-      `
-        select
-          id,
-          internal_sku,
-          internal_product_name,
-          internal_category,
-          competitor,
-          competitor_product_name,
-          competitor_url,
-          match_status,
-          confidence,
-          size_label,
-          currency_code,
-          internal_price,
-          competitor_price,
-          price_delta,
-          last_checked_at,
-          last_success_at,
-          scrape_status,
-          alert_severity,
-          notes,
-          medusa_product_id,
-          storefront_slug
-        from ops.competitor_matches
-        where id = $1
-      `,
-      [matchId],
-    );
+        if (!priceResult.rows[0]?.updated_count) {
+          throw new Error(`No Medusa USD price found for competitor match: ${matchId}`);
+        }
+      }
 
-    return result.rows[0] ? mapMatchRow(result.rows[0]) : null;
+      await client.query(
+        `
+          update ops.competitor_matches
+          set
+            match_status   = coalesce($2, match_status),
+            alert_severity = $3,
+            notes          = coalesce($4, notes),
+            internal_price = coalesce($5, internal_price),
+            price_delta    = case when $5 is not null then $5 - competitor_price else price_delta end,
+            updated_at     = now()
+          where id = $1
+        `,
+        [
+          matchId,
+          update.matchStatus ?? null,
+          update.alertSeverity ?? null,
+          update.notes ?? null,
+          update.internalPrice ?? null,
+        ],
+      );
+
+      const result = await client.query<MatchRow>(
+        `
+          select
+            m.id,
+            m.internal_sku,
+            m.internal_product_name,
+            m.internal_category,
+            m.competitor,
+            m.competitor_product_name,
+            m.competitor_url,
+            m.match_status,
+            m.confidence,
+            m.size_label,
+            m.currency_code,
+            coalesce(mv.store_price, m.internal_price) as internal_price,
+            m.competitor_price,
+            (p.metadata->'cost_prices'->>m.size_label)::numeric as source_price,
+            coalesce(mv.store_price, m.internal_price) - m.competitor_price as price_delta,
+            m.last_checked_at,
+            m.last_success_at,
+            m.scrape_status,
+            m.alert_severity,
+            m.notes,
+            m.medusa_product_id,
+            mv.medusa_variant_id,
+            m.storefront_slug
+          from ops.competitor_matches m
+          left join product p on p.handle = m.internal_sku
+          left join lateral (
+            select
+              pv.id as medusa_variant_id,
+              prc.amount::numeric as store_price
+            from product_variant pv
+            join product_variant_option pvo on pvo.variant_id = pv.id
+            join product_option_value ov on ov.id = pvo.option_value_id
+            join product_option o on o.id = ov.option_id
+            left join product_variant_price_set pvps on pvps.variant_id = pv.id
+            left join price prc on prc.price_set_id = pvps.price_set_id
+              and prc.currency_code = m.currency_code
+              and prc.deleted_at is null
+            where pv.product_id = p.id
+              and o.title = 'Size'
+              and ov.value ~* '^\\s*\\d+(\\.\\d+)?\\s*x\\s*\\d+(\\.\\d+)?\\s*$'
+              and concat(
+                (split_part(lower(ov.value), 'x', 1)::numeric)::text,
+                '" W × ',
+                (split_part(lower(ov.value), 'x', 2)::numeric)::text,
+                '" H'
+              ) = m.size_label
+            limit 1
+          ) mv on true
+          where m.id = $1
+        `,
+        [matchId],
+      );
+
+      await client.query("commit");
+      return result.rows[0] ? mapMatchRow(result.rows[0]) : null;
+    } catch (error) {
+      await client.query("rollback");
+      throw error;
+    }
   });
 }

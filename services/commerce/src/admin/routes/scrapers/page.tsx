@@ -1,8 +1,23 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
+import {
+  ArchiveBox,
+  ArrowPath,
+  Check,
+  CloudArrowDown,
+  CloudArrowUp,
+  Eye,
+  EyeSlash,
+  PencilSquare,
+  Photo,
+  PlaySolid,
+  Plus,
+  Trash,
+  XCircle,
+} from "@medusajs/icons";
 import { useEffect, useRef, useState } from "react";
 import { Button, Container, Heading, StatusBadge, Text } from "@medusajs/ui";
 
-const OPS_API = "http://localhost:4000";
+const OPS_API = import.meta.env.VITE_OPS_API_URL ?? "http://localhost:4000";
 
 const OUR_PRODUCTS = [
   { handle: "faux-wood-blinds-2-inch", label: '2" Faux Wood Blinds' },
@@ -129,7 +144,7 @@ function UrlRow({ u, onSave, onDelete, onRun, onUploadImages, running }: {
             className="text-xs text-ui-fg-interactive hover:text-ui-fg-base px-2 py-1 disabled:opacity-40 disabled:cursor-not-allowed"
             title="Scrape + import + upload images"
           >
-            ▶
+            <PlaySolid />
           </button>
           <button
             onClick={onUploadImages}
@@ -137,13 +152,21 @@ function UrlRow({ u, onSave, onDelete, onRun, onUploadImages, running }: {
             className="text-xs text-ui-fg-muted hover:text-ui-fg-base px-2 py-1 disabled:opacity-40 disabled:cursor-not-allowed"
             title="Upload images only"
           >
-            ↑ Img
+            <Photo />
           </button>
-          <button onClick={() => onSave({ enabled: !u.enabled })} className="text-xs text-ui-fg-muted hover:text-ui-fg-base px-2 py-1">
+          <button
+            onClick={() => onSave({ enabled: !u.enabled })}
+            className="inline-flex items-center gap-1 text-xs text-ui-fg-muted hover:text-ui-fg-base px-2 py-1"
+          >
+            {u.enabled ? <EyeSlash /> : <Eye />}
             {u.enabled ? "Disable" : "Enable"}
           </button>
-          <button onClick={() => setEditing(true)} className="text-xs text-ui-fg-muted hover:text-ui-fg-base px-2 py-1">Edit</button>
-          <button onClick={onDelete} className="text-xs text-ui-tag-red-text hover:underline px-2 py-1">Delete</button>
+          <button onClick={() => setEditing(true)} className="text-xs text-ui-fg-muted hover:text-ui-fg-base px-2 py-1" title="Edit URL">
+            <PencilSquare />
+          </button>
+          <button onClick={onDelete} className="text-xs text-ui-tag-red-text hover:underline px-2 py-1" title="Delete URL">
+            <Trash />
+          </button>
         </div>
       </div>
     );
@@ -160,8 +183,14 @@ function UrlRow({ u, onSave, onDelete, onRun, onUploadImages, running }: {
         </select>
       </div>
       <div className="flex gap-2">
-        <Button size="small" variant="primary" onClick={save}>Save</Button>
-        <Button size="small" variant="secondary" onClick={() => setEditing(false)}>Cancel</Button>
+        <Button size="small" variant="primary" onClick={save}>
+          <Check />
+          Save
+        </Button>
+        <Button size="small" variant="secondary" onClick={() => setEditing(false)}>
+          <XCircle />
+          Cancel
+        </Button>
       </div>
     </div>
   );
@@ -184,8 +213,9 @@ function AddUrlForm({ onAdd }: { onAdd: (url: string, handle: string | null, lab
 
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} className="text-xs text-ui-fg-interactive hover:underline mt-1">
-        + Add URL
+      <button onClick={() => setOpen(true)} className="mt-1 inline-flex items-center gap-1 text-xs text-ui-fg-interactive hover:underline">
+        <Plus />
+        Add URL
       </button>
     );
   }
@@ -364,8 +394,9 @@ function SourceCard({ source, onRefresh }: { source: ScraperSource; onRefresh: (
         <div className="flex items-center gap-2">
           <button
             onClick={toggleEnabled}
-            className="text-sm border border-ui-border-base rounded px-3 py-1.5 hover:bg-ui-bg-base-hover text-ui-fg-base"
+            className="inline-flex items-center gap-1 text-sm border border-ui-border-base rounded px-3 py-1.5 hover:bg-ui-bg-base-hover text-ui-fg-base"
           >
+            {source.enabled ? <EyeSlash /> : <Eye />}
             {source.enabled ? "Disable" : "Enable"}
           </button>
         </div>
@@ -416,7 +447,8 @@ function SourceCard({ source, onRefresh }: { source: ScraperSource; onRefresh: (
       <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-ui-border-base">
         {isRunning ? (
           <Button size="small" variant="danger" onClick={cancelJob}>
-            ■ Stop
+            <XCircle />
+            Stop
           </Button>
         ) : (
           <>
@@ -426,7 +458,8 @@ function SourceCard({ source, onRefresh }: { source: ScraperSource; onRefresh: (
               disabled={acting || !source.enabled}
               onClick={() => trigger("run")}
             >
-              ▶ Scrape All
+              <PlaySolid />
+              Scrape All
             </Button>
             <Button
               size="small"
@@ -434,7 +467,8 @@ function SourceCard({ source, onRefresh }: { source: ScraperSource; onRefresh: (
               disabled={acting}
               onClick={() => trigger("upload-images")}
             >
-              ↑ Upload Images
+              <CloudArrowUp />
+              Upload Images
             </Button>
             <Button
               size="small"
@@ -442,6 +476,7 @@ function SourceCard({ source, onRefresh }: { source: ScraperSource; onRefresh: (
               disabled={acting}
               onClick={() => trigger("clear")}
             >
+              <ArchiveBox />
               Clear Stale Data
             </Button>
           </>
@@ -508,11 +543,13 @@ function AddSourceForm({
             size="small"
             onClick={() => addPresetSource(source)}
           >
-            + {source.name}
+            <Plus />
+            {source.name}
           </Button>
         ))}
         <Button variant="secondary" size="small" onClick={() => setOpen(true)}>
-          + Add Source
+          <Plus />
+          Add Source
         </Button>
       </div>
     );
@@ -526,8 +563,14 @@ function AddSourceForm({
         <input value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))} placeholder="slug (e.g. lowes)" className="flex-1 text-sm border border-ui-border-base rounded px-3 py-2 bg-ui-bg-base font-mono" />
       </div>
       <div className="flex gap-2">
-        <Button size="small" variant="primary" onClick={submit}>Create</Button>
-        <Button size="small" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+        <Button size="small" variant="primary" onClick={submit}>
+          <Check />
+          Create
+        </Button>
+        <Button size="small" variant="secondary" onClick={() => setOpen(false)}>
+          <XCircle />
+          Cancel
+        </Button>
       </div>
     </Container>
   );
@@ -623,4 +666,6 @@ export default function ScrapersPage() {
 
 export const config = defineRouteConfig({
   label: "Scrapers",
+  icon: CloudArrowDown,
+  rank: 40,
 });

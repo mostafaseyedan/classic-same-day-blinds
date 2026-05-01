@@ -58,18 +58,55 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         return res.status(400).json({ error: "store_price requires variantId." });
       }
 
-      const { rowCount } = await client.query(
-        `UPDATE price p
-            SET amount = $1, updated_at = NOW()
-           FROM price_set ps
-           JOIN product_variant_price_set pvps ON pvps.price_set_id = ps.id
-          WHERE p.price_set_id  = ps.id
-            AND pvps.variant_id = $2
-            AND p.currency_code = 'usd'`,
+      const { rows } = await client.query<{ updated_count: number }>(
+        `WITH variant_context AS (
+           SELECT pv.id AS variant_id,
+                  pr.handle,
+                  concat(
+                    (split_part(lower(ov.value), 'x', 1)::numeric)::text,
+                    '" W × ',
+                    (split_part(lower(ov.value), 'x', 2)::numeric)::text,
+                    '" H'
+                  ) AS size_label
+             FROM product_variant pv
+             JOIN product pr ON pr.id = pv.product_id
+             JOIN product_variant_option pvo ON pvo.variant_id = pv.id
+             JOIN product_option_value ov ON ov.id = pvo.option_value_id
+             JOIN product_option o ON o.id = ov.option_id
+            WHERE pv.id = $2
+              AND o.title = 'Size'
+              AND ov.value ~* '^\\s*\\d+(\\.\\d+)?\\s*x\\s*\\d+(\\.\\d+)?\\s*$'
+         ),
+         updated_price AS (
+           UPDATE price p
+              SET amount = $1, updated_at = NOW()
+             FROM price_set ps
+             JOIN product_variant_price_set pvps ON pvps.price_set_id = ps.id
+            WHERE p.price_set_id  = ps.id
+              AND pvps.variant_id = $2
+              AND p.currency_code = 'usd'
+            RETURNING p.id
+         ),
+         updated_matches AS (
+           UPDATE ops.competitor_matches m
+              SET internal_price = $1,
+                  price_delta = $1 - m.competitor_price,
+                  alert_severity = CASE
+                    WHEN $1 - m.competitor_price < 0 THEN 'critical'
+                    WHEN $1 - m.competitor_price < 5 THEN 'warning'
+                    ELSE NULL
+                  END,
+                  updated_at = NOW()
+             FROM variant_context vc
+            WHERE m.internal_sku = vc.handle
+              AND m.size_label = vc.size_label
+            RETURNING m.id
+         )
+         SELECT count(*)::int AS updated_count FROM updated_price`,
         [value, variantId],
       );
 
-      if (!rowCount) {
+      if (!rows[0]?.updated_count) {
         await client.query("ROLLBACK");
         return res.status(404).json({ error: `No USD price found for variant: ${variantId}` });
       }

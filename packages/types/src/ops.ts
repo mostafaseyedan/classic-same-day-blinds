@@ -105,6 +105,7 @@ export interface CompetitorPricePoint {
   label: string;
   internalPrice: number;
   competitorPrice: number;
+  sourcePrice?: number;
   currencyCode: string;
 }
 
@@ -127,6 +128,7 @@ export interface CompetitorProductMatch {
   alertSeverity?: CompetitorAlertSeverity;
   notes?: string;
   medusaProductId?: string;
+  medusaVariantId?: string;
   storefrontSlug?: string;
 }
 

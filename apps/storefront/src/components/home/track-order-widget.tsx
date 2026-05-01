@@ -46,7 +46,7 @@ export function TrackOrderWidget() {
               value={orderNumber}
               onChange={(event) => setOrderNumber(event.target.value)}
               placeholder="ORD-12345"
-              className="rounded-2xl border border-black/8 bg-shell px-4 py-3 text-sm text-slate outline-none transition focus:border-brass"
+              className="rounded-2xl border border-black/8 bg-white px-4 py-3 text-sm text-slate outline-none transition focus:border-brass"
             />
           </label>
 
@@ -57,7 +57,7 @@ export function TrackOrderWidget() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
-              className="rounded-2xl border border-black/8 bg-shell px-4 py-3 text-sm text-slate outline-none transition focus:border-brass"
+              className="rounded-2xl border border-black/8 bg-white px-4 py-3 text-sm text-slate outline-none transition focus:border-brass"
             />
           </label>
 
@@ -84,7 +84,7 @@ export function TrackOrderWidget() {
               copy: "This becomes the lightweight public path beside the authenticated orders area.",
             },
           ].map((item) => (
-            <article key={item.title} className="rounded-[1.5rem] border border-black/6 bg-shell px-5 py-5">
+            <article key={item.title} className="rounded-[1.5rem] border border-black/6 px-5 py-5">
               <p className="text-sm font-semibold text-slate">{item.title}</p>
               <p className="mt-2 text-sm leading-6 text-slate/70">{item.copy}</p>
             </article>

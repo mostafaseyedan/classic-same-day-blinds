@@ -3,7 +3,7 @@ import { Badge, Button, CloseButton, SectionPanel } from "@blinds/ui";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Heart, ShoppingCart } from "@phosphor-icons/react";
+import { ShoppingCart } from "@phosphor-icons/react";
 
 import { formatPrice } from "@/lib/format-price";
 import {
@@ -26,9 +26,6 @@ export function WishlistGrid() {
   if (items.length === 0) {
     return (
       <SectionPanel className="flex flex-col items-center gap-5 border-dashed bg-shell py-24 text-center shadow-none">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-black/8 bg-white">
-          <Heart className="h-7 w-7 text-slate/30" />
-        </div>
         <div>
           <p className="font-display text-2xl font-semibold text-slate">Nothing saved yet</p>
           <p className="mt-2 text-sm text-slate/55">

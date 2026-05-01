@@ -1,11 +1,12 @@
+"use client";
+
 import Image from "next/image";
 import { Trophy, MapPin, Scissors } from "@phosphor-icons/react/ssr";
-import { AnimateOnScroll } from "@/components/animate-on-scroll";
-import { SurfaceCard, SurfaceInset } from "@blinds/ui";
-import { Eyebrow, EyebrowAccent, SectionTitle, SectionCopy } from "@blinds/ui";
+import { useInView } from "@/hooks/use-in-view";
+import { EyebrowAccent, SectionTitle } from "@blinds/ui";
 import type { GooglePlaceData } from "@/lib/google-reviews";
 import { cn } from "@/lib/utils";
-import { GoogleReviewsCarousel } from "@/components/home/google-reviews-carousel";
+import { useLanguage } from "@/lib/context/language-context";
 
 const storyProof = [
   {
@@ -22,27 +23,27 @@ const storyProof = [
   },
   {
     Icon: MapPin,
-    title: "Bedford showroom",
+    title: "Bedford warehouse",
     copy: "Local homeowners and property teams still have a real place to get help before ordering.",
     accent: undefined,
   },
 ] as const;
 
 export function About({ googlePlace }: { googlePlace: GooglePlaceData | null }) {
-  const reviews = googlePlace?.reviews?.slice(0, 8) ?? [];
-  const reviewCount = googlePlace?.user_ratings_total;
-  const rating = googlePlace?.rating;
+  const { t } = useLanguage();
+  const contentRef = useInView<HTMLDivElement>();
+  void googlePlace;
 
   const stats = [
     {
-      value: "37",
+      value: "30+",
       unit: "Years",
-      label: "in window coverings — since 1986",
+      label: "in business — since 1986",
     },
     {
-      value: reviewCount ? `${reviewCount}+` : "1,200+",
-      unit: rating ? `${rating}-star` : "5-star",
-      label: "Google reviews from homeowners and property teams",
+      value: "2M+",
+      unit: "Happy",
+      label: "customers served across the nation",
     },
     {
       value: "Same-Day",
@@ -53,13 +54,16 @@ export function About({ googlePlace }: { googlePlace: GooglePlaceData | null }) 
 
   return (
     <section id="about" className="page-section border-t border-black/5 bg-white">
-      <AnimateOnScroll className="content-shell">
+      <div ref={contentRef} data-animate className="content-shell">
 
         {/* Section intro */}
         <div className="flex flex-col gap-3">
-          <Eyebrow>Homeowner Stories</Eyebrow>
+          <p className="group flex items-center gap-4 text-xs font-bold uppercase tracking-[0.35em] text-olive">
+            <span className="block h-px w-10 bg-olive transition-all duration-300 group-hover:w-16" />
+            {t("Our Story", "Nuestra Historia")}
+          </p>
           <SectionTitle className="max-w-3xl">
-            Trusted by homeowners and property teams across DFW for over three decades.
+            {t("America's #1 Online blinds sales", "La Tienda #1 en Línea de Persianas")}
           </SectionTitle>
         </div>
 
@@ -84,17 +88,32 @@ export function About({ googlePlace }: { googlePlace: GooglePlaceData | null }) 
         </div>
 
         {/* Story grid */}
-        <div className="mt-14 grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
+        <div className="mt-10 grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
           <div>
             <EyebrowAccent>Our Story</EyebrowAccent>
-            <p className="mt-4 max-w-[52ch] text-sm leading-6 text-slate/70 sm:text-base sm:leading-7">
-              Classic Same Day Blinds grew out of hands-on product knowledge, local measuring help,
-              and the practical reality that most customers do not want to become experts just to buy
-              the right window treatment.
-            </p>
+            <div className="mt-6 space-y-5 text-sm leading-6 text-slate/70 sm:text-base sm:leading-7">
+              <p>
+                {t(
+                  "For over 30 years, Classic Same Day Blinds has been helping homeowners, commercial properties, and maintenance teams find the perfect window treatments. We believe every window deserves a beautiful, custom-fitted solution — and we make that easy, reliable, and affordable.",
+                  "Durante más de 30 años, Classic Same Day Blinds ha estado ayudando a propietarios y empresas a encontrar los tratamientos de ventana perfectos."
+                )}
+              </p>
+              <p>
+                {t(
+                  "From our free sample program to our expert design consultants available 7 days a week, we're committed to making your window treatment experience seamless from start to finish.",
+                  "Desde nuestro programa de muestras gratis hasta nuestros consultores expertos, estamos comprometidos con su experiencia."
+                )}
+              </p>
+              <p>
+                {t(
+                  "Every blind and shade is custom made to your exact measurements, ensuring a perfect fit for residential homes, property managers, maintenance teams, and commercial buildings alike.",
+                  "Cada persiana se fabrica a medida, garantizando un ajuste perfecto para hogares y edificios comerciales por igual."
+                )}
+              </p>
+            </div>
 
-            <div className="mt-12 lg:mt-16">
-              <div className="space-y-8 border-t border-black/10 pt-8 lg:space-y-10 lg:pt-10">
+            <div className="mt-10">
+              <div className="space-y-7 border-t border-black/10 pt-7 lg:space-y-8">
                 {storyProof.map(({ Icon, title, copy, accent }) => (
                   <article key={title} className="flex items-start gap-5 sm:gap-6">
                     <div className={cn("mt-1", accent === "brass" ? "text-brass" : "text-olive")}>
@@ -139,16 +158,7 @@ export function About({ googlePlace }: { googlePlace: GooglePlaceData | null }) 
             <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full bg-olive/10 blur-3xl sm:h-36 sm:w-36" />
           </div>
         </div>
-
-        {reviews.length > 0 ? (
-          <GoogleReviewsCarousel
-            reviews={reviews}
-            rating={googlePlace?.rating}
-            reviewCount={googlePlace?.user_ratings_total}
-            placeUrl={googlePlace?.url}
-          />
-        ) : null}
-      </AnimateOnScroll>
+      </div>
     </section>
   );
 }

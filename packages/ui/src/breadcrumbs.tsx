@@ -22,41 +22,65 @@ export function Breadcrumbs({
     return null;
   }
 
-  const navTone = tone === "light" ? "text-shell/58" : "text-slate/42";
-  const linkTone =
-    tone === "light"
-      ? "font-semibold text-shell/74 transition hover:text-white"
-      : "font-semibold text-slate/55 transition hover:text-slate";
-  const currentTone = tone === "light" ? "text-white/86" : "text-slate/68";
-  const separatorTone = tone === "light" ? "text-shell/34" : "text-slate/30";
+  const isLight = tone === "light";
+  
+  // Design tokens based on home page eyebrows
+  const navColor = isLight ? "text-shell/80" : "text-olive";
+  const accentColor = isLight ? "bg-shell/60" : "bg-olive";
+  const separatorColor = isLight ? "text-shell/30" : "text-olive/30";
+  const linkHoverColor = isLight ? "hover:text-white" : "hover:text-olive";
+  const currentTextColor = isLight ? "text-white" : "text-olive";
 
   return (
     <nav
       aria-label="Breadcrumb"
       className={cn(
-        "mb-5 flex flex-wrap items-center gap-2 text-[0.68rem] uppercase tracking-[0.1em]",
-        navTone,
+        "group mb-5 flex flex-wrap items-center gap-4 text-[0.68rem] font-bold uppercase tracking-[0.35em]",
+        navColor,
         className,
       )}
     >
-      {items.map((item, index) => {
-        const isLast = index === items.length - 1;
+      {/* Eyebrow expanding line */}
+      <span
+        className={cn(
+          "block h-px w-10 transition-all duration-300 group-hover:w-16",
+          accentColor
+        )}
+      />
 
-        return (
-          <span key={`${item.label}-${index}`} className="flex items-center gap-2">
-            {index > 0 ? <span className={separatorTone}>/</span> : null}
-            {item.href && !isLast ? (
-              <Link href={item.href} className={linkTone}>
-                {item.label}
-              </Link>
-            ) : (
-              <span aria-current={isLast ? "page" : undefined} className={isLast ? currentTone : ""}>
-                {item.label}
-              </span>
-            )}
-          </span>
-        );
-      })}
+      <div className="flex flex-wrap items-center gap-2">
+        {items.map((item, index) => {
+          const isLast = index === items.length - 1;
+
+          return (
+            <span key={`${item.label}-${index}`} className="flex items-center gap-2">
+              {index > 0 ? (
+                <span className={cn("font-medium tracking-normal", separatorColor)}>
+                  /
+                </span>
+              ) : null}
+              {item.href && !isLast ? (
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "transition-colors duration-200",
+                    linkHoverColor
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <span
+                  aria-current={isLast ? "page" : undefined}
+                  className={isLast ? currentTextColor : ""}
+                >
+                  {item.label}
+                </span>
+              )}
+            </span>
+          );
+        })}
+      </div>
     </nav>
   );
 }

@@ -4,7 +4,7 @@ import { Button } from "@blinds/ui";
 import { Input } from "@blinds/ui";
 import { Label } from "@blinds/ui";
 import { FormShell, SectionPanel, SurfaceMuted } from "@blinds/ui";
-import { Eyebrow, PageCopy, TaskPageTitle } from "@blinds/ui";
+import { Eyebrow, PageCopy, PageTitle } from "@blinds/ui";
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -145,9 +145,9 @@ export default function ResetPasswordPage() {
           <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
             <div>
               <Eyebrow>Account Recovery</Eyebrow>
-              <TaskPageTitle>
+              <PageTitle>
                 Set a new password.
-              </TaskPageTitle>
+              </PageTitle>
               <PageCopy className="max-w-[34rem]">
                 Finish account recovery by choosing a new password. After it is updated, sign in
                 again to open your account.

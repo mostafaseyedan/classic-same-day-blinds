@@ -1,7 +1,15 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
+import {
+  ArrowLeft,
+  BellAlert,
+  ChatBubbleLeftRight,
+  MagnifyingGlass,
+  MapPin,
+  ReceiptPercent,
+  Users,
+} from "@medusajs/icons";
 import { Badge, Button, Container, Heading, Text } from "@medusajs/ui";
-import type { FormEvent } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type {
   CustomerAccountAdminAddress,
@@ -10,6 +18,24 @@ import type {
   CustomerOpsRequestRecord,
   NotificationRecord,
 } from "@blinds/types";
+
+type MedusaCustomerListItem = {
+  id: string;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  company_name: string | null;
+  phone: string | null;
+  has_account: boolean;
+  created_at: string;
+};
+
+type MedusaCustomerListResponse = {
+  customers: MedusaCustomerListItem[];
+  count: number;
+  offset: number;
+  limit: number;
+};
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-US", {
@@ -25,16 +51,16 @@ function formatMoney(value: number, currencyCode: string) {
   }).format(value);
 }
 
-function fullName(firstName?: string, lastName?: string) {
+function fullName(firstName?: string | null, lastName?: string | null) {
   return [firstName, lastName].filter(Boolean).join(" ") || "No name";
 }
 
-function statusColor(status: string): "green" | "orange" | "grey" | "blue" | "red" {
-  if (status === "completed" || status === "sent") return "green";
-  if (status === "approved") return "blue";
-  if (status === "reviewed" || status === "pending") return "orange";
-  if (status === "failed") return "red";
-  return "grey";
+function statusClass(status: string): string {
+  if (status === "completed" || status === "sent") return "text-green-500";
+  if (status === "approved") return "text-blue-500";
+  if (status === "reviewed" || status === "pending") return "text-orange-500";
+  if (status === "failed") return "text-red-500";
+  return "text-ui-fg-subtle";
 }
 
 function AddressLine({ address }: { address: CustomerAccountAdminAddress }) {
@@ -49,8 +75,8 @@ function AddressLine({ address }: { address: CustomerAccountAdminAddress }) {
           {address.company ? <Text size="small" className="text-ui-fg-subtle">{address.company}</Text> : null}
         </div>
         <div className="flex flex-wrap justify-end gap-2">
-          {address.isDefaultShipping ? <Badge color="blue">Default shipping</Badge> : null}
-          {address.isDefaultBilling ? <Badge color="green">Default billing</Badge> : null}
+          {address.isDefaultShipping ? <span className="text-xs font-medium text-blue-500">Default shipping</span> : null}
+          {address.isDefaultBilling ? <span className="text-xs font-medium text-green-500">Default billing</span> : null}
         </div>
       </div>
       <Text size="small" className="mt-3 text-ui-fg-subtle">{street}</Text>
@@ -64,13 +90,16 @@ function AddressLine({ address }: { address: CustomerAccountAdminAddress }) {
 
 function OrderLine({ order }: { order: CustomerAccountAdminOrder }) {
   return (
-    <div className="grid gap-3 border-t border-ui-border-base py-4 first:border-t-0 first:pt-0 md:grid-cols-[1fr_auto_auto] md:items-center">
+    <div className="flex items-center justify-between gap-4 border-t border-ui-border-base py-4 first:border-t-0 first:pt-0">
       <div>
         <Text weight="plus">Order {order.displayId ? `#${order.displayId}` : order.id}</Text>
-        <Text size="small" className="mt-1 text-ui-fg-subtle">{formatDate(order.createdAt)}</Text>
+        <div className="mt-1 flex items-center gap-2">
+          <Text size="small" className="text-ui-fg-subtle">{formatDate(order.createdAt)}</Text>
+          <span className="text-ui-fg-subtle text-xs">·</span>
+          <span className={`text-xs font-medium ${statusClass(order.status)}`}>{order.status}</span>
+        </div>
       </div>
-      <Badge color={statusColor(order.status)}>{order.status}</Badge>
-      <div className="text-left md:text-right">
+      <div className="shrink-0 text-right">
         <Text weight="plus">{formatMoney(order.total, order.currencyCode)}</Text>
         <Text size="small" className="text-ui-fg-subtle">{order.itemCount} item{order.itemCount === 1 ? "" : "s"}</Text>
       </div>
@@ -81,12 +110,15 @@ function OrderLine({ order }: { order: CustomerAccountAdminOrder }) {
 function RequestLine({ request }: { request: CustomerOpsRequestRecord }) {
   return (
     <div className="border-t border-ui-border-base py-4 first:border-t-0 first:pt-0">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <Text weight="plus">{request.type === "invoice" ? "Invoice request" : "Quote request"}</Text>
-          <Text size="small" className="mt-1 text-ui-fg-subtle">{formatDate(request.submittedAt)}</Text>
+      <div>
+        <a href="/app/quotes" className="font-semibold text-ui-fg-base hover:text-ui-fg-interactive hover:underline">
+          {request.type === "invoice" ? "Invoice request" : "Quote request"}
+        </a>
+        <div className="mt-1 flex items-center gap-2">
+          <Text size="small" className="text-ui-fg-subtle">{formatDate(request.submittedAt)}</Text>
+          <span className="text-xs text-ui-fg-subtle">·</span>
+          <span className={`text-xs font-medium ${statusClass(request.status)}`}>{request.status}</span>
         </div>
-        <Badge color={statusColor(request.status)}>{request.status}</Badge>
       </div>
       <div className="mt-3 grid gap-1 text-sm text-ui-fg-subtle md:grid-cols-2">
         {request.customerName ? <span>Customer: {request.customerName}</span> : null}
@@ -103,14 +135,15 @@ function RequestLine({ request }: { request: CustomerOpsRequestRecord }) {
 function NotificationLine({ notification }: { notification: NotificationRecord }) {
   return (
     <div className="border-t border-ui-border-base py-4 first:border-t-0 first:pt-0">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <Text weight="plus">{notification.subject}</Text>
-          <Text size="small" className="mt-1 text-ui-fg-subtle">{notification.kind}</Text>
+      <div>
+        <Text weight="plus">{notification.subject}</Text>
+        <div className="mt-1 flex items-center gap-2">
+          <Text size="small" className="text-ui-fg-subtle">{notification.kind}</Text>
+          <span className="text-xs text-ui-fg-subtle">·</span>
+          <span className={`text-xs font-medium ${statusClass(notification.status)}`}>{notification.status}</span>
         </div>
-        <Badge color={statusColor(notification.status)}>{notification.status}</Badge>
+        <Text size="small" className="mt-1 text-ui-fg-subtle">{formatDate(notification.createdAt)}</Text>
       </div>
-      <Text size="small" className="mt-2 text-ui-fg-subtle">{formatDate(notification.createdAt)}</Text>
       {notification.failureReason ? (
         <Text size="small" className="mt-2 text-ui-fg-error">{notification.failureReason}</Text>
       ) : null}
@@ -118,103 +151,183 @@ function NotificationLine({ notification }: { notification: NotificationRecord }
   );
 }
 
+function CustomerListRow({
+  customer,
+  onSelect,
+}: {
+  customer: MedusaCustomerListItem;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(customer.id)}
+      className="w-full border-t border-ui-border-base px-4 py-3 text-left transition-colors hover:bg-ui-bg-base-hover first:border-t-0"
+    >
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <Text weight="plus" className="truncate">{fullName(customer.first_name, customer.last_name)}</Text>
+          <Text size="small" className="truncate text-ui-fg-subtle">{customer.email}</Text>
+          {customer.company_name ? (
+            <Text size="small" className="truncate text-ui-fg-muted">{customer.company_name}</Text>
+          ) : null}
+        </div>
+        <div className="shrink-0 text-right">
+          <span className={`text-xs font-medium ${customer.has_account ? "text-green-500" : "text-ui-fg-subtle"}`}>
+            {customer.has_account ? "Registered" : "Guest"}
+          </span>
+          <Text size="small" className="mt-1 block text-ui-fg-muted">{formatDate(customer.created_at)}</Text>
+        </div>
+      </div>
+    </button>
+  );
+}
+
 export default function CustomerAccountPage() {
-  const [email, setEmail] = useState("");
+  const [search, setSearch] = useState("");
+  const [customers, setCustomers] = useState<MedusaCustomerListItem[]>([]);
+  const [listLoading, setListLoading] = useState(false);
+  const [listError, setListError] = useState<string | null>(null);
+
   const [account, setAccount] = useState<CustomerAccountAdminResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [accountLoading, setAccountLoading] = useState(false);
+  const [accountError, setAccountError] = useState<string | null>(null);
 
-  async function fetchAccount(params: URLSearchParams) {
-    setLoading(true);
-    setError(null);
-    setAccount(null);
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  async function fetchCustomers(q: string) {
+    setListLoading(true);
+    setListError(null);
     try {
-      const response = await fetch(`/admin/customer-account?${params.toString()}`);
-
-      if (!response.ok) {
-        throw new Error(response.status === 404 ? "Customer not found." : `Unable to load customer (${response.status})`);
-      }
-
-      const payload = (await response.json()) as CustomerAccountAdminResponse;
-      setAccount(payload);
-      setEmail(payload.customer.email);
+      const params = new URLSearchParams({ limit: "25" });
+      if (q.trim()) params.set("q", q.trim());
+      const res = await fetch(`/admin/customers?${params.toString()}`);
+      if (!res.ok) throw new Error(`Failed to load customers (${res.status})`);
+      const data = (await res.json()) as MedusaCustomerListResponse;
+      setCustomers(data.customers);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to load customer.");
+      setListError(err instanceof Error ? err.message : "Unable to load customers.");
     } finally {
-      setLoading(false);
+      setListLoading(false);
     }
   }
 
-  async function loadAccount(event?: FormEvent<HTMLFormElement>, customerId?: string) {
-    event?.preventDefault();
-
-    const trimmedEmail = email.trim();
-    const trimmedCustomerId = customerId?.trim() ?? "";
-
-    if (!trimmedEmail && !trimmedCustomerId) {
-      setError("Enter a customer email.");
-      return;
+  async function fetchAccount(customerId: string) {
+    setAccountLoading(true);
+    setAccountError(null);
+    setAccount(null);
+    try {
+      const res = await fetch(`/admin/customer-account?customer_id=${encodeURIComponent(customerId)}`);
+      if (!res.ok) {
+        throw new Error(res.status === 404 ? "Customer not found." : `Unable to load customer (${res.status})`);
+      }
+      const payload = (await res.json()) as CustomerAccountAdminResponse;
+      setAccount(payload);
+    } catch (err) {
+      setAccountError(err instanceof Error ? err.message : "Unable to load customer.");
+    } finally {
+      setAccountLoading(false);
     }
-
-    const params = new URLSearchParams();
-    if (trimmedCustomerId) {
-      params.set("customer_id", trimmedCustomerId);
-    } else {
-      params.set("email", trimmedEmail);
-    }
-
-    await fetchAccount(params);
   }
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const customerId = params.get("customer_id");
-    const initialEmail = params.get("email");
-
-    if (initialEmail) {
-      setEmail(initialEmail);
-    }
-
     if (customerId) {
-      void loadAccount(undefined, customerId);
-    } else if (initialEmail) {
-      const query = new URLSearchParams({ email: initialEmail });
-      void fetchAccount(query);
+      void fetchAccount(customerId);
+    } else {
+      void fetchCustomers("");
     }
   }, []);
+
+  function handleSearch(value: string) {
+    setSearch(value);
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {
+      void fetchCustomers(value);
+    }, 300);
+  }
+
+  function handleSelectCustomer(customerId: string) {
+    void fetchAccount(customerId);
+  }
+
+  function handleBack() {
+    setAccount(null);
+    setAccountError(null);
+    void fetchCustomers(search);
+  }
 
   const customer = account?.customer;
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <Heading level="h1">Customer Account</Heading>
           <Text className="mt-1 text-ui-fg-subtle">
             Medusa-backed customer profile, orders, requests, and notification activity.
           </Text>
         </div>
-        <form onSubmit={(event) => void loadAccount(event)} className="flex w-full max-w-xl gap-2">
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="customer@example.com"
-            className="h-8 min-w-0 flex-1 rounded border border-ui-border-base bg-ui-bg-base px-3 text-sm text-ui-fg-base outline-none focus:border-ui-border-interactive"
-          />
-          <Button type="submit" size="small" disabled={loading}>
-            {loading ? "Loading..." : "Load"}
+        {account ? (
+          <Button size="small" variant="secondary" onClick={handleBack}>
+            <ArrowLeft />
+            All customers
           </Button>
-        </form>
+        ) : null}
       </div>
 
-      {error ? (
-        <Container className="border-ui-border-error bg-ui-bg-base p-4">
-          <Text className="text-ui-fg-error">{error}</Text>
+      {/* Customer list view */}
+      {!account && !accountLoading ? (
+        <Container className="p-0">
+          <div className="flex items-center gap-3 border-b border-ui-border-base px-4 py-3">
+            <MagnifyingGlass className="text-ui-fg-muted" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => handleSearch(e.target.value)}
+              placeholder="Search by name, email, or company…"
+              className="h-8 min-w-0 flex-1 rounded border border-ui-border-base bg-ui-bg-base px-3 text-sm text-ui-fg-base outline-none focus:border-ui-border-interactive"
+            />
+          </div>
+
+          {listError ? (
+            <div className="p-4">
+              <Text className="text-ui-fg-error">{listError}</Text>
+            </div>
+          ) : listLoading ? (
+            <div className="p-6 text-center">
+              <Text className="text-ui-fg-subtle">Loading customers…</Text>
+            </div>
+          ) : customers.length === 0 ? (
+            <div className="p-6 text-center">
+              <Text className="text-ui-fg-subtle">No customers found.</Text>
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              {customers.map((c) => (
+                <CustomerListRow key={c.id} customer={c} onSelect={handleSelectCustomer} />
+              ))}
+            </div>
+          )}
         </Container>
       ) : null}
 
+      {/* Loading state for account detail */}
+      {accountLoading ? (
+        <Container className="p-6 text-center">
+          <Text className="text-ui-fg-subtle">Loading customer…</Text>
+        </Container>
+      ) : null}
+
+      {/* Account detail error */}
+      {accountError ? (
+        <Container className="border-ui-border-error bg-ui-bg-base p-4">
+          <Text className="text-ui-fg-error">{accountError}</Text>
+        </Container>
+      ) : null}
+
+      {/* Account detail view */}
       {customer ? (
         <>
           <Container className="p-0">
@@ -227,7 +340,9 @@ export default function CustomerAccountPage() {
                 {customer.companyName ? <Text className="text-ui-fg-subtle">{customer.companyName}</Text> : null}
               </div>
               <div className="grid gap-2 md:text-right">
-                <Badge color={customer.hasAccount ? "green" : "grey"}>{customer.hasAccount ? "Registered" : "Guest"}</Badge>
+                <span className={`text-sm font-medium ${customer.hasAccount ? "text-green-500" : "text-ui-fg-subtle"}`}>
+                  {customer.hasAccount ? "Registered" : "Guest"}
+                </span>
                 <Text size="small" className="text-ui-fg-subtle">Created {formatDate(customer.createdAt)}</Text>
                 <Text size="small" className="text-ui-fg-subtle">Updated {formatDate(customer.updatedAt)}</Text>
               </div>
@@ -237,7 +352,10 @@ export default function CustomerAccountPage() {
           <div className="grid gap-6 xl:grid-cols-2">
             <Container className="p-6">
               <div className="flex items-center justify-between gap-3">
-                <Heading level="h2">Orders</Heading>
+                <div className="flex items-center gap-2">
+                  <ReceiptPercent className="text-ui-fg-muted" />
+                  <Heading level="h2">Orders</Heading>
+                </div>
                 <Badge color="grey">{account.orders.length}</Badge>
               </div>
               <div className="mt-5">
@@ -251,7 +369,10 @@ export default function CustomerAccountPage() {
 
             <Container className="p-6">
               <div className="flex items-center justify-between gap-3">
-                <Heading level="h2">Saved Addresses</Heading>
+                <div className="flex items-center gap-2">
+                  <MapPin className="text-ui-fg-muted" />
+                  <Heading level="h2">Saved Addresses</Heading>
+                </div>
                 <Badge color="grey">{account.addresses.length}</Badge>
               </div>
               <div className="mt-5 grid gap-3">
@@ -265,7 +386,10 @@ export default function CustomerAccountPage() {
 
             <Container className="p-6">
               <div className="flex items-center justify-between gap-3">
-                <Heading level="h2">Requests</Heading>
+                <div className="flex items-center gap-2">
+                  <ChatBubbleLeftRight className="text-ui-fg-muted" />
+                  <Heading level="h2">Requests</Heading>
+                </div>
                 <Badge color="grey">{account.requests.length}</Badge>
               </div>
               <div className="mt-5">
@@ -279,7 +403,10 @@ export default function CustomerAccountPage() {
 
             <Container className="p-6">
               <div className="flex items-center justify-between gap-3">
-                <Heading level="h2">Notifications</Heading>
+                <div className="flex items-center gap-2">
+                  <BellAlert className="text-ui-fg-muted" />
+                  <Heading level="h2">Notifications</Heading>
+                </div>
                 <Badge color="grey">{account.notifications.length}</Badge>
               </div>
               <div className="mt-5">
@@ -301,4 +428,6 @@ export default function CustomerAccountPage() {
 
 export const config = defineRouteConfig({
   label: "Customer Account",
+  icon: Users,
+  rank: 60,
 });

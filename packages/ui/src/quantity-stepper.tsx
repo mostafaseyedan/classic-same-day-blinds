@@ -41,8 +41,32 @@ export function QuantityStepper({
   valueClassName,
   buttonClassName,
 }: QuantityStepperProps) {
+  const [inputValue, setInputValue] = React.useState(String(value));
   const canDecrement = !disabled && value > min;
   const canIncrement = !disabled && (max === undefined || value < max);
+
+  React.useEffect(() => {
+    setInputValue(String(value));
+  }, [value]);
+
+  function clampValue(nextValue: number) {
+    const minBounded = Math.max(min, nextValue);
+
+    return max === undefined ? minBounded : Math.min(max, minBounded);
+  }
+
+  function commitInputValue(rawValue: string) {
+    const parsed = Number.parseInt(rawValue, 10);
+
+    if (!Number.isFinite(parsed)) {
+      setInputValue(String(value));
+      return;
+    }
+
+    const nextValue = clampValue(parsed);
+    setInputValue(String(nextValue));
+    onChange(nextValue);
+  }
 
   return (
     <div
@@ -54,7 +78,7 @@ export function QuantityStepper({
     >
       <button
         type="button"
-        onClick={() => canDecrement && onChange(Math.max(min, value - 1))}
+        onClick={() => canDecrement && onChange(clampValue(value - 1))}
         disabled={!canDecrement}
         aria-label="Decrease quantity"
         className={cn(
@@ -65,20 +89,36 @@ export function QuantityStepper({
         <StepIcon direction="minus" />
       </button>
 
-      <span
-        aria-live="polite"
-        aria-atomic="true"
+      <input
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        value={inputValue}
+        onChange={(event) => {
+          const nextValue = event.target.value.replace(/\D/g, "");
+          setInputValue(nextValue);
+
+          if (nextValue.length > 0) {
+            commitInputValue(nextValue);
+          }
+        }}
+        onBlur={() => commitInputValue(inputValue)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.currentTarget.blur();
+          }
+        }}
+        disabled={disabled}
+        aria-label="Quantity"
         className={cn(
-          "min-w-[2.25rem] px-2 text-center text-[0.95rem] font-semibold leading-none text-slate",
+          "h-8 w-[2.75rem] border-0 bg-transparent px-1.5 text-center text-[0.95rem] font-semibold leading-none text-slate outline-none disabled:cursor-not-allowed",
           valueClassName,
         )}
-      >
-        {value}
-      </span>
+      />
 
       <button
         type="button"
-        onClick={() => canIncrement && onChange(max === undefined ? value + 1 : Math.min(max, value + 1))}
+        onClick={() => canIncrement && onChange(clampValue(value + 1))}
         disabled={!canIncrement}
         aria-label="Increase quantity"
         className={cn(

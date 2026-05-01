@@ -1,37 +1,34 @@
 import { RoomVisualizerStudio } from "@/components/visualizer/room-visualizer-studio";
+import { getCatalogProducts } from "@/lib/medusa/catalog";
 import { Breadcrumbs } from "@blinds/ui";
-import { PageCopyLight, PageTitleLight } from "@blinds/ui";
+import { PageCopy, PageTitle } from "@blinds/ui";
 
-export default function RoomVisualizerPage() {
+export default async function RoomVisualizerPage() {
+  const products = await getCatalogProducts();
+
   return (
     <main>
-      <section className="bg-gradient-to-br from-slate to-olive px-6 py-16 text-shell md:px-10 lg:px-14">
+      <section className="page-section bg-shell pb-20 pt-10">
         <div className="mx-auto max-w-6xl">
           <Breadcrumbs
-            className="mb-6"
-            tone="light"
             items={[
               { label: "Home", href: "/" },
               { label: "Services" },
               { label: "Room Visualizer" },
             ]}
           />
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass/90">
-            Room Visualizer
-          </p>
-          <PageTitleLight>
+          <PageTitle>
             The visualizer now lives in the new storefront.
-          </PageTitleLight>
-          <PageCopyLight className="mt-6 max-w-2xl text-base leading-8">
-            This migrated version keeps the visualizer route and customer workflow in the production
-            app. It is intentionally lighter than the legacy demo and ready to evolve toward real catalog integration.
-          </PageCopyLight>
+          </PageTitle>
+          <PageCopy className="mt-2 max-w-2xl">
+            Preview products in a sample room or your own photo before moving into catalog selection.
+          </PageCopy>
         </div>
       </section>
 
-      <section className="px-6 py-16 md:px-10 lg:px-14">
+      <section className="bg-shell px-6 pb-16 md:px-10 lg:px-14">
         <div className="mx-auto max-w-7xl">
-          <RoomVisualizerStudio />
+          <RoomVisualizerStudio products={products} />
         </div>
       </section>
     </main>

@@ -29,7 +29,7 @@ export function SiteFooter() {
               Custom blinds for homes, teams, and commercial projects.
             </p>
             <p className="mt-4 max-w-[33rem] text-sm leading-6 text-shell/60">
-              Shop made-to-order blinds, request samples, get measuring help, and work directly with the Bedford showroom team when a project needs a human touch.
+              Shop made-to-order blinds, request samples, get measuring help, and work directly with the Bedford warehouse team when a project needs a human touch.
             </p>
           </div>
 

@@ -1,11 +1,10 @@
-import { Button } from "@blinds/ui";
-import { Badge } from "@blinds/ui";
-import { Eyebrow, EyebrowAccent } from "@blinds/ui";
-import { SurfaceMuted } from "@blinds/ui";
+"use client";
+
+import { Button, Badge, SurfaceMuted, Breadcrumbs, PageTitleLight } from "@blinds/ui";
 import Image from "next/image";
 import Link from "next/link";
-import { Truck, Clock, Star, MapPin, ShoppingCart, Scissors, House, NavigationArrow, CaretDown } from "@phosphor-icons/react/ssr";
-import { AnimateOnScroll } from "@/components/animate-on-scroll";
+import { Truck, Clock, MapPin, ShoppingCart, Scissors, House, NavigationArrow } from "@phosphor-icons/react";
+import { useInView } from "@/hooks/use-in-view";
 
 const steps = [
   {
@@ -68,25 +67,13 @@ const faqs = [
   },
 ];
 
-const reviews = [
-  {
-    quote:
-      "I couldn't believe they actually delivered the same afternoon. The blinds were exactly what we needed to finish the living room before guests arrived.",
-    author: "Sarah M.",
-    location: "Arlington, TX",
-  },
-  {
-    quote:
-      "We needed replacements fast for an apartment unit turnover. The local fleet had the order to our property manager in under 4 hours.",
-    author: "David R.",
-    location: "Dallas, TX",
-  },
-];
-
 export default function SameDayDeliveryPage() {
+  const heroContentRef = useInView<HTMLDivElement>();
+  const bodyContentRef = useInView<HTMLDivElement>();
+
   return (
     <main className="pb-24">
-      <AnimateOnScroll className="relative w-full overflow-hidden bg-slate shadow-xl">
+      <div className="relative w-full overflow-hidden bg-slate shadow-xl">
         <Image
           src="/images/same-day-delivery/hero.jpg"
           alt="Same-Day Delivery truck in Dallas-Fort Worth"
@@ -96,16 +83,19 @@ export default function SameDayDeliveryPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-slate/95 via-slate/70 to-transparent" />
 
-        <div className="content-shell relative z-10 py-16 sm:py-20 lg:py-28">
+        <div ref={heroContentRef} data-animate className="content-shell relative z-10 pb-16 pt-8 sm:pb-20 sm:pt-10 lg:pb-28">
+          <Breadcrumbs
+            tone="light"
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Services" },
+              { label: "Same-Day Delivery" },
+            ]}
+          />
           <div className="max-w-3xl">
-            <p className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.35em] text-white/90">
-              <span className="block h-px w-10 bg-brass" />
-              Same-Day Service
-            </p>
-            
-            <h1 className="mt-6 font-display text-4xl font-semibold tracking-tight text-white md:text-5xl lg:leading-[1.1]">
+            <PageTitleLight className="mt-6">
               Get it installed today in Dallas-Fort Worth.
-            </h1>
+            </PageTitleLight>
             <p className="mt-6 text-lg leading-8 text-white/80">
               When your order qualifies, our local team routes it for same-day delivery across the
               DFW metro area. Skip the shipping wait and finish your project faster.
@@ -134,13 +124,10 @@ export default function SameDayDeliveryPage() {
               <Button asChild variant="accent">
                 <Link href="/products">Shop eligible products</Link>
               </Button>
-              <Button asChild variant="secondary-light">
-                <Link href="#coverage">Check coverage map</Link>
-              </Button>
             </div>
           </div>
         </div>
-      </AnimateOnScroll>
+      </div>
 
       {/* How It Works Ribbon */}
       <section className="relative z-30 w-full bg-slate py-5 border-t border-white/10">
@@ -163,7 +150,7 @@ export default function SameDayDeliveryPage() {
         </div>
       </section>
 
-      <AnimateOnScroll className="content-shell">
+      <div ref={bodyContentRef} data-animate className="content-shell">
         <div className="mt-16 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] items-start">
             <SurfaceMuted className="rounded-container p-8 md:p-10">
               <div className="flex items-center gap-3 text-olive">
@@ -258,36 +245,27 @@ export default function SameDayDeliveryPage() {
           </div>
         </div>
 
-
-
         {/* FAQs */}
-        <div className="mb-10 mt-16">
-          <div className="mx-auto max-w-3xl">
-            <div className="divide-y divide-black/5">
-              {faqs.map((faq) => (
-                <details
-                  key={faq.question}
-                  name="faq"
-                  className="group [&_summary::-webkit-details-marker]:hidden"
-                >
-                  <summary className="flex cursor-pointer items-center justify-between py-5 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-slate outline-none transition">
-                    {faq.question}
-                    <span className="text-slate/40 transition group-open:rotate-180">
-                      <CaretDown className="h-4 w-4" weight="bold" />
-                    </span>
-                  </summary>
-                  <div className="grid gap-4 pb-6">
-                    <p className="max-w-[42rem] text-[0.88rem] leading-6 text-slate/74">
-                      {faq.answer}
-                    </p>
-                  </div>
-                </details>
-              ))}
-            </div>
-            
-          </div>
+        <div className="mb-10 mt-16 space-y-3">
+          {faqs.map((faq) => (
+            <details
+              key={faq.question}
+              name="faq"
+              className="group border-b border-black/8 last:border-b-0 [&_summary::-webkit-details-marker]:hidden"
+            >
+              <summary className="flex cursor-pointer items-center justify-between gap-4 py-5 text-left text-base font-semibold text-slate outline-none">
+                {faq.question}
+                <span className="shrink-0 text-lg font-medium text-brass transition-transform duration-200 group-open:rotate-45">
+                  +
+                </span>
+              </summary>
+              <p className="max-w-3xl pb-5 text-sm leading-7 text-slate/70">
+                {faq.answer}
+              </p>
+            </details>
+          ))}
         </div>
-      </AnimateOnScroll>
+      </div>
     </main>
   );
 }

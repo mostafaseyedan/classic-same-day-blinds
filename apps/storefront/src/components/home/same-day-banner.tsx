@@ -1,6 +1,5 @@
-import { Button } from "@blinds/ui";
-import { Badge } from "@blinds/ui";
-import { SectionPanel } from "@blinds/ui";
+import { Badge, Button } from "@blinds/ui";
+import { Clock, MapPin, Package, Truck } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 
 import { legacyContentBlocks } from "@/lib/legacy-reference";
@@ -8,71 +7,68 @@ import { legacyContentBlocks } from "@/lib/legacy-reference";
 const serviceHighlights = [
   "Same-day pick-up available",
   "Dallas-Fort Worth area coverage",
-  "Order cutoff rules stay explicit",
-  "Standard shipping fallback when route or stock is unavailable",
+  "Order before 10 AM",
+  "Free standard shipping nationwide",
+];
+
+const deliveryModes = [
+  { icon: Truck, title: "DFW same-day", copy: "Local delivery and pickup on qualifying in-stock orders." },
+  { icon: Package, title: "Nationwide shipping", copy: "Most U.S. orders arrive in 2-4 business days from Bedford." },
+  { icon: Clock, title: "Clear cutoffs", copy: "Weekday, weekend, and stock timing stay visible before checkout." },
 ];
 
 export function SameDayBanner() {
   return (
-    <section className="px-6 py-16 md:px-10 lg:px-14">
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-container bg-slate shadow-[0_30px_90px_rgba(17,25,34,0.24)]">
-        <div className="relative">
-          <img
-            src="/images/home/sameday-banner.jpg"
-            alt="Same-day blinds delivery in the Dallas Fort Worth area"
-            className="absolute inset-0 h-full w-full object-cover object-center opacity-35"
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(19,27,33,0.96)_0%,rgba(19,27,33,0.84)_52%,rgba(19,27,33,0.52)_100%)]" />
+    <section className="page-section border-y border-black/5 bg-white">
+      <div className="content-shell">
+        <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+          <div>
+            <p className="group flex items-center gap-4 text-xs font-bold uppercase tracking-[0.35em] text-olive">
+              <span className="block h-px w-10 bg-olive transition-all duration-300 group-hover:w-16" />
+              DFW local advantage
+            </p>
+            <h2 className="mt-5 font-display text-4xl font-semibold tracking-tight text-slate md:text-5xl">
+              Keep same-day delivery prominent and operationally honest.
+            </h2>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-slate/70">
+              {legacyContentBlocks.sameDayDelivery.summary}
+            </p>
 
-          <div className="relative grid gap-8 px-6 py-10 lg:grid-cols-[1.05fr_0.95fr] lg:px-10">
-            <div className="text-shell">
-              <Badge variant="soft-light" className="border-brass/25 bg-brass/12 text-brass">
-                DFW local advantage
-              </Badge>
-              <h2 className="mt-5 font-display text-4xl font-semibold tracking-tight md:text-5xl">
-                Keep same-day delivery prominent and operationally honest.
-              </h2>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-shell/76">
-                {legacyContentBlocks.sameDayDelivery.summary}
-              </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              {serviceHighlights.map((highlight) => (
+                <Badge key={highlight} variant="soft-brass" className="text-sm font-semibold">
+                  {highlight}
+                </Badge>
+              ))}
+            </div>
+          </div>
 
-              <div className="mt-8 flex flex-wrap gap-3">
-                {serviceHighlights.map((highlight) => (
-                  <Badge key={highlight} variant="soft-light" className="text-sm font-semibold text-shell/88">
-                    {highlight}
-                  </Badge>
-                ))}
-              </div>
+          <div className="border-t border-black/10 pt-8 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
+            <div className="grid gap-5">
+              {deliveryModes.map((mode) => (
+                <div key={mode.title} className="flex gap-4 border-b border-black/8 pb-5 last:border-b-0 last:pb-0">
+                  <mode.icon className="mt-1 h-5 w-5 shrink-0 text-brass" weight="fill" />
+                  <div>
+                    <h3 className="text-base font-semibold text-slate">{mode.title}</h3>
+                    <p className="mt-1 text-sm leading-6 text-slate/65">{mode.copy}</p>
+                  </div>
+                </div>
+              ))}
             </div>
 
-            <SectionPanel className="bg-white/10 p-6 text-shell shadow-none backdrop-blur">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brass/90">
-                Service policy
-              </p>
-              <div className="mt-5 space-y-3">
-                {legacyContentBlocks.sameDayDelivery.bullets.map((bullet) => (
-                  <div key={bullet} className="rounded-2xl border border-white/10 bg-white/10 px-4 py-4">
-                    <p className="text-sm leading-6 text-shell/82">{bullet}</p>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button asChild variant="accent">
+                <Link href="/same-day-delivery">View delivery policy</Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link href="/quote">Request a quote</Link>
+              </Button>
+            </div>
 
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Button asChild variant="accent" className="border-emerald-400 bg-emerald-400 hover:bg-emerald-300">
-                  <Link href="/same-day-delivery">
-                    View delivery policy
-                  </Link>
-                </Button>
-                <Button asChild variant="secondary-light">
-                  <Link href="/quote">Request a quote</Link>
-                </Button>
-              </div>
-
-              <p className="mt-4 text-sm leading-6 text-shell/64">
-                Local speed stays a differentiator, but it must be tied to real inventory, route,
-                and cutoff rules rather than a marketing-only promise.
-              </p>
-            </SectionPanel>
+            <p className="mt-5 flex items-center gap-2 text-sm font-semibold text-slate/62">
+              <MapPin className="h-4 w-4 text-olive" weight="fill" />
+              Bedford warehouse dispatch: 2801 Brasher Ln, Bedford, TX 76021
+            </p>
           </div>
         </div>
       </div>

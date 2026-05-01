@@ -4,7 +4,7 @@ import { Button } from "@blinds/ui";
 import { Input } from "@blinds/ui";
 import { Label } from "@blinds/ui";
 import { FormShell, SectionPanel, SurfaceMuted } from "@blinds/ui";
-import { Eyebrow, PageCopy, TaskPageTitle } from "@blinds/ui";
+import { Eyebrow, PageCopy, PageTitle } from "@blinds/ui";
 
 import Link from "next/link";
 import { useState } from "react";
@@ -47,9 +47,9 @@ export default function ForgotPasswordPage() {
           <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
             <div>
               <Eyebrow>Account Recovery</Eyebrow>
-              <TaskPageTitle>
+              <PageTitle>
                 Get a secure password reset link.
-              </TaskPageTitle>
+              </PageTitle>
               <PageCopy className="max-w-[34rem]">
                 Enter the email tied to your customer account. We will send a short-lived reset link
                 so you can choose a new password without contacting support.

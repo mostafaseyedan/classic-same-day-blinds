@@ -59,7 +59,7 @@ export function Contact() {
                   Get real help before you order.
                 </SectionTitle>
                 <p className="mt-4 max-w-xl text-base leading-7 text-white/74">
-                  Measuring questions, style guidance, order help, and DFW showroom support all come through one team.
+                  Measuring questions, style guidance, order help, and DFW warehouse support all come through one team.
                 </p>
 
                 <div className="mt-8 flex flex-wrap gap-3">
@@ -145,7 +145,7 @@ export function Contact() {
                   <SectionCopy className="mt-3 max-w-md">
                     Thanks for reaching out. A specialist will reply to your email within one business day.
                   </SectionCopy>
-                  <Button variant="soft" className="mt-8 px-8" onClick={() => setFormStatus("idle")}>
+                  <Button variant="soft" className="mt-8" onClick={() => setFormStatus("idle")}>
                     Send another
                   </Button>
                 </div>
@@ -215,15 +215,14 @@ export function Contact() {
 
                   <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-sm leading-6 text-slate/52">
-                      Need a faster answer? Call the showroom and we can help live.
+                      Need a faster answer? Call the warehouse and we can help live.
                     </p>
                     <Button
-                      variant="olive"
+                      variant="accent"
                       type="submit"
-                      className="px-8"
                       disabled={formStatus === "sending" || charCount > 500}
                     >
-                      {formStatus === "sending" ? "Sending…" : "Send message"}
+                      {formStatus === "sending" ? "Sending…" : "Send"}
                     </Button>
                   </div>
                 </form>

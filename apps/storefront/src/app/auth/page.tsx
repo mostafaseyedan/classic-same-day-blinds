@@ -5,7 +5,7 @@ import { Input } from "@blinds/ui";
 import { Label } from "@blinds/ui";
 import { SegmentedControl } from "@blinds/ui";
 import { FormShell, SectionPanel } from "@blinds/ui";
-import { Eyebrow, PageCopy, TaskPageTitle } from "@blinds/ui";
+import { PageCopy, PageTitle } from "@blinds/ui";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -100,10 +100,9 @@ export default function AuthPage() {
         <SectionPanel as="section" className="px-6 py-10 md:px-8">
           <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
             <div>
-              <Eyebrow>Customer Access</Eyebrow>
-              <TaskPageTitle>
+              <PageTitle>
                 Sign in to manage your blinds account.
-              </TaskPageTitle>
+              </PageTitle>
               <PageCopy className="max-w-[34rem]">
                 Access your orders, saved addresses, and account details in one place. Create an
                 account to keep future checkout and support requests simpler.

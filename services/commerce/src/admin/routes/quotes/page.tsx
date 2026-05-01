@@ -1,4 +1,13 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
+import {
+  ArrowPath,
+  ChatBubbleLeftRight,
+  Check,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  DocumentText,
+} from "@medusajs/icons";
 import { Badge, Button, Container, Heading, Text } from "@medusajs/ui";
 import { useEffect, useState } from "react";
 
@@ -213,6 +222,7 @@ export default function QuotesPage() {
           size="small"
           onClick={() => void loadRecords(offset, typeFilter, statusFilter)}
         >
+          <ArrowPath className={loading ? "animate-spin" : ""} />
           Refresh
         </Button>
       </div>
@@ -426,6 +436,7 @@ export default function QuotesPage() {
                           disabled={actingKey === `${record.id}:reviewed`}
                           onClick={() => void updateStatus(record.id, "reviewed")}
                         >
+                          <DocumentText />
                           {actingKey === `${record.id}:reviewed` ? "Saving..." : "Mark reviewed"}
                         </Button>
                       ) : null}
@@ -437,6 +448,7 @@ export default function QuotesPage() {
                           disabled={actingKey === `${record.id}:approved`}
                           onClick={() => void updateStatus(record.id, "approved")}
                         >
+                          <CheckCircle />
                           {actingKey === `${record.id}:approved` ? "Saving..." : "Approve"}
                         </Button>
                       ) : null}
@@ -448,6 +460,7 @@ export default function QuotesPage() {
                           disabled={actingKey === `${record.id}:completed`}
                           onClick={() => void updateStatus(record.id, "completed")}
                         >
+                          <Check />
                           {actingKey === `${record.id}:completed` ? "Saving..." : "Complete"}
                         </Button>
                       ) : null}
@@ -479,6 +492,7 @@ export default function QuotesPage() {
               disabled={offset === 0}
               onClick={() => void loadRecords(offset - PAGE_SIZE, typeFilter, statusFilter)}
             >
+              <ChevronLeft />
               Previous
             </Button>
             <Text size="small" className="self-center text-ui-fg-subtle">
@@ -491,6 +505,7 @@ export default function QuotesPage() {
               onClick={() => void loadRecords(offset + PAGE_SIZE, typeFilter, statusFilter)}
             >
               Next
+              <ChevronRight />
             </Button>
           </div>
         </div>
@@ -501,4 +516,6 @@ export default function QuotesPage() {
 
 export const config = defineRouteConfig({
   label: "Quotes & Requests",
+  icon: ChatBubbleLeftRight,
+  rank: 30,
 });

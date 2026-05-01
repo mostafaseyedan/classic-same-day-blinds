@@ -175,12 +175,19 @@ export async function registerCompetitorPricingRoutes(app: FastifyInstance) {
       }
     }
 
-    const match = await updateCompetitorMatchState(request.params.id, {
-      matchStatus: "matched",
-      alertSeverity: undefined,
-      notes: parsed.data.notes,
-      internalPrice,
-    });
+    let match;
+    try {
+      match = await updateCompetitorMatchState(request.params.id, {
+        matchStatus: "matched",
+        alertSeverity: undefined,
+        notes: parsed.data.notes,
+        internalPrice,
+      });
+    } catch (error) {
+      return reply.status(409).send({
+        error: error instanceof Error ? error.message : "Unable to approve competitor match",
+      });
+    }
 
     if (!match) {
       return reply.status(404).send({ error: "Match not found" });

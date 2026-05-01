@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Button, EyebrowAccent, SurfaceMuted, cn } from "@blinds/ui";
+import { Button, EyebrowAccent, cn } from "@blinds/ui";
 
 import { megaMenus, type MegaMenuKey } from "./navigation";
 
@@ -36,9 +36,18 @@ export function MegaMenu({
       onMouseEnter={onMouseEnter}
     >
       <div className="grid gap-8 xl:grid-cols-[0.95fr_2.05fr]">
-        <SurfaceMuted className={cn("flex flex-col justify-between p-6", featuredClassName)}>
+        <div
+          className={cn(
+            "group/featured flex flex-col justify-between border-r pr-8",
+            glass ? "border-white/10" : "border-black/8",
+            featuredClassName,
+          )}
+        >
           <div>
-            <EyebrowAccent>{menu.featured.eyebrow}</EyebrowAccent>
+            <div className="flex items-center gap-3">
+              <span className={cn("block h-px w-10 shrink-0 transition-all duration-300 group-hover/featured:w-16", glass ? "bg-green-400" : "bg-olive")} />
+              <EyebrowAccent className={glass ? "text-green-400" : "text-olive"}>{menu.featured.eyebrow}</EyebrowAccent>
+            </div>
             <h3 className={cn("mt-3 font-display text-2xl font-semibold leading-tight", glass ? "text-white" : "text-slate")}>
               {menu.featured.title}
             </h3>
@@ -51,12 +60,12 @@ export function MegaMenu({
               {menu.featured.cta}
             </Link>
           </Button>
-        </SurfaceMuted>
+        </div>
 
         <div className="grid gap-8 md:grid-cols-3">
           {menu.sections.map((section) => (
             <div key={section.heading}>
-              <h4 className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-brass">
+              <h4 className={cn("mb-3 text-[10px] font-bold uppercase tracking-[0.2em]", glass ? "text-green-400" : "text-olive")}>
                 {section.heading}
               </h4>
               <ul className="space-y-3">
@@ -67,7 +76,7 @@ export function MegaMenu({
                       className={cn("group block rounded-xl px-2 py-1.5 transition", linkHoverClassName)}
                       onClick={onClose}
                     >
-                      <span className={cn("block text-sm font-medium transition", glass ? "text-white/94 group-hover:text-brass" : "text-slate group-hover:text-olive")}>
+                      <span className={cn("block text-sm font-medium transition", glass ? "text-white/94 group-hover:text-green-400" : "text-slate group-hover:text-olive")}>
                         {link.label}
                       </span>
                       {link.note ? (

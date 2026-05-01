@@ -11,7 +11,7 @@ export const CONTACT_FACTS: readonly ContactFact[] = [
     icon: "phone",
     title: "Call us",
     detail: "(817) 540-9300",
-    helper: "Local showroom line",
+    helper: "Local warehouse line",
     href: "tel:8175409300",
   },
   {

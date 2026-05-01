@@ -3,6 +3,7 @@ import { Button } from "@blinds/ui";
 import { QuantityStepper } from "@blinds/ui";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 
 import { DimensionSelector } from "@/components/product/dimension-selector";
 import type { DimensionState } from "@/components/product/dimension-selector";
@@ -29,6 +30,7 @@ function buildInitialSelection(product: CatalogProduct) {
 
 // Base reference size for area-formula fallback: 24" × 36" = 864 sq in.
 const BASE_AREA_SQIN = 24 * 36;
+const BULK_QUANTITY_OPTIONS = [50, 100, 200];
 
 function calcDimensionPrice(basePrice: number, widthIn: number, heightIn: number): number {
   const area = widthIn * heightIn;
@@ -166,6 +168,10 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
   const nonSizeOptions = useMemo(
     () => (sizeOption ? product.options.filter((o) => o.id !== sizeOption.id) : product.options),
     [product.options, sizeOption],
+  );
+  const visibleOptionChips = useMemo(
+    () => nonSizeOptions.filter((option) => option.title.trim().toLowerCase() !== "color"),
+    [nonSizeOptions],
   );
   const nonSizeOptionTitles = useMemo(
     () => nonSizeOptions.map((o) => o.title),
@@ -307,7 +313,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
               />
             </div>
             {sizeOption && sizeMatch && !dimensionsOutOfRange && (
-              <p className="mt-2 text-[0.64rem] text-slate/50">
+              <p className="product-meta-secondary mt-2">
                 Priced as {formatMeasurementValue(sizeMatch.parsed.w)} × {formatMeasurementValue(sizeMatch.parsed.h)} (nearest available size)
               </p>
             )}
@@ -334,7 +340,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
                 {formatPrice(unitPrice ?? product.price, currencyCode)}
               </p>
               {perSqFt != null && (
-                <p className="mt-1.5 text-[0.8rem] text-slate/64">
+                <p className="product-meta-price-note mt-1.5">
                   {formatPrice(perSqFt, currencyCode)}/sq ft
                 </p>
               )}
@@ -362,7 +368,29 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
 
         <AffirmMessaging amountInDollars={unitPrice ?? product.price} />
 
-        {nonSizeOptions.map((option) => (
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+          <div>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate">Color</p>
+            <div className="mt-1.5 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="chip-active"
+                size="compact"
+                className="rounded-lg px-3 py-1.5 text-[0.64rem] tracking-[0.13em] shadow-none"
+              >
+                White
+              </Button>
+            </div>
+          </div>
+          <Link
+            href="/same-day-delivery"
+            className="product-meta-status pb-1 text-left transition hover:text-brass sm:text-right"
+          >
+            Same-day delivery available
+          </Link>
+        </div>
+
+        {visibleOptionChips.map((option) => (
           <div key={option.id}>
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate">{option.title}</p>
             <div className="mt-1.5 flex flex-wrap gap-2">
@@ -391,8 +419,8 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
           </div>
         ))}
 
-        <div className="grid items-start gap-4 border-t border-black/6 pt-3 sm:grid-cols-[11rem_1fr]">
-          <label className="grid gap-2">
+        <div className="grid items-start gap-4 border-t border-black/6 pt-3 sm:grid-cols-[13rem_1fr]">
+          <div className="grid gap-2">
             <span className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate">Quantity</span>
             <QuantityStepper
               value={quantity}
@@ -401,19 +429,34 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
               className="h-9 w-fit"
               valueClassName="min-w-[2rem] text-[0.88rem]"
             />
-          </label>
-          <div className="pt-1">
-            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass">
+            <div className="grid grid-cols-3 gap-1.5">
+              {BULK_QUANTITY_OPTIONS.map((bulkQuantity) => (
+                <Button
+                  key={bulkQuantity}
+                  type="button"
+                  onClick={() => setQuantity(bulkQuantity)}
+                  disabled={isLoading}
+                  variant={quantity === bulkQuantity ? "quantity-pill-active" : "quantity-pill"}
+                  size="quantity"
+                  className="w-full"
+                >
+                  {bulkQuantity}
+                </Button>
+              ))}
+            </div>
+          </div>
+          <div className="pt-1 sm:justify-self-end sm:text-right">
+            <p className="product-meta-primary">
               {sizeOption ? `Custom size ${selectedCustomSizeLabel}` : (selectedVariant?.title ?? "Select options")}
             </p>
-            <p className="mt-0.5 text-[0.62rem] uppercase tracking-[0.09em] text-slate/42">
+            <p className="product-meta-secondary mt-1">
               {sqFt.toFixed(2)} sq ft selected
             </p>
-            <p className="mt-1 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-olive">
+            <p className="product-meta-status mt-1">
               {inventoryMessage}
             </p>
             {unitPrice != null && quantity > 1 && (
-              <p className="mt-1 text-[0.64rem] uppercase tracking-[0.08em] text-slate/48">
+              <p className="product-meta-secondary mt-1">
                 {formatPrice(unitPrice, currencyCode)} × {quantity}
               </p>
             )}

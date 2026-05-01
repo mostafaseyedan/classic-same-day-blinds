@@ -34,6 +34,11 @@ const config: Config = {
         badge: "var(--radius-badge)",
         pill: "var(--radius-pill)",
       },
+      boxShadow: {
+        card: "var(--shadow-card)",
+        panel: "var(--shadow-panel)",
+        dialog: "var(--shadow-dialog)",
+      },
       spacing: {
         18: "var(--space-18)",
       },

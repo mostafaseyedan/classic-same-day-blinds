@@ -169,6 +169,9 @@ export function Select({
 
   const triggerId = id ? `${id}-trigger` : undefined;
   const listboxId = id ? `${id}-listbox` : undefined;
+  const nativeSelectValueProps = isControlled
+    ? { value: selectedValue }
+    : { defaultValue: initialValue };
 
   return (
     <div ref={rootRef} className="relative w-full">
@@ -183,7 +186,6 @@ export function Select({
         }}
         id={id}
         name={name}
-        value={selectedValue}
         onChange={onChange}
         onBlur={onBlur}
         disabled={disabled}
@@ -191,6 +193,7 @@ export function Select({
         aria-hidden="true"
         tabIndex={-1}
         className="pointer-events-none absolute inset-0 opacity-0"
+        {...nativeSelectValueProps}
         {...props}
       >
         {children}
@@ -234,7 +237,7 @@ export function Select({
           }
         }}
         className={cn(
-          "flex w-full cursor-pointer items-center justify-between rounded-card border border-black/10 bg-white/96 text-left text-slate outline-none shadow-[0_8px_24px_rgba(24,36,34,0.04)] transition-[border-color,box-shadow,color,transform,background-color] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+          "flex w-full cursor-pointer items-center justify-between rounded-full border border-black/10 bg-white/96 text-left text-slate outline-none shadow-[0_8px_24px_rgba(24,36,34,0.04)] transition-[border-color,box-shadow,color,transform,background-color] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
           size === "default"
             ? "h-12 px-4 pr-3.5 text-[0.95rem] font-medium"
             : "h-10 px-3.5 pr-3 text-[0.88rem] font-medium",

@@ -76,7 +76,8 @@ export function FrequentlyBoughtTogether({
     <section>
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-brass/95">
+          <p className="flex items-center gap-3 text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-olive">
+            <span className="block h-px w-6 bg-olive" />
             Frequently Bought Together
           </p>
           <h2 className="mt-2 font-display text-[1.55rem] font-medium text-slate">Build a faster order bundle.</h2>
@@ -138,7 +139,10 @@ export function FrequentlyBoughtTogether({
 
       <SurfaceMuted className="mt-5 flex flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-brass">Bundle Total</p>
+          <p className="flex items-center gap-3 text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-olive">
+            <span className="block h-px w-6 bg-olive" />
+            Bundle Total
+          </p>
           <p className="mt-2 text-[1.7rem] font-semibold text-slate">{formatPrice(total, currency)}</p>
           <p className="mt-1 text-[0.74rem] uppercase tracking-[0.08em] text-slate/58">{bundleProducts.length} items selected</p>
         </div>

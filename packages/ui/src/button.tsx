@@ -17,6 +17,8 @@ const buttonVariants = cva(
         accent: "bg-brass text-white shadow-[0_1px_2px_rgba(24,36,34,0.08)] hover:bg-olive hover:text-white hover:shadow-[0_10px_30px_-4px_rgba(24,36,34,0.16)]",
         chip: "border border-black/10 bg-white text-slate/75 shadow-[0_1px_2px_rgba(24,36,34,0.03)] hover:border-black/16 hover:bg-shell/55 hover:text-slate hover:shadow-[0_2px_8px_rgba(24,36,34,0.05)]",
         "chip-active": "border border-slate bg-slate text-white shadow-[0_1px_2px_rgba(24,36,34,0.08)] hover:border-olive hover:bg-olive hover:text-white hover:shadow-[0_3px_10px_rgba(24,36,34,0.1)]",
+        "quantity-pill": "border border-black/10 bg-white/80 text-slate/68 shadow-none hover:border-olive/35 hover:bg-olive/6 hover:text-olive",
+        "quantity-pill-active": "border border-olive bg-olive text-white shadow-none hover:border-olive hover:bg-olive hover:text-white",
         icon: "border border-black/10 bg-white text-slate/60 shadow-[0_1px_2px_rgba(24,36,34,0.04)] hover:border-black/12 hover:bg-shell/42 hover:text-slate hover:shadow-[0_3px_10px_rgba(24,36,34,0.06)]",
         "icon-light": "border border-white/20 bg-black/20 text-white backdrop-blur-md hover:bg-black/40 hover:text-white",
         ghost: "text-slate hover:bg-transparent hover:text-olive",
@@ -26,6 +28,7 @@ const buttonVariants = cva(
       size: {
         default: "px-5 py-3 text-sm",
         compact: "px-4 py-2 text-[0.72rem]",
+        quantity: "h-9 px-1 text-[0.88rem]",
         icon: "h-9 w-9 p-0 text-sm",
       },
     },

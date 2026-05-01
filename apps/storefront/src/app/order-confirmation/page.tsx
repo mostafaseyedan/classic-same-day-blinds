@@ -1,7 +1,7 @@
 import { Button } from "@blinds/ui";
 import { Breadcrumbs } from "@blinds/ui";
 import { SectionPanel } from "@blinds/ui";
-import { Eyebrow } from "@blinds/ui";
+import { Eyebrow, PageTitle } from "@blinds/ui";
 import Link from "next/link";
 
 import { getCustomSizeDetail, getCustomSizeLabel } from "@/lib/custom-size";
@@ -76,7 +76,7 @@ export default async function OrderConfirmationPage({
   const shippingAddressLines = order?.shipping_address ? formatAddress(order.shipping_address) : [];
 
   return (
-    <main className="page-section pb-20 pt-12">
+    <main className="page-section pb-20 pt-10">
       <div className="content-shell max-w-5xl">
         <Breadcrumbs
           items={[
@@ -94,9 +94,9 @@ export default async function OrderConfirmationPage({
               <div className="flex min-h-12 items-center">
                 <Eyebrow>Order Confirmed</Eyebrow>
               </div>
-              <h1 className="mt-5 font-display text-[2.5rem] font-semibold leading-[1.04] tracking-tight text-slate sm:text-[3rem] md:text-5xl">
+              <PageTitle className="mt-5">
                 Thank you for your order.
-              </h1>
+              </PageTitle>
               <p className="mt-4 max-w-3xl text-base leading-7 text-slate/72">
                 Your order has been placed and is being processed. You&apos;ll receive a confirmation email
                 at <span className="font-semibold text-slate break-all">{orderEmail}</span> shortly.

@@ -3,9 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle, MinusCircle, XCircle } from "@phosphor-icons/react";
-import { Button, Eyebrow, SectionCopy, SectionHeader, SectionTitle, cn } from "@blinds/ui";
+import { Button, SectionCopy, SectionHeader, SectionTitle, cn } from "@blinds/ui";
 
 import { useLanguage } from "@/lib/context/language-context";
+import { useInView } from "@/hooks/use-in-view";
 
 type ComparisonStatus = "yes" | "partial" | "no";
 
@@ -60,13 +61,6 @@ const comparisonRows = [
     retail: "no",
   },
   {
-    feature: "On-site consultation",
-    featureEs: "Consulta en sitio",
-    classic: "yes",
-    online: "no",
-    retail: "partial",
-  },
-  {
     feature: "Bulk order fulfillment",
     featureEs: "Cumplimiento de pedidos por volumen",
     classic: "yes",
@@ -76,13 +70,6 @@ const comparisonRows = [
   {
     feature: "Project-side hospitality support",
     featureEs: "Soporte para proyectos de hospitalidad",
-    classic: "yes",
-    online: "no",
-    retail: "no",
-  },
-  {
-    feature: "Rewards toward future orders",
-    featureEs: "Beneficios para pedidos futuros",
     classic: "yes",
     online: "no",
     retail: "no",
@@ -104,18 +91,19 @@ const comparisonRows = [
 
 function StatusMark({ status }: { status: ComparisonStatus }) {
   if (status === "yes") {
-    return <CheckCircle className="h-5 w-5 text-[#1fb857]" weight="bold" />;
+    return <CheckCircle className="h-5 w-5 text-green-400" weight="bold" />;
   }
 
   if (status === "partial") {
-    return <MinusCircle className="h-5 w-5 text-[#7f94bd]" weight="bold" />;
+    return <MinusCircle className="h-5 w-5 text-white/40" weight="bold" />;
   }
 
-  return <XCircle className="h-5 w-5 text-[#ff5f5f]" weight="bold" />;
+  return <XCircle className="h-5 w-5 text-red-400" weight="bold" />;
 }
 
 export function CompetitiveAdvantages() {
   const { t } = useLanguage();
+  const contentRef = useInView<HTMLDivElement>();
 
   return (
     <section className="page-section relative overflow-hidden">
@@ -129,10 +117,13 @@ export function CompetitiveAdvantages() {
       />
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(10,16,22,0.82)_0%,rgba(10,16,22,0.65)_100%)]" />
 
-      <div className="relative z-10 content-shell">
+      <div ref={contentRef} data-animate className="relative z-10 content-shell">
         <SectionHeader>
           <div>
-            <Eyebrow className="text-brass">{t("Why Teams Choose Us", "Por Qué Nos Eligen")}</Eyebrow>
+            <p className="group flex items-center gap-4 text-xs font-bold uppercase tracking-[0.35em] text-green-400">
+              <span className="block h-px w-10 bg-green-400 transition-all duration-300 group-hover:w-16" />
+              {t("Why Teams Choose Us", "Por Qué Nos Eligen")}
+            </p>
             <SectionTitle className="max-w-3xl text-white">
               {t(
                 "A better fit for fast-turn projects, property teams, and hospitality installs.",
@@ -193,13 +184,13 @@ export function CompetitiveAdvantages() {
                       </div>
                     </div>
                   </th>
-                  {/* Lowe's */}
+                  {/* HD Supply */}
                   <th className="px-4 py-5 text-center">
                     <div className="inline-flex items-center justify-center">
                       <div className="rounded-md bg-white px-2.5 py-1.5">
                         <Image
-                          src="/images/lowes-logo.svg"
-                          alt="Lowe's"
+                          src="/images/hd-supply-logo.png"
+                          alt="HD Supply"
                           width={64}
                           height={28}
                           className="h-6 w-auto object-contain"
@@ -244,15 +235,15 @@ export function CompetitiveAdvantages() {
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/12 px-4 py-3 text-[0.72rem] font-medium text-white/55">
             <span className="inline-flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-[#1fb857]" weight="bold" />
+              <CheckCircle className="h-4 w-4 text-green-400" weight="bold" />
               {t("Yes", "Sí")}
             </span>
             <span className="inline-flex items-center gap-2">
-              <MinusCircle className="h-4 w-4 text-[#7f94bd]" weight="bold" />
+              <MinusCircle className="h-4 w-4 text-white/40" weight="bold" />
               {t("Partial", "Parcial")}
             </span>
             <span className="inline-flex items-center gap-2">
-              <XCircle className="h-4 w-4 text-[#ff5f5f]" weight="bold" />
+              <XCircle className="h-4 w-4 text-red-400" weight="bold" />
               {t("No", "No")}
             </span>
           </div>

@@ -9,7 +9,7 @@ import {
   Phone,
   Scissors,
   MagnifyingGlass,
-  ShoppingCart,
+  Tote,
   Truck,
   User,
   X,
@@ -18,7 +18,7 @@ import {
 import { Button, CloseButton, Menu, cn } from "@blinds/ui";
 
 import { SearchDropdown } from "@/components/storefront/search-dropdown";
-
+import { AccountDropdown } from "./account-dropdown";
 import { MegaMenu } from "./mega-menu";
 import { browseNavItems, type MegaMenuKey } from "./navigation";
 import { HeaderBrand } from "./shared";
@@ -40,6 +40,11 @@ type DesktopNavProps = {
   setSearchOpen: (value: boolean) => void;
   wishlistCount: number;
   cartQuantity: number;
+  isAuthenticated: boolean;
+  customerDisplayName: string;
+  customerInitials: string;
+  customerEmail: string;
+  onLogout: () => void;
   language: string;
   toggleLanguage: () => void;
   activeMenu: MegaMenuKey | null;
@@ -67,6 +72,11 @@ export function DesktopNav({
   setSearchOpen,
   wishlistCount,
   cartQuantity,
+  isAuthenticated,
+  customerDisplayName,
+  customerInitials,
+  customerEmail,
+  onLogout,
   language,
   toggleLanguage,
   activeMenu,
@@ -202,32 +212,43 @@ export function DesktopNav({
             </div>
 
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-              <Button
-                asChild
-                variant={desktopGlass ? "ghost-light" : "ghost"}
-                size="compact"
-                className={cn(
-                  "hidden bg-transparent sm:flex gap-1.5 px-3 py-2 shadow-none hover:bg-transparent hover:shadow-none",
-                  desktopGlass ? "text-white/94 hover:text-brass" : "text-slate/84 hover:text-brass",
-                )}
-              >
-                <Link href="/auth">
-                  <User className="h-[17px] w-[17px]" weight="light" />
-                  <span className="hidden text-[11px] lg:block">{t("Sign In", "Iniciar")}</span>
-                </Link>
-              </Button>
+              {isAuthenticated ? (
+                <AccountDropdown
+                  customerInitials={customerInitials}
+                  customerDisplayName={customerDisplayName}
+                  customerEmail={customerEmail}
+                  desktopGlass={desktopGlass}
+                  onLogout={onLogout}
+                  t={t}
+                />
+              ) : (
+                <Button
+                  asChild
+                  variant={desktopGlass ? "ghost-light" : "ghost"}
+                  size="compact"
+                  className={cn(
+                    "hidden bg-transparent sm:flex gap-1.5 px-3 py-2 shadow-none hover:bg-transparent hover:shadow-none active:scale-[0.98] transition-transform",
+                    desktopGlass ? "text-white/94 hover:text-brass" : "text-slate/84 hover:text-brass",
+                  )}
+                >
+                  <Link href="/auth">
+                    <User className="h-4 w-4" />
+                    <span className="hidden text-[11px] lg:block">{t("Sign In", "Iniciar")}</span>
+                  </Link>
+                </Button>
+              )}
 
               <Button
                 asChild
                 variant={desktopGlass ? "ghost-light" : "ghost"}
                 size="compact"
                 className={cn(
-                  "relative gap-1.5 bg-transparent px-3 py-2 shadow-none hover:bg-transparent hover:shadow-none",
+                  "relative gap-1.5 bg-transparent px-3 py-2 shadow-none hover:bg-transparent hover:shadow-none active:scale-[0.98] transition-transform",
                   desktopGlass ? "text-white/94 hover:text-brass" : "text-slate/84 hover:text-brass",
                 )}
               >
                 <Link href="/wishlist">
-                  <Heart className="h-[17px] w-[17px]" weight="light" />
+                  <Heart className="h-4 w-4" />
                   <span className="hidden text-[11px] lg:block">{t("Wishlist", "Favoritos")}</span>
                   {wishlistCount > 0 ? (
                     <span className="absolute right-0.5 top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border border-white/20 bg-olive px-1 text-[9px] font-bold text-white">
@@ -242,12 +263,12 @@ export function DesktopNav({
                 variant={desktopGlass ? "ghost-light" : "ghost"}
                 size="compact"
                 className={cn(
-                  "relative gap-1.5 bg-transparent px-3 py-2 shadow-none hover:bg-transparent hover:shadow-none",
+                  "relative gap-1.5 bg-transparent px-3 py-2 shadow-none hover:bg-transparent hover:shadow-none active:scale-[0.98] transition-transform",
                   desktopGlass ? "text-white/94 hover:text-brass" : "text-slate/84 hover:text-brass",
                 )}
               >
                 <Link href="/cart">
-                  <ShoppingCart className="h-[17px] w-[17px]" weight="light" />
+                  <Tote className="h-4 w-4" />
                   <span className="hidden text-[11px] lg:block">{t("Cart", "Carrito")}</span>
                   {cartQuantity > 0 ? (
                     <span className="absolute right-0.5 top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border border-white/20 bg-olive px-1 text-[9px] font-bold text-white">

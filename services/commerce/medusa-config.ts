@@ -79,6 +79,9 @@ module.exports = defineConfig({
   modules: [
     fileModule,
     ...(paymentModule ? [paymentModule] : []),
+    {
+      resolve: "./src/modules/product-review",
+    },
   ],
   admin: {
     disable: env.adminDisabled,

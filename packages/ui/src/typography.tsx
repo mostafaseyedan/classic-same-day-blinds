@@ -24,15 +24,11 @@ export const SectionCopy = createText(
   "p",
 );
 export const PageTitle = createText(
-  "mt-4 font-display text-[2.5rem] font-semibold leading-[1.04] tracking-tight text-slate sm:text-[3rem] md:text-5xl",
+  "mt-4 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-slate md:text-4xl",
   "h1",
 );
 export const PageTitleLight = createText(
-  "mt-4 font-display text-[2.5rem] font-semibold leading-[1.04] tracking-tight text-white sm:text-[3rem] md:text-5xl",
-  "h1",
-);
-export const TaskPageTitle = createText(
-  "mt-4 font-display text-[1.9rem] font-semibold leading-[1.05] tracking-tight text-slate sm:text-[2.2rem] md:text-[2.7rem]",
+  "mt-4 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-white md:text-4xl",
   "h1",
 );
 export const PageCopy = createText("mt-4 max-w-xl text-sm leading-6 text-slate/70 sm:text-base sm:leading-7", "p");

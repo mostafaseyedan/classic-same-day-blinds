@@ -52,3 +52,27 @@ export interface OrderTrackingSummary {
   carrier?: string;
   estimatedDeliveryDate?: string;
 }
+
+export interface CustomerAccountOrderItem {
+  id: string;
+  title?: string;
+  productTitle?: string;
+  variantId?: string;
+  quantity: number;
+  total: number;
+}
+
+export interface CustomerAccountOrder {
+  id: string;
+  displayId?: number;
+  status: string;
+  email: string;
+  currencyCode: string;
+  total: number;
+  createdAt: string;
+  items: CustomerAccountOrderItem[];
+}
+
+export interface CustomerAccountOrdersResponse {
+  orders: CustomerAccountOrder[];
+}

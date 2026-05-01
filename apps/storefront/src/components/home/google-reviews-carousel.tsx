@@ -11,15 +11,11 @@ import type { GoogleReview } from "@/lib/google-reviews";
 
 type GoogleReviewsCarouselProps = {
   reviews: GoogleReview[];
-  rating?: number;
-  reviewCount?: number;
   placeUrl?: string;
 };
 
 export function GoogleReviewsCarousel({
   reviews,
-  rating,
-  reviewCount,
   placeUrl,
 }: GoogleReviewsCarouselProps) {
   const [page, setPage] = useState(0);
@@ -37,26 +33,7 @@ export function GoogleReviewsCarousel({
   if (reviews.length === 0) return null;
 
   return (
-    <div className="mt-16">
-
-      {/* Minimal carousel header — rating + link only, no redundant title */}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-brass">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} weight="fill" className="h-4 w-4" />
-          ))}
-          <span className="ml-1 text-sm font-bold text-slate">{rating || "4.9"}</span>
-          <span className="text-sm font-medium text-slate/40">/ 5</span>
-        </div>
-        {placeUrl ? (
-          <Button asChild variant="secondary" size="compact">
-            <Link href={placeUrl} target="_blank" rel="noopener noreferrer nofollow">
-              View on Google
-            </Link>
-          </Button>
-        ) : null}
-      </div>
-
+    <div className="mt-8">
       {/* Desktop grid */}
       <div className="hidden md:block">
         <div className="grid gap-4 md:grid-cols-2">
@@ -152,7 +129,7 @@ function ReviewCard({
   const card = (
     <SurfaceMuted
       as="article"
-      className="h-full rounded-card p-5 transition-colors hover:bg-shell"
+      className="h-full rounded-card border border-black/6 bg-white p-5 shadow-[0_12px_34px_rgba(24,36,34,0.05)] transition-colors hover:bg-white"
     >
       <div className="flex items-center gap-1 text-brass">
         {[...Array(review.rating)].map((_, i) => (

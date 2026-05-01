@@ -23,51 +23,99 @@ type Slide = {
 const SLIDES: Slide[] = [
   {
     id: "residential",
-    image: "/images/home/hero-v1-residential.jpg",
-    label: "Private Sanctuaries",
-    labelEs: "Santuarios Privados",
-    headline: "Mastering the",
-    headlineEs: "Dominando la",
-    accent: "Atmospheric Light",
-    accentEs: "Luz Atmosférica",
-    description: "Transform your home into a curated sanctuary where meticulous engineering meets absolute privacy, allowing you to master the fine balance of natural light and internal shadow.",
-    descriptionEs: "Transforme su hogar en un santuario seleccionado donde la ingeniería meticulosa se encuentra con la privacidad absoluta, permitiéndole dominar el fino equilibrio entre la luz natural y la sombra interna.",
+    image: "/images/home/hero-editorial-residential.jpg",
+    label: "Residential Homes",
+    labelEs: "Hogares Residenciales",
+    headline: "Premium Blinds for",
+    headlineEs: "Premium Blinds para",
+    accent: "Homes & Residences",
+    accentEs: "Hogares y Residencias",
+    description: "Trusted by hotels, casinos, resorts, and apartment complexes. Order 1 to 100,000+ units with bulk pricing. Hospitality-grade quality, free shipping on every order.",
+    descriptionEs: "De confianza para hoteles, casinos, resorts y complejos de apartamentos. Ordena desde 1 hasta más de 100,000 unidades con precios por volumen. Calidad hotelera, envío gratis en cada pedido.",
   },
   {
-    id: "commercial",
-    image: "/images/home/hero-apartments.jpg",
-    label: "Modern Habitats",
-    labelEs: "Hábitats Modernos",
-    headline: "Redefining the",
-    headlineEs: "Redefiniendo el",
-    accent: "Multi-Family Standard",
-    accentEs: "Estándar Multifamiliar",
-    description: "Architectural solutions for modern multi-family communities, ensuring that sophisticated design intent translates perfectly into day-one functionality and long-term durability.",
-    descriptionEs: "Soluciones arquitectónicas para comunidades multifamiliares modernas, asegurando que la intención de diseño sofisticada se traduzca perfectamente en funcionalidad desde el primer día y durabilidad a largo plazo.",
+    id: "apartments",
+    image: "/images/home/hero-apartments-readdy.jpg",
+    label: "Apartment Complexes",
+    labelEs: "Complejos de Apartamentos",
+    headline: "Premium Blinds for",
+    headlineEs: "Premium Blinds para",
+    accent: "Apartments & Condos",
+    accentEs: "Apartamentos y Condos",
+    description: "Trusted by hotels, casinos, resorts, and apartment complexes. Order 1 to 100,000+ units with bulk pricing. Hospitality-grade quality, free shipping on every order.",
+    descriptionEs: "De confianza para hoteles, casinos, resorts y complejos de apartamentos. Ordena desde 1 hasta más de 100,000 unidades con precios por volumen. Calidad hotelera, envío gratis en cada pedido.",
   },
   {
-    id: "property",
-    image: "/images/home/hero-offices.jpg",
-    label: "Strategic Assets",
-    labelEs: "Activos Estratégicos",
-    headline: "Scaling Style for",
-    headlineEs: "Escalando el Estilo para",
-    accent: "Property Management",
-    accentEs: "Administración de Propiedades",
-    description: "Precision-engineered for the rigorous demands of operational scale, providing property teams with a stable, high-fashion standard that remains consistent across every turn.",
-    descriptionEs: "Ingeniería de precisión para las rigurosas exigencias de la escala operativa, brindando a los equipos de propiedad un estándar estable y de alta costura que se mantiene constante en cada rotación.",
+    id: "hotels",
+    image: "/images/home/hero-hotels-readdy.jpg",
+    label: "Hotels & Resorts",
+    labelEs: "Hoteles y Resorts",
+    headline: "Premium Blinds for",
+    headlineEs: "Premium Blinds para",
+    accent: "Hotels & Hospitality",
+    accentEs: "Hoteles y Hospitalidad",
+    description: "Trusted by hotels, casinos, resorts, and apartment complexes. Order 1 to 100,000+ units with bulk pricing. Hospitality-grade quality, free shipping on every order.",
+    descriptionEs: "De confianza para hoteles, casinos, resorts y complejos de apartamentos. Ordena desde 1 hasta más de 100,000 unidades con precios por volumen. Calidad hotelera, envío gratis en cada pedido.",
   },
   {
-    id: "hospitality",
-    image: "/images/home/hero-v1-hospitality.jpg",
-    label: "Global Destinations",
-    labelEs: "Destinos Globales",
-    headline: "Curating the",
-    headlineEs: "Curando la",
-    accent: "Guest Experience",
-    accentEs: "Experiencia del Huésped",
-    description: "Crafting unforgettable atmospheres in the world's most exclusive destinations through durable, bespoke window treatments formulated specifically for luxury hospitality suites.",
-    descriptionEs: "Creación de atmósferas inolvidables en los destinos más exclusivos del mundo a través de tratamientos de ventanas duraderos y personalizados formulados específicamente para suites de hospitalidad de lujo.",
+    id: "casinos",
+    image: "/images/home/hero-casinos-readdy.jpg",
+    label: "Casinos",
+    labelEs: "Casinos",
+    headline: "Premium Blinds for",
+    headlineEs: "Premium Blinds para",
+    accent: "Casinos & Gaming",
+    accentEs: "Casinos y Juegos",
+    description: "Trusted by hotels, casinos, resorts, and apartment complexes. Order 1 to 100,000+ units with bulk pricing. Hospitality-grade quality, free shipping on every order.",
+    descriptionEs: "De confianza para hoteles, casinos, resorts y complejos de apartamentos. Ordena desde 1 hasta más de 100,000 unidades con precios por volumen. Calidad hotelera, envío gratis en cada pedido.",
+  },
+  {
+    id: "resorts",
+    image: "/images/home/hero-resorts-readdy.jpg",
+    label: "Luxury Resorts",
+    labelEs: "Resorts de Lujo",
+    headline: "Premium Blinds for",
+    headlineEs: "Premium Blinds para",
+    accent: "Vacation Destinations",
+    accentEs: "Destinos de Vacaciones",
+    description: "Trusted by hotels, casinos, resorts, and apartment complexes. Order 1 to 100,000+ units with bulk pricing. Hospitality-grade quality, free shipping on every order.",
+    descriptionEs: "De confianza para hoteles, casinos, resorts y complejos de apartamentos. Ordena desde 1 hasta más de 100,000 unidades con precios por volumen. Calidad hotelera, envío gratis en cada pedido.",
+  },
+  {
+    id: "restaurants",
+    image: "/images/home/hero-restaurants-readdy.jpg",
+    label: "Restaurants & Cafés",
+    labelEs: "Restaurantes y Cafés",
+    headline: "Premium Blinds for",
+    headlineEs: "Premium Blinds para",
+    accent: "Dining & Hospitality",
+    accentEs: "Cena y Hospitalidad",
+    description: "Trusted by hotels, casinos, resorts, and apartment complexes. Order 1 to 100,000+ units with bulk pricing. Hospitality-grade quality, free shipping on every order.",
+    descriptionEs: "De confianza para hoteles, casinos, resorts y complejos de apartamentos. Ordena desde 1 hasta más de 100,000 unidades con precios por volumen. Calidad hotelera, envío gratis en cada pedido.",
+  },
+  {
+    id: "offices",
+    image: "/images/home/hero-offices-readdy.jpg",
+    label: "Offices & Commercial",
+    labelEs: "Oficinas y Comercial",
+    headline: "Premium Blinds for",
+    headlineEs: "Premium Blinds para",
+    accent: "Modern Workspaces",
+    accentEs: "Espacios de Trabajo",
+    description: "Trusted by hotels, casinos, resorts, and apartment complexes. Order 1 to 100,000+ units with bulk pricing. Hospitality-grade quality, free shipping on every order.",
+    descriptionEs: "De confianza para hoteles, casinos, resorts y complejos de apartamentos. Ordena desde 1 hasta más de 100,000 unidades con precios por volumen. Calidad hotelera, envío gratis en cada pedido.",
+  },
+  {
+    id: "hospitals",
+    image: "/images/home/hero-hospital.jpg",
+    label: "Hospitals & Healthcare",
+    labelEs: "Hospitales y Salud",
+    headline: "Premium Blinds for",
+    headlineEs: "Premium Blinds para",
+    accent: "Medical Facilities",
+    accentEs: "Instalaciones Médicas",
+    description: "Trusted by hotels, casinos, resorts, and apartment complexes. Order 1 to 100,000+ units with bulk pricing. Hospitality-grade quality, free shipping on every order.",
+    descriptionEs: "De confianza para hoteles, casinos, resorts y complejos de apartamentos. Ordena desde 1 hasta más de 100,000 unidades con precios por volumen. Calidad hotelera, envío gratis en cada pedido.",
   },
 ];
 
@@ -102,8 +150,8 @@ export function Hero() {
   const slide = SLIDES[current];
 
   return (
-    <section className="relative aspect-[6/5] min-h-[27rem] w-full overflow-hidden bg-ink sm:aspect-[16/10.2] md:aspect-[16/7.6] xl:aspect-[16/6.9]">
-      <div className="absolute inset-0 z-0">
+    <section className="relative min-h-[36rem] w-full bg-ink sm:min-h-[42rem] md:min-h-[44rem] xl:min-h-[48rem]">
+      <div className="absolute inset-0 z-0 overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={slide.id}
@@ -131,7 +179,7 @@ export function Hero() {
         <div className="grain-overlay pointer-events-none absolute inset-0" />
       </div>
 
-      <div className="relative z-10 flex h-full w-full flex-col px-6 pb-20 pt-28 sm:px-10 sm:pt-32 md:px-16 md:pt-36 lg:pl-[12vw] lg:pt-40 xl:pl-[14vw]">
+      <div className="relative z-10 flex w-full flex-col px-6 pb-20 pt-16 sm:px-10 sm:pb-20 sm:pt-28 md:px-16 md:pt-32 lg:pl-[12vw] lg:pt-36 xl:pl-[14vw]">
         <AnimatePresence mode="wait">
           <motion.div
             key={slide.id}
@@ -152,16 +200,16 @@ export function Hero() {
                 transition: { duration: 0.3 }
               }
             }}
-            className="flex max-w-[42rem] flex-col items-start space-y-9"
+            className="flex max-w-[42rem] flex-col items-start gap-3 sm:gap-5 lg:gap-6"
           >
             <motion.p
               variants={{
                 hidden: { opacity: 0, y: 10 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.215, 0.61, 0.355, 1] } }
               }}
-              className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.35em] text-white/90"
+              className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/90 sm:gap-4 sm:tracking-[0.3em]"
             >
-              <span className="block h-px w-10 bg-brass" />
+              <span className="block h-px w-10 bg-green-300/90" />
               {t(slide.label, slide.labelEs)}
             </motion.p>
 
@@ -170,7 +218,7 @@ export function Hero() {
                 hidden: { opacity: 0, y: 15 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.215, 0.61, 0.355, 1] } }
               }}
-              className="mt-4 max-w-[15ch] font-display text-[2.75rem] font-medium leading-[1.1] tracking-tighter text-white [text-shadow:0_10px_40px_rgba(0,0,0,0.4),0_4px_12px_rgba(0,0,0,0.3)] sm:text-[3.25rem] md:text-[3.75rem] lg:text-[4.2rem] xl:text-[4.8rem]"
+              className="max-w-[15ch] font-display text-[2.35rem] font-medium leading-[1.06] tracking-tighter text-white [text-shadow:0_10px_40px_rgba(0,0,0,0.4),0_4px_12px_rgba(0,0,0,0.3)] sm:text-[3.25rem] md:text-[3.75rem] lg:text-[4.2rem] xl:text-[4.8rem]"
             >
               {t(slide.headline, slide.headlineEs)}
               <br />
@@ -182,39 +230,31 @@ export function Hero() {
                 hidden: { opacity: 0, y: 10 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.215, 0.61, 0.355, 1] } }
               }}
-              className="max-w-[32rem] text-[1.125rem] font-normal leading-relaxed text-white/85 [text-shadow:0_4px_16px_rgba(0,0,0,0.4)]"
+              className="font-display text-sm font-medium text-green-300/90 sm:text-base md:text-lg tracking-wide [text-shadow:0_2px_12px_rgba(0,0,0,0.5)]"
+            >
+              {t("Quality Blinds for Every Property.", "Calidad de Persianas para Cada Propiedad.")}
+            </motion.p>
+
+            <motion.p
+              variants={{
+                hidden: { opacity: 0, y: 10 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.215, 0.61, 0.355, 1] } }
+              }}
+              className="line-clamp-2 max-w-[32rem] text-base font-normal leading-7 text-white/85 [text-shadow:0_4px_16px_rgba(0,0,0,0.4)] sm:line-clamp-none sm:text-[1.125rem] sm:leading-relaxed"
             >
               {t(slide.description, slide.descriptionEs)}
             </motion.p>
-          </motion.div>
-        </AnimatePresence>
 
-        {/* Decoupled Action Zone */}
-        <div className="absolute bottom-20 left-6 sm:left-10 md:left-16 lg:left-[12vw] xl:left-[14vw]">
-          <AnimatePresence mode="wait">
             <motion.div
-              key={slide.id}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
               variants={{
                 hidden: { opacity: 0, y: 10 },
-                visible: {
-                  opacity: 1,
-                  y: 0,
-                  transition: {
-                    delay: 0.4, // Delays buttons until after text staggers in
-                    duration: 0.8,
-                    ease: [0.215, 0.61, 0.355, 1],
-                  },
-                },
-                exit: { opacity: 0, transition: { duration: 0.3 } },
+                visible: { opacity: 1, y: 0, transition: { delay: 0.3, duration: 0.8, ease: [0.215, 0.61, 0.355, 1] } }
               }}
-              className="flex flex-wrap gap-5"
+              className="flex flex-wrap gap-3 pt-1 sm:gap-5 sm:pt-2"
             >
               <Button asChild variant="accent">
                 <Link href="/products">
-                  {t("Shop Products", "Comprar Ahora")}
+                  {t("Shop Now", "Comprar Ahora")}
                 </Link>
               </Button>
               <Button asChild variant="secondary-light" className="border-white/20 bg-white/5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] hover:border-brass hover:text-brass">
@@ -223,8 +263,9 @@ export function Hero() {
                 </Link>
               </Button>
             </motion.div>
-          </AnimatePresence>
-        </div>
+          </motion.div>
+        </AnimatePresence>
+
       </div>
 
       <Button

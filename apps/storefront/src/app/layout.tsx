@@ -10,7 +10,6 @@ import { CompareBar } from "@/components/storefront/compare-bar";
 import { ChatPopup } from "@/components/storefront/chat-popup";
 import { BackToTop } from "@/components/storefront/back-to-top";
 import { NavigationProgressBar } from "@/components/storefront/navigation-progress-bar";
-import { OrderStatusBanner } from "@/components/storefront/order-status-banner";
 import { RecentlyViewedDrawer } from "@/components/storefront/recently-viewed-drawer";
 import { SignupPromoPopup } from "@/components/storefront/signup-promo-popup";
 import { LanguageProvider } from "@/lib/context/language-context";
@@ -58,7 +57,6 @@ export default function RootLayout({
           <StorefrontProvider>
             <CustomerProvider>
               <div className="min-h-dvh bg-shell text-slate">
-                <OrderStatusBanner />
                 <SiteHeader />
                 {children}
                 <SiteFooter />

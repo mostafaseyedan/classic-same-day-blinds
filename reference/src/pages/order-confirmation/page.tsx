@@ -115,7 +115,7 @@ export default function OrderConfirmationPage() {
     const sessionId = searchParams.get('session_id');
     const orderId = searchParams.get('order_id');
     const savedLocation = localStorage.getItem('pickup_location') ??
-      'Classic Same Day Blinds — DFW Area Showroom\nPlease contact us for the exact address.';
+      'Classic Same Day Blinds — DFW Area Warehouse\nPlease contact us for the exact address.';
     setPickupLocation(savedLocation);
 
     if (sessionId && orderId) {

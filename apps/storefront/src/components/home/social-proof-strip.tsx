@@ -1,10 +1,13 @@
-import { Trophy, Star, Truck } from "@phosphor-icons/react/ssr";
-import { AnimateOnScroll } from "@/components/animate-on-scroll";
+"use client";
+
+import { Trophy, Star, Truck } from "@phosphor-icons/react";
+import { useInView } from "@/hooks/use-in-view";
 import type { GooglePlaceData } from "@/lib/google-reviews";
 
 export function SocialProofStrip({ googlePlace }: { googlePlace: GooglePlaceData | null }) {
   const reviewCount = googlePlace?.user_ratings_total;
   const rating = googlePlace?.rating;
+  const contentRef = useInView<HTMLDivElement>();
 
   const stats = [
     {
@@ -27,7 +30,11 @@ export function SocialProofStrip({ googlePlace }: { googlePlace: GooglePlaceData
   ];
   return (
     <section className="relative z-30 w-full bg-slate py-4 sm:py-5">
-      <AnimateOnScroll className="mx-auto max-w-7xl px-6 sm:px-10 md:px-12 lg:px-16">
+      <div
+        ref={contentRef}
+        data-animate
+        className="mx-auto max-w-7xl px-6 sm:px-10 md:px-12 lg:px-16"
+      >
         <div className="grid gap-x-12 gap-y-6 sm:grid-cols-3">
           {stats.map(({ Icon, value, label }) => (
             <div
@@ -48,7 +55,7 @@ export function SocialProofStrip({ googlePlace }: { googlePlace: GooglePlaceData
             </div>
           ))}
         </div>
-      </AnimateOnScroll>
+      </div>
     </section>
   );
 }

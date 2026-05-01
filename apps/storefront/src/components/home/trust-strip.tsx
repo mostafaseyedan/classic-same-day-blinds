@@ -1,5 +1,7 @@
-import { Seal, Buildings, MapPin, Truck, Lightning } from "@phosphor-icons/react/ssr";
-import { AnimateOnScroll } from "@/components/animate-on-scroll";
+"use client";
+
+import { Seal, Buildings, MapPin, Truck, Lightning } from "@phosphor-icons/react";
+import { useInView } from "@/hooks/use-in-view";
 
 const trustItems = [
   {
@@ -16,7 +18,7 @@ const trustItems = [
   },
   {
     icon: MapPin,
-    label: "Local Bedford, Texas showroom",
+    label: "Local Bedford, Texas warehouse",
   },
   {
     icon: Seal,
@@ -25,16 +27,22 @@ const trustItems = [
 ] as const;
 
 export function TrustStrip() {
+  const contentRef = useInView<HTMLDivElement>();
+
   return (
     <section className="relative z-30 w-full bg-slate py-4 sm:py-5">
-      <div className="mx-auto max-w-7xl px-6 sm:px-10 md:px-12 lg:px-16">
+      <div
+        ref={contentRef}
+        data-animate
+        className="mx-auto max-w-7xl px-6 sm:px-10 md:px-12 lg:px-16"
+      >
         <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {trustItems.map((item) => (
             <div
               key={item.label}
               className="flex items-center gap-3 border-white/10 py-1 transition-opacity hover:opacity-80 xl:border-l xl:pl-6 xl:first:border-l-0 xl:first:pl-0"
             >
-              <div className="text-brass">
+              <div className="text-green-400">
                 <item.icon className="h-5 w-5" weight="light" />
               </div>
               <p className="text-[0.82rem] font-medium leading-[1.4] text-shell sm:text-[0.88rem] lg:text-[0.92rem]">{item.label}</p>

@@ -2,18 +2,7 @@ import Medusa from "@medusajs/js-sdk";
 
 import { getPublicRuntimeConfig } from "@/lib/platform-config";
 
-function createClient(baseUrl: string, publishableKey: string) {
-  return new Medusa({
-    baseUrl,
-    publishableKey,
-    auth: {
-      type: "jwt",
-      jwtTokenStorageMethod: "local",
-      jwtTokenStorageKey: "blinds_storefront_customer_jwt",
-    },
-    debug: process.env.NODE_ENV === "development",
-  });
-}
+let _client: Medusa | null = null;
 
 export function getBrowserMedusaClient() {
   const config = getPublicRuntimeConfig();
@@ -22,5 +11,17 @@ export function getBrowserMedusaClient() {
     return null;
   }
 
-  return createClient(config.medusaBaseUrl, config.medusaPublishableKey);
+  if (!_client) {
+    _client = new Medusa({
+      baseUrl: config.medusaBaseUrl,
+      publishableKey: config.medusaPublishableKey,
+      auth: {
+        type: "jwt",
+        jwtTokenStorageMethod: "local",
+        jwtTokenStorageKey: "blinds_storefront_customer_jwt",
+      },
+    });
+  }
+
+  return _client;
 }

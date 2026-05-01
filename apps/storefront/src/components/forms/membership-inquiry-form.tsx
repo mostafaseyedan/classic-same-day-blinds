@@ -72,7 +72,7 @@ export function MembershipInquiryForm() {
   }
 
   return (
-    <FormShell as="form" onSubmit={handleSubmit}>
+    <FormShell as="form" onSubmit={handleSubmit} className="bg-white">
       <div className="grid gap-4 md:grid-cols-2">
         <label className="grid gap-2">
           <Label as="span" variant="default">Name</Label>

@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@blinds/ui";
 import { SectionHeader } from "@blinds/ui";
-import { Eyebrow, SectionCopy, SectionTitle } from "@blinds/ui";
+import { SectionCopy, SectionTitle } from "@blinds/ui";
 
 import Link from "next/link";
 
@@ -27,17 +27,20 @@ export function FeaturedProducts({ products }: { products: CatalogProduct[] }) {
       <div className="content-shell">
         <SectionHeader>
           <div>
-            <Eyebrow>{t("Featured Products", "Productos Destacados")}</Eyebrow>
+            <p className="group flex items-center gap-4 text-xs font-bold uppercase tracking-[0.35em] text-olive">
+              <span className="block h-px w-10 bg-olive transition-all duration-300 group-hover:w-16" />
+              {t("Featured Products", "Productos Destacados")}
+            </p>
             <SectionTitle className="max-w-4xl">
               {t(
-                "The core product lines customers compare first.",
-                "Las líneas principales que los clientes comparan primero.",
+                "Custom-made to your exact measurements.",
+                "Hecho a medida según sus dimensiones exactas."
               )}
             </SectionTitle>
             <SectionCopy>
               {t(
-                "Fewer distractions, clearer price anchors, and a faster path into the full product page when a shopper is ready to configure.",
-                "Menos distracciones, referencias de precio más claras y una ruta más rápida hacia la página completa del producto cuando el cliente está listo para configurarlo.",
+                "Free samples available on every style.",
+                "Muestras gratuitas disponibles en todos los estilos."
               )}
             </SectionCopy>
           </div>

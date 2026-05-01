@@ -74,10 +74,6 @@ img {
     @apply text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-olive;
   }
 
-  .catalog-title {
-    @apply mt-3 font-display text-[2.15rem] font-medium leading-[1.05] tracking-tight text-slate sm:text-[2.5rem] md:text-[2.8rem];
-  }
-
   .catalog-copy {
     @apply mt-4 max-w-[36rem] text-[0.95rem] leading-6 text-slate/70;
   }
@@ -88,6 +84,22 @@ img {
 
   .catalog-filter-chip-active {
     @apply border-slate bg-slate text-shell;
+  }
+
+  .product-meta-primary {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-brass;
+  }
+
+  .product-meta-secondary {
+    @apply text-[0.68rem] font-medium leading-5 text-slate/55;
+  }
+
+  .product-meta-status {
+    @apply text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-olive;
+  }
+
+  .product-meta-price-note {
+    @apply text-[0.82rem] font-medium leading-5 text-slate/64;
   }
 
 }

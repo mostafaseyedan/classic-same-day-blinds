@@ -22,7 +22,7 @@ function ReturnStatusPanel({
   children: React.ReactNode;
 }) {
   return (
-    <main className="page-section pb-20 pt-12">
+    <main className="page-section pb-20 pt-10">
       <div className="content-shell max-w-3xl">
         <SectionPanel className="px-6 py-10">
           <Eyebrow>{eyebrow}</Eyebrow>

@@ -1,17 +1,19 @@
 "use client";
 import { Button } from "@blinds/ui";
 import { SectionHeader } from "@blinds/ui";
-import { Eyebrow, SectionCopy, SectionTitle } from "@blinds/ui";
+import { SectionCopy, SectionTitle } from "@blinds/ui";
 
 import Link from "next/link";
 import Image from "next/image";
 import {
   Buildings,
-  Cross,
+  FirstAid,
+  GraduationCap,
+  Hammer,
   House,
-  Bank,
+  PokerChip,
+  UsersThree,
   Wrench,
-  MapPin,
 } from "@phosphor-icons/react";
 import { useInView } from "@/hooks/use-in-view";
 import { useLanguage } from "@/lib/context/language-context";
@@ -24,6 +26,9 @@ const featuredSegments = [
     eyebrowEs: "Residencial",
     Icon: House,
     image: "/images/home/wwww-1.jpg",
+    color: "from-green-600/70 to-green-900/80",
+    desc: "Single-family homes & custom installs",
+    descEs: "Casas unifamiliares e instalaciones personalizadas",
   },
   {
     label: "Hotels",
@@ -31,26 +36,35 @@ const featuredSegments = [
     eyebrow: "Hospitality",
     eyebrowEs: "Hospitalidad",
     Icon: Buildings,
-    image: "/images/home/wwww-4.jpg",
+    image: "/images/home/wwww-2.jpg",
+    color: "from-emerald-600/70 to-emerald-900/80",
+    desc: "Bulk orders for guest rooms & lobbies",
+    descEs: "Pedidos al por mayor para habitaciones y lobbies",
   },
   {
-    label: "Apartment Communities",
-    labelEs: "Complejos de Apartamentos",
-    eyebrow: "Multi-Family",
-    eyebrowEs: "Multifamiliar",
-    Icon: Buildings,
-    image: "/images/home/wwww-3.jpg",
+    label: "Casinos",
+    labelEs: "Casinos",
+    eyebrow: "Gaming",
+    eyebrowEs: "Juego",
+    Icon: PokerChip,
+    image: "/images/home/wwww-casino.jpg",
+    color: "from-yellow-700/70 to-yellow-950/80",
+    desc: "Blackout & light-control for gaming floors",
+    descEs: "Soluciones de oscurecimiento para pisos de juego",
   },
 ] as const;
 
 const secondarySegments = [
   {
-    Icon: Bank,
-    label: "Casinos",
-    labelEs: "Casinos",
-    eyebrow: "Gaming",
-    eyebrowEs: "Juego",
-    image: "/images/home/wwww-casino.jpg",
+    Icon: Buildings,
+    label: "Apartment Complexes",
+    labelEs: "Complejos de Apartamentos",
+    eyebrow: "Multi-Family",
+    eyebrowEs: "Multifamiliar",
+    image: "/images/home/wwww-3.jpg",
+    color: "from-teal-600/70 to-teal-900/80",
+    desc: "Multi-unit installs & property upgrades",
+    descEs: "Instalaciones de múltiples unidades y mejoras",
   },
   {
     Icon: Wrench,
@@ -58,23 +72,54 @@ const secondarySegments = [
     labelEs: "Gerentes de Mantenimiento",
     eyebrow: "Operations",
     eyebrowEs: "Operaciones",
-    image: "/images/home/wwww-7.jpg",
+    image: "/images/home/wwww-4.jpg",
+    color: "from-green-700/70 to-green-950/80",
+    desc: "Fast replacements & service contracts",
+    descEs: "Reemplazos rápidos y contratos de servicio",
   },
   {
-    Icon: MapPin,
+    Icon: UsersThree,
     label: "Regional Property Managers",
-    labelEs: "Gerentes Regionales de Propiedad",
+    labelEs: "Gerentes Regionales",
     eyebrow: "Management",
     eyebrowEs: "Gestión",
     image: "/images/home/wwww-5.jpg",
+    color: "from-emerald-700/70 to-emerald-950/80",
+    desc: "Coordinated orders across multiple sites",
+    descEs: "Pedidos coordinados en múltiples sitios",
   },
   {
-    Icon: Cross,
+    Icon: Hammer,
+    label: "Apartment Builders",
+    labelEs: "Constructores de Apartamentos",
+    eyebrow: "Construction",
+    eyebrowEs: "Construcción",
+    image: "/images/home/wwww-6.jpg",
+    color: "from-teal-700/70 to-teal-950/80",
+    desc: "New construction & developer packages",
+    descEs: "Nueva construcción y paquetes para desarrolladores",
+  },
+  {
+    Icon: GraduationCap,
+    label: "College Campuses",
+    labelEs: "Universidades",
+    eyebrow: "Education",
+    eyebrowEs: "Educación",
+    image: "/images/home/wwww-7.jpg",
+    color: "from-green-600/70 to-green-900/80",
+    desc: "Dorms, classrooms & campus-wide installs",
+    descEs: "Dormitorios, aulas e instalaciones universitarias",
+  },
+  {
+    Icon: FirstAid,
     label: "Hospitals",
     labelEs: "Hospitales",
     eyebrow: "Healthcare",
     eyebrowEs: "Salud",
-    image: "/images/home/hero-apartments.jpg",
+    image: "/images/home/wwww-8.jpg",
+    color: "from-emerald-600/70 to-emerald-900/80",
+    desc: "Light-control for patient care areas",
+    descEs: "Control de luz para áreas de atención al paciente",
   },
 ] as const;
 
@@ -84,11 +129,14 @@ export function WhoWeWorkWith() {
   const { t } = useLanguage();
 
   return (
-    <section ref={sectionRef} data-animate className="page-section border-t border-black/5 bg-white">
+    <section ref={sectionRef} data-animate className="page-section border-t border-black/5 bg-shell">
       <div className="content-shell">
         <SectionHeader>
           <div>
-            <Eyebrow>{t("Our Clients", "Nuestros Clientes")}</Eyebrow>
+            <p className="group flex items-center gap-4 text-xs font-bold uppercase tracking-[0.35em] text-olive">
+              <span className="block h-px w-10 bg-olive transition-all duration-300 group-hover:w-16" />
+              {t("Our Clients", "Nuestros Clientes")}
+            </p>
             <SectionTitle className="max-w-3xl">
               {t("Who We Work With", "Con Quién Trabajamos")}
             </SectionTitle>
@@ -133,18 +181,18 @@ export function WhoWeWorkWith() {
               </div>
               <p className="mt-3 max-w-[28rem] text-sm leading-6 text-white/80">
                 {t(
-                  "Homeowners, remodels, and room-by-room upgrades that need made-to-fit blinds without complicating the decision path.",
-                  "Propietarios, remodelaciones y mejoras por habitación que necesitan persianas a medida sin complicar el camino de decisión.",
+                  primarySegment.desc,
+                  primarySegment.descEs,
                 )}
               </p>
             </div>
           </article>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-            {secondaryFeaturedSegments.map(({ label, labelEs, eyebrow, eyebrowEs, Icon, image }) => (
+            {secondaryFeaturedSegments.map(({ label, labelEs, eyebrow, eyebrowEs, Icon, image, desc, descEs }) => (
               <article
                 key={label}
-                className="group relative aspect-[4/3] overflow-hidden rounded-media bg-slate"
+                className="group relative aspect-[4/3] overflow-hidden rounded-media bg-slate lg:aspect-auto lg:h-[14.5rem]"
               >
                 <Image
                   src={image}
@@ -153,7 +201,7 @@ export function WhoWeWorkWith() {
                   sizes="(min-width: 1024px) 22vw, (min-width: 640px) 50vw, 100vw"
                   className="object-cover object-center transition duration-500 group-hover:scale-[1.03]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate/80 via-slate/32 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate/90 via-slate/40 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5 text-white">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/65">
                     {t(eyebrow, eyebrowEs)}
@@ -164,17 +212,18 @@ export function WhoWeWorkWith() {
                     </div>
                     <h3 className="text-sm font-semibold leading-tight">{t(label, labelEs)}</h3>
                   </div>
+                  <p className="mt-2 text-xs text-white/70 line-clamp-1">{t(desc, descEs)}</p>
                 </div>
               </article>
             ))}
           </div>
         </div>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {secondarySegments.map(({ Icon, label, labelEs, eyebrow, eyebrowEs, image }) => (
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {secondarySegments.map(({ Icon, label, labelEs, eyebrow, eyebrowEs, image, desc, descEs }) => (
             <article
               key={label}
-              className="group relative aspect-[4/3.15] overflow-hidden rounded-media bg-slate"
+              className="group relative aspect-[4/3] overflow-hidden rounded-media bg-slate"
             >
               <Image
                 src={image}
@@ -183,8 +232,8 @@ export function WhoWeWorkWith() {
                 sizes="(min-width: 1280px) 22vw, (min-width: 640px) 50vw, 100vw"
                 className="object-cover object-center transition duration-500 group-hover:scale-[1.03]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate/80 via-slate/28 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+              <div className="absolute inset-0 bg-gradient-to-t from-slate/90 via-slate/40 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/65">
                   {t(eyebrow, eyebrowEs)}
                 </p>
@@ -192,8 +241,9 @@ export function WhoWeWorkWith() {
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-sm">
                     <Icon className="h-3.5 w-3.5 text-white" />
                   </div>
-                  <h3 className="text-sm font-semibold leading-tight">{t(label, labelEs)}</h3>
+                  <h3 className="text-base font-semibold leading-tight">{t(label, labelEs)}</h3>
                 </div>
+                <p className="mt-2 text-xs text-white/70">{t(desc, descEs || desc)}</p>
               </div>
             </article>
           ))}

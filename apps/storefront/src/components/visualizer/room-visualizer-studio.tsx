@@ -1,16 +1,13 @@
 "use client";
-import { Button } from "@blinds/ui";
-import { Select } from "@blinds/ui";
-import { SectionPanel } from "@blinds/ui";
+import { Badge, Button } from "@blinds/ui";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { useRef, useState } from "react";
 
-import {
-  legacyProductAttributeReference,
-  visualizerProductReferences,
-} from "@/lib/legacy-reference";
 import { VisualizerCanvas } from "@/components/visualizer/visualizer-canvas";
+import { formatPrice } from "@/lib/format-price";
+import type { CatalogProduct } from "@/lib/medusa/catalog";
 
 const sampleRooms = [
   {
@@ -35,45 +32,56 @@ const sampleRooms = [
   },
 ];
 
-const visualizerProductImages: Record<string, string> = {
-  "vinyl-blinds": "/images/home/prod-vinyl-isolated.png",
-  "faux-wood": "/images/home/prod-fauxwood-isolated.png",
-  vertical: "/images/home/prod-vertical-isolated.png",
-  "blackout-roller": "/images/home/prod-roller-isolated.png",
-};
+function getPreviewMode(product: CatalogProduct) {
+  const key =
+    `${product.slug} ${product.name} ${product.categoryHandle ?? ""} ${product.categoryLabel}`.toLowerCase();
+  return key.includes("vertical") ? "vertical" : "horizontal";
+}
 
-const visualizerProductPrices: Record<string, number> = {
-  "vinyl-blinds": 27.1,
-  "faux-wood": 41.73,
-  vertical: 18.78,
-  "blackout-roller": 36.71,
-};
+function getVisualizerProductImage(product: CatalogProduct) {
+  const key =
+    `${product.slug} ${product.name} ${product.categoryHandle ?? ""} ${product.categoryLabel}`.toLowerCase();
 
-const visualizerProductSlugs: Record<string, string> = {
-  "vinyl-blinds": "vinyl-blinds",
-  "faux-wood": "faux-wood-blinds",
-  vertical: "vertical-blinds",
-  "blackout-roller": "vinyl-blinds",
-};
+  if (key.includes("aluminum")) {
+    return "/images/home/prod-aluminum-isolated.png";
+  }
 
-const visualizerOverlayPresets: Record<
-  string,
-  { objectPosition: string; scale: number }
-> = {
-  "vinyl-blinds": { objectPosition: "50% 50%", scale: 1.2 },
-  "faux-wood": { objectPosition: "50% 50%", scale: 1.2 },
-  vertical: { objectPosition: "50% 50%", scale: 1.2 },
-  "blackout-roller": { objectPosition: "50% 50%", scale: 1.2 },
-};
+  if (key.includes("faux") || key.includes("wood")) {
+    return "/images/home/prod-fauxwood-isolated.png";
+  }
 
-export function RoomVisualizerStudio() {
+  if (key.includes("vertical")) {
+    return "/images/home/prod-vertical-isolated.png";
+  }
+
+  if (key.includes("roller")) {
+    return "/images/home/prod-roller-isolated.png";
+  }
+
+  if (key.includes("vinyl") || key.includes("mini")) {
+    return "/images/home/prod-vinyl-isolated.png";
+  }
+
+  return (
+    product.images.find((image) => /front|isolated|\.svg($|\?)/i.test(image)) ??
+    product.image
+  );
+}
+
+function EyebrowLabel({ children }: { children: ReactNode }) {
+  return (
+    <p className="flex items-center gap-3 text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-olive">
+      <span className="block h-px w-6 bg-olive" />
+      {children}
+    </p>
+  );
+}
+
+export function RoomVisualizerStudio({ products }: { products: CatalogProduct[] }) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedRoom, setSelectedRoom] = useState(0);
-  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
-  const [selectedColor, setSelectedColor] = useState<string>(
-    visualizerProductReferences[0].defaultColors[0],
-  );
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [opacity, setOpacity] = useState(82);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
 
@@ -104,63 +112,27 @@ export function RoomVisualizerStudio() {
 
   function handleReset() {
     setUploadedImage(null);
-    setSelectedStyle(null);
-    setSelectedColor(visualizerProductReferences[0].defaultColors[0]);
+    setSelectedProductId(null);
     setOpacity(82);
   }
 
   const activeRoom = sampleRooms[selectedRoom];
-  const activeTreatment =
-    visualizerProductReferences.find((entry) => entry.key === selectedStyle) ??
-    visualizerProductReferences[0];
-
-  const visualizerProducts = visualizerProductReferences.map((entry) => ({
-    ...entry,
-    image: visualizerProductImages[entry.key] ?? "/images/home/rev-prod-default.jpg",
-    price: visualizerProductPrices[entry.key] ?? 29,
-  }));
-
-  const activeAttributes =
-    legacyProductAttributeReference.find((entry) => entry.category === activeTreatment.category) ??
-    legacyProductAttributeReference[0];
+  const activeProduct = products.find((product) => product.id === selectedProductId) ?? null;
+  const activePreviewMode = activeProduct ? getPreviewMode(activeProduct) : "horizontal";
+  const activeProductImage = activeProduct ? getVisualizerProductImage(activeProduct) : undefined;
 
   return (
-    <SectionPanel as="section" className="px-6 py-6">
+    <section>
       <div className="space-y-6">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(16rem,0.45fr)]">
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-slate">Visualizer Studio</p>
-                <p className="mt-1 text-sm text-slate/68">
-                  Upload a room photo or test the layout with a sample scene.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                {uploadedImage ? (
-                  <Button variant="secondary" type="button" onClick={handleReset}>
-                    Start Over
-                  </Button>
-                ) : null}
-
-                <Button variant="default"
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  
-                >
-                  Upload Photo
-                </Button>
-              </div>
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
 
             <div
               className={`relative overflow-hidden rounded-media bg-shell ${
@@ -174,20 +146,28 @@ export function RoomVisualizerStudio() {
               onDrop={handleDrop}
             >
               {uploadedImage ? (
-                <VisualizerCanvas
-                  uploadedImage={uploadedImage}
-                  roomGradient={activeRoom.gradient}
-                  treatmentLabel={activeTreatment.label}
-                  previewMode={activeTreatment.previewMode}
-                  selectedColor={selectedColor}
-                  opacity={opacity}
-                  hasSelection={Boolean(selectedStyle)}
-                  overlayImage={visualizerProductImages[activeTreatment.key]}
-                  overlayObjectPosition={
-                    visualizerOverlayPresets[activeTreatment.key]?.objectPosition ?? "50% 50%"
-                  }
-                  overlayScale={visualizerOverlayPresets[activeTreatment.key]?.scale ?? 1}
-                />
+                <>
+                  <VisualizerCanvas
+                    uploadedImage={uploadedImage}
+                    roomGradient={activeRoom.gradient}
+                    treatmentLabel={activeProduct?.name ?? "Selected product"}
+                    previewMode={activePreviewMode}
+                    selectedColor="#ffffff"
+                    opacity={opacity}
+                    hasSelection={Boolean(activeProduct)}
+                    overlayImage={activeProductImage}
+                    overlayObjectPosition="50% 50%"
+                    overlayScale={1}
+                  />
+                  <Button
+                    variant="secondary"
+                    type="button"
+                    onClick={handleReset}
+                    className="absolute right-4 top-4"
+                  >
+                    Start Over
+                  </Button>
+                </>
               ) : (
                 <div className="flex min-h-[22rem] flex-col items-center justify-center text-center">
                   <p className="text-sm font-semibold text-slate">Drop your room photo here</p>
@@ -207,7 +187,7 @@ export function RoomVisualizerStudio() {
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate/60">
+              <p className="text-sm font-semibold text-slate">
                 {uploadedImage ? "Switch room" : "Try with a sample room"}
               </p>
               <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -251,9 +231,7 @@ export function RoomVisualizerStudio() {
             </div>
 
             <div className="w-full">
-              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-brass">
-                Tips for best results
-              </p>
+              <EyebrowLabel>Tips for best results</EyebrowLabel>
               <p className="mt-2 max-w-[36rem] text-sm leading-6 text-slate/72">
                 Take the photo straight on, not at an angle. Include the full window frame in the
                 shot. Use good natural or room lighting. Drag corners to resize the overlay.
@@ -264,48 +242,54 @@ export function RoomVisualizerStudio() {
           <aside className="space-y-5">
             <div className="space-y-3">
               <p className="text-sm font-semibold text-slate">Select a Product</p>
-              <div className="grid gap-2">
-                {visualizerProducts.map((product) => {
-                  const isSelected = product.key === selectedStyle;
+              <div className="grid gap-2 rounded-media bg-shell p-2">
+                {products.map((product) => {
+                  const isSelected = product.id === selectedProductId;
                   const disabled = !uploadedImage;
+                  const productImage = getVisualizerProductImage(product);
 
                   return (
                     <button
-                      key={product.key}
+                      key={product.id}
                       type="button"
                       onClick={() => {
                         if (!uploadedImage) return;
-                        setSelectedStyle(product.key);
-                        setSelectedColor(product.defaultColors[0]);
+                        setSelectedProductId(product.id);
                       }}
-                      className={`flex items-center gap-3 rounded-media px-3 py-2 text-left transition ${
-                        isSelected
-                          ? "bg-shell"
-                          : disabled
-                            ? "opacity-50"
-                            : "bg-white/70 hover:bg-white"
-                      }`}
+                      className={`flex items-center gap-3 px-3 py-2 text-left transition ${
+                        isSelected ? "border-l-2 border-olive bg-olive/6" : ""
+                      } ${disabled ? "opacity-50" : ""}`}
                     >
                       <div className="h-12 w-12 overflow-hidden rounded-media bg-shell">
                         <img
-                          src={product.image}
-                          alt={product.label}
-                          className="h-full w-full object-cover object-center"
+                          src={productImage}
+                          alt={product.name}
+                          className="h-full w-full object-contain object-center"
                         />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-slate">{product.label}</p>
-                        <p className="mt-1 text-xs text-slate/60">${product.price.toFixed(2)}</p>
+                        <p className="text-sm font-semibold text-slate">{product.name}</p>
+                        <div className="mt-1 flex items-center justify-between gap-3">
+                          <p className="text-xs text-slate/60">
+                            {formatPrice(product.price, product.currencyCode)}
+                          </p>
+                          {isSelected ? (
+                            <Badge variant="soft-olive" className="shrink-0">
+                              Selected
+                            </Badge>
+                          ) : null}
+                        </div>
                       </div>
-                      {isSelected ? (
-                        <span className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-olive">
-                          Selected
-                        </span>
-                      ) : null}
                     </button>
                   );
                 })}
               </div>
+
+              {products.length === 0 ? (
+                <p className="text-[0.72rem] text-slate/50">
+                  No catalog products are currently available.
+                </p>
+              ) : null}
 
               {!uploadedImage ? (
                 <p className="text-[0.72rem] text-slate/50">
@@ -315,49 +299,6 @@ export function RoomVisualizerStudio() {
             </div>
 
             <div className="grid gap-4">
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate">Treatment style</span>
-                <Select
-                  value={selectedStyle ?? ""}
-                  onChange={(event) => {
-                    const nextKey = event.target.value;
-                    const nextTreatment =
-                      visualizerProductReferences.find((entry) => entry.key === nextKey) ??
-                      visualizerProductReferences[0];
-                    setSelectedStyle(nextKey);
-                    setSelectedColor(nextTreatment.defaultColors[0]);
-                  }}
-                  disabled={!uploadedImage}
-                >
-                  <option value="" disabled>
-                    Select a product
-                  </option>
-                  {visualizerProductReferences.map((style) => (
-                    <option key={style.key} value={style.key}>
-                      {style.label}
-                    </option>
-                  ))}
-                </Select>
-              </label>
-
-              <div>
-                <p className="text-sm font-semibold text-slate">Color</p>
-                <div className="mt-3 flex flex-wrap gap-3">
-                  {activeTreatment.defaultColors.map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => setSelectedColor(color)}
-                      className={`h-9 w-9 rounded-full border-2 transition ${
-                        selectedColor === color ? "border-olive scale-105" : "border-black/10"
-                      }`}
-                      style={{ backgroundColor: color }}
-                      disabled={!uploadedImage}
-                    />
-                  ))}
-                </div>
-              </div>
-
               <label className="grid gap-2">
                 <span className="text-sm font-semibold text-slate">Opacity</span>
                 <input
@@ -372,41 +313,51 @@ export function RoomVisualizerStudio() {
                 <span className="text-sm text-slate/68">{opacity}%</span>
               </label>
 
-              {selectedStyle ? (
-                <div className="rounded-full bg-olive px-4 py-4 text-shell">
-                  <p className="text-sm font-semibold text-white">Love how it looks?</p>
-                  <p className="mt-1 text-xs text-white/70">
+              {activeProduct ? (
+                <div className="border-t border-black/8 pt-4">
+                  <p className="text-sm font-semibold text-slate">Love how it looks?</p>
+                  <p className="mt-1 text-xs leading-5 text-slate/60">
                     Order custom-made to fit your window size.
                   </p>
-                  <Button asChild variant="secondary"><Link
-                    href={`/products/${visualizerProductSlugs[activeTreatment.key] ?? "vinyl-blinds"}#add-to-cart`}
-                    className="-compact mt-3 w-full justify-center bg-white text-olive"
-                  >
-                    Order {activeTreatment.label}
-                  </Link></Button>
-                  <Button asChild variant="secondary"><Link
-                    href="/free-sample"
-                    className="-light mt-2 w-full justify-center"
-                  >
-                    Request Free Sample
-                  </Link></Button>
+                  <div className="mt-3 grid gap-2">
+                    <Button
+                      asChild
+                      variant="default"
+                      className="w-full justify-center"
+                    >
+                      <Link href={`/products/${activeProduct.slug}#add-to-cart`}>
+                        Order
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      variant="secondary"
+                      className="w-full justify-center"
+                    >
+                      <Link href="/free-sample">
+                        Request Free Sample
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               ) : null}
 
-              <div className="text-sm leading-6 text-slate/72">
-                <p className="font-semibold text-slate">{activeTreatment.label}</p>
-                <p className="mt-2">{activeTreatment.notes}</p>
-                <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-brass">
-                  Legacy attribute reference
-                </p>
-                <p className="mt-2">{activeAttributes.materials.join(" · ")}</p>
-                <p className="mt-2">{activeAttributes.sizeNotes.join(" · ")}</p>
-              </div>
+              {activeProduct ? (
+                <div className="text-sm leading-6 text-slate/72">
+                  <p className="font-semibold text-slate">{activeProduct.name}</p>
+                  <p className="mt-2">
+                    {activeProduct.description || activeProduct.categoryLabel}
+                  </p>
+                  {activeProduct.highlights.length > 0 ? (
+                    <p className="mt-2">{activeProduct.highlights.join(" · ")}</p>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           </aside>
         </div>
 
       </div>
-    </SectionPanel>
+    </section>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@blinds/ui";
 import { SectionHeader } from "@blinds/ui";
-import { Eyebrow, EyebrowAccent, SectionCopy, SectionTitle } from "@blinds/ui";
+import { EyebrowAccent, SectionCopy, SectionTitle } from "@blinds/ui";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -120,7 +120,10 @@ export function ShopByRoom() {
       <div className="content-shell max-w-[72rem]">
         <SectionHeader>
           <div>
-            <Eyebrow>{t("Shop By Room", "Comprar por Espacio")}</Eyebrow>
+            <p className="group flex items-center gap-4 text-xs font-bold uppercase tracking-[0.35em] text-olive">
+              <span className="block h-px w-10 bg-olive transition-all duration-300 group-hover:w-16" />
+              {t("Shop By Room", "Comprar por Espacio")}
+            </p>
             <SectionTitle className="max-w-3xl">
               {t(
                 "Start with the room, then narrow to the blind that belongs there.",

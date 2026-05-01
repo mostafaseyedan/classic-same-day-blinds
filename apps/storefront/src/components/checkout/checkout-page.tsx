@@ -1,5 +1,5 @@
 "use client";
-import { Button, CloseButton, Input, Label, SectionPanel, Eyebrow, TaskPageTitle } from "@blinds/ui";
+import { Button, CloseButton, Input, Label, SectionPanel, Eyebrow, PageTitle } from "@blinds/ui";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -369,7 +369,7 @@ export function CheckoutPage() {
     <section className="grid gap-6 lg:grid-cols-[1fr_0.85fr]">
       <SectionPanel className="px-5 py-7 md:px-6">
         <Eyebrow>Checkout</Eyebrow>
-        <TaskPageTitle>Complete your order</TaskPageTitle>
+        <PageTitle>Complete your order</PageTitle>
 
         <Label className="mt-7 grid gap-2">
           <span>Email</span>

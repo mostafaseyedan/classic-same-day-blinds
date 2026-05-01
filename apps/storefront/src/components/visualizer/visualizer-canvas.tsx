@@ -40,6 +40,7 @@ export function VisualizerCanvas({
 }: VisualizerCanvasProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [overlay, setOverlay] = useState<OverlayState>({ x: 110, y: 64, width: 250, height: 290 });
+  const [overlayAspectRatio, setOverlayAspectRatio] = useState(250 / 290);
   const dragRef = useRef<{
     mode: DragMode;
     startX: number;
@@ -72,50 +73,74 @@ export function VisualizerCanvas({
           return { ...prev, x: startOverlay.x + dx, y: startOverlay.y + dy };
         }
 
+        const resizeFromWidth = (nextWidth: number) => {
+          const width = Math.max(minSize, nextWidth);
+          const height = Math.max(minSize, Math.round(width / overlayAspectRatio));
+
+          return { width, height };
+        };
+
+        const resizeFromHeight = (nextHeight: number) => {
+          const height = Math.max(minSize, nextHeight);
+          const width = Math.max(minSize, Math.round(height * overlayAspectRatio));
+
+          return { width, height };
+        };
+
+        const useWidthDelta = Math.abs(dx) >= Math.abs(dy);
+
         if (mode === "resize-se") {
+          const nextSize = useWidthDelta
+            ? resizeFromWidth(startOverlay.width + dx)
+            : resizeFromHeight(startOverlay.height + dy);
+
           return {
             ...prev,
-            width: Math.max(minSize, startOverlay.width + dx),
-            height: Math.max(minSize, startOverlay.height + dy),
+            ...nextSize,
           };
         }
 
         if (mode === "resize-sw") {
-          const newWidth = Math.max(minSize, startOverlay.width - dx);
+          const nextSize = useWidthDelta
+            ? resizeFromWidth(startOverlay.width - dx)
+            : resizeFromHeight(startOverlay.height + dy);
+
           return {
             ...prev,
-            x: startOverlay.x + startOverlay.width - newWidth,
-            width: newWidth,
-            height: Math.max(minSize, startOverlay.height + dy),
+            x: startOverlay.x + startOverlay.width - nextSize.width,
+            ...nextSize,
           };
         }
 
         if (mode === "resize-ne") {
-          const newHeight = Math.max(minSize, startOverlay.height - dy);
+          const nextSize = useWidthDelta
+            ? resizeFromWidth(startOverlay.width + dx)
+            : resizeFromHeight(startOverlay.height - dy);
+
           return {
             ...prev,
-            y: startOverlay.y + startOverlay.height - newHeight,
-            width: Math.max(minSize, startOverlay.width + dx),
-            height: newHeight,
+            y: startOverlay.y + startOverlay.height - nextSize.height,
+            ...nextSize,
           };
         }
 
         if (mode === "resize-nw") {
-          const newWidth = Math.max(minSize, startOverlay.width - dx);
-          const newHeight = Math.max(minSize, startOverlay.height - dy);
+          const nextSize = useWidthDelta
+            ? resizeFromWidth(startOverlay.width - dx)
+            : resizeFromHeight(startOverlay.height - dy);
+
           return {
             ...prev,
-            x: startOverlay.x + startOverlay.width - newWidth,
-            y: startOverlay.y + startOverlay.height - newHeight,
-            width: newWidth,
-            height: newHeight,
+            x: startOverlay.x + startOverlay.width - nextSize.width,
+            y: startOverlay.y + startOverlay.height - nextSize.height,
+            ...nextSize,
           };
         }
 
         return prev;
       });
     },
-    [getRelativePos],
+    [getRelativePos, overlayAspectRatio],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -131,6 +156,27 @@ export function VisualizerCanvas({
       window.removeEventListener("mouseup", handleMouseUp);
     };
   }, [handleMouseMove, handleMouseUp]);
+
+  useEffect(() => {
+    if (!overlayImage) {
+      return;
+    }
+
+    const image = new Image();
+    image.onload = () => {
+      const aspectRatio = image.naturalWidth / image.naturalHeight;
+      const height = 230;
+      const width = Math.max(120, Math.round(height * aspectRatio));
+
+      setOverlayAspectRatio(aspectRatio);
+      setOverlay((current) => ({
+        ...current,
+        width,
+        height,
+      }));
+    };
+    image.src = overlayImage;
+  }, [overlayImage]);
 
   function startDrag(mode: DragMode, event: React.MouseEvent) {
     event.preventDefault();
@@ -167,7 +213,7 @@ export function VisualizerCanvas({
       {hasSelection ? (
         <>
           <div
-            className="absolute group rounded-full"
+            className="absolute group rounded-[6px]"
             style={{
               left: overlay.x,
               top: overlay.y,
@@ -179,36 +225,37 @@ export function VisualizerCanvas({
             onMouseDown={(event) => startDrag("move", event)}
           >
             <div
-              className="relative h-full w-full overflow-hidden rounded-full"
+              className="relative h-full w-full overflow-hidden rounded-[4px]"
               style={{ opacity: opacity / 100 }}
             >
               {overlayImage ? (
                 <img
                   src={overlayImage}
                   alt={treatmentLabel}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-contain object-center"
                   style={{
                     objectPosition: overlayObjectPosition,
                     transform: `scale(${overlayScale})`,
                     transformOrigin: "center center",
-                    mixBlendMode: "multiply",
                   }}
                   draggable={false}
                 />
               ) : (
                 <div className="h-full w-full" style={{ background: overlayBackground }} />
               )}
-              <div
-                className="absolute inset-0 mix-blend-multiply"
-                style={{ backgroundColor: `${selectedColor}66` }}
-              />
+              {!overlayImage ? (
+                <div
+                  className="absolute inset-0 mix-blend-multiply"
+                  style={{ backgroundColor: `${selectedColor}66` }}
+                />
+              ) : null}
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.28),transparent_55%)]" />
             </div>
 
-            <div className="pointer-events-none absolute inset-0 rounded-full border-2 border-white/70 transition group-hover:border-emerald-400" />
+            <div className="pointer-events-none absolute inset-0 rounded-[6px] border-2 border-white/70 transition group-hover:border-olive" />
 
-            <div className="absolute -top-8 left-0 right-0 flex justify-center pointer-events-none">
-              <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white shadow">
+            <div className="pointer-events-none absolute -top-9 left-0 max-w-full">
+              <span className="inline-flex max-w-full rounded-full border border-black/8 bg-white/88 px-3 py-1 text-xs font-semibold text-olive shadow-sm backdrop-blur-sm">
                 {treatmentLabel}
               </span>
             </div>
@@ -226,7 +273,7 @@ export function VisualizerCanvas({
               return (
                 <div
                   key={dir}
-                  className="absolute z-10 h-4 w-4 border-2 border-emerald-500 bg-white opacity-0 transition group-hover:opacity-100"
+                  className="absolute z-10 h-4 w-4 border-2 border-olive bg-white opacity-0 transition group-hover:opacity-100"
                   style={{
                     bottom: isBottom ? -6 : "auto",
                     top: !isBottom ? -6 : "auto",

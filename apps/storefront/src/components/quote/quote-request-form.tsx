@@ -2,7 +2,7 @@
 import { Input } from "@blinds/ui";
 import { Button } from "@blinds/ui";
 import { Label } from "@blinds/ui";
-import { SurfaceMuted } from "@blinds/ui";
+import { FormShell } from "@blinds/ui";
 import { Textarea } from "@blinds/ui";
 
 import { useEffect, useMemo, useState } from "react";
@@ -99,7 +99,7 @@ export function QuoteRequestForm() {
   };
 
   return (
-    <SurfaceMuted as="form" onSubmit={handleSubmit} className="px-5 py-5 md:px-6">
+    <FormShell as="form" onSubmit={handleSubmit} className="bg-white">
       <div className="grid gap-4">
         <label className="grid gap-2">
           <Label as="span">Customer name</Label>
@@ -169,6 +169,6 @@ export function QuoteRequestForm() {
           {message}
         </p>
       ) : null}
-    </SurfaceMuted>
+    </FormShell>
   );
 }

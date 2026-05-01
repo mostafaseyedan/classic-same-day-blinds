@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { HttpTypes } from "@medusajs/types";
+import type { CustomerAccountOrder, CustomerAccountOrdersResponse } from "@blinds/types";
 
 import { useStorefront } from "@/components/storefront/storefront-provider";
 import { getPublicRuntimeConfig } from "@/lib/platform-config";
@@ -12,7 +13,7 @@ type CustomerContextValue = {
   isLoading: boolean;
   isAuthenticated: boolean;
   customer: HttpTypes.StoreCustomer | null;
-  orders: HttpTypes.StoreOrder[];
+  orders: CustomerAccountOrder[];
   addresses: HttpTypes.StoreCustomerAddress[];
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
@@ -50,7 +51,7 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
   const config = useMemo(() => getPublicRuntimeConfig(), []);
   const { cart, refreshCart } = useStorefront();
   const [customer, setCustomer] = useState<HttpTypes.StoreCustomer | null>(null);
-  const [orders, setOrders] = useState<HttpTypes.StoreOrder[]>([]);
+  const [orders, setOrders] = useState<CustomerAccountOrder[]>([]);
   const [addresses, setAddresses] = useState<HttpTypes.StoreCustomerAddress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,10 +66,19 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
     setError(null);
 
     try {
+      const token =
+        typeof window === "undefined"
+          ? null
+          : window.localStorage.getItem(CUSTOMER_JWT_STORAGE_KEY);
+
       const [{ customer: nextCustomer }, { orders: nextOrders }, { addresses: nextAddresses }] =
         await Promise.all([
           sdk.store.customer.retrieve(),
-          sdk.store.order.list({ fields: "*items" }),
+          loadCustomerOrders({
+            medusaBaseUrl: config.medusaBaseUrl,
+            publishableKey: config.medusaPublishableKey,
+            token,
+          }),
           sdk.store.customer.listAddress(),
         ]);
 
@@ -309,6 +319,29 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
   );
 
   return <CustomerContext.Provider value={value}>{children}</CustomerContext.Provider>;
+}
+
+async function loadCustomerOrders(input: {
+  medusaBaseUrl: string;
+  publishableKey: string;
+  token: string | null;
+}): Promise<CustomerAccountOrdersResponse> {
+  if (!input.token) {
+    return { orders: [] };
+  }
+
+  const response = await fetch(`${input.medusaBaseUrl}/store/customers/me/orders`, {
+    headers: {
+      authorization: `Bearer ${input.token}`,
+      "x-publishable-api-key": input.publishableKey,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Unable to load customer orders (${response.status})`);
+  }
+
+  return (await response.json()) as CustomerAccountOrdersResponse;
 }
 
 export function useCustomer() {

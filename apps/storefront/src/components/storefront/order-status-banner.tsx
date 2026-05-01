@@ -41,9 +41,28 @@ const STATUS_CONFIG: Record<
   },
 };
 
+const DISMISSED_KEY = "blinds_dismissed_order_banners";
+
+function readDismissed(): Set<string> {
+  try {
+    const raw = sessionStorage.getItem(DISMISSED_KEY);
+    return raw ? new Set(JSON.parse(raw) as string[]) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function writeDismissed(ids: Set<string>) {
+  try {
+    sessionStorage.setItem(DISMISSED_KEY, JSON.stringify([...ids]));
+  } catch {
+    // sessionStorage unavailable — silent fail
+  }
+}
+
 export function OrderStatusBanner() {
   const { isAuthenticated, orders } = useCustomer();
-  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [dismissed, setDismissed] = useState<Set<string>>(() => readDismissed());
 
   if (!isAuthenticated || !orders || orders.length === 0) return null;
 
@@ -77,7 +96,7 @@ export function OrderStatusBanner() {
               {config.label}
             </span>
             <span className={`text-xs ${config.text} opacity-75`}>
-              #{order.display_id ?? order.id.slice(0, 8).toUpperCase()}
+              #{order.displayId ?? order.id.slice(0, 8).toUpperCase()}
             </span>
           </div>
         </div>
@@ -90,7 +109,11 @@ export function OrderStatusBanner() {
             Track Order
           </Link>
           <CloseButton
-            onClick={() => setDismissed((prev) => new Set([...prev, order.id]))}
+            onClick={() => setDismissed((prev) => {
+              const next = new Set([...prev, ...activeOrders.map((o) => o.id)]);
+              writeDismissed(next);
+              return next;
+            })}
             variant="ghost"
             size="sm"
             className={cn("opacity-60 hover:opacity-100", config.text)}

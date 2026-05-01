@@ -1,9 +1,11 @@
+"use client";
+
 import { Button } from "@blinds/ui";
 import { SectionHeader, SurfaceCard } from "@blinds/ui";
-import { Eyebrow, SectionCopy, SectionTitle } from "@blinds/ui";
+import { SectionCopy, SectionTitle } from "@blinds/ui";
 import Image from "next/image";
 import Link from "next/link";
-import { AnimateOnScroll } from "@/components/animate-on-scroll";
+import { useInView } from "@/hooks/use-in-view";
 
 const galleryCards = [
   {
@@ -28,14 +30,18 @@ const galleryCards = [
 
 export function BeforeAfterGallery() {
   const [featuredStory, ...supportingStories] = galleryCards;
+  const contentRef = useInView<HTMLDivElement>();
 
   return (
-    <section className="page-section border-t border-black/5 bg-shell">
-      <AnimateOnScroll className="content-shell max-w-[72rem]">
+    <section id="before-after" className="page-section border-t border-black/5 bg-white">
+      <div ref={contentRef} data-animate className="content-shell max-w-[72rem]">
         <SectionHeader>
           <div>
-            <Eyebrow>Installed Results</Eyebrow>
-            <SectionTitle className="max-w-3xl">What the right blind changes in a finished room.</SectionTitle>
+            <p className="group flex items-center gap-4 text-xs font-bold uppercase tracking-[0.35em] text-olive">
+              <span className="block h-px w-10 bg-olive transition-all duration-300 group-hover:w-16" />
+              Real Installations
+            </p>
+            <SectionTitle className="max-w-3xl">Before &amp; After Gallery</SectionTitle>
             <SectionCopy className="max-w-2xl">
               The point is not decoration alone. It is cleaner light control, a better fit, and a room
               that feels resolved once the window treatment is doing its job.
@@ -93,7 +99,7 @@ export function BeforeAfterGallery() {
             ))}
           </div>
         </div>
-      </AnimateOnScroll>
+      </div>
     </section>
   );
 }
