@@ -163,11 +163,15 @@ steps:
           --project "$PROJECT_ID" \
           --format='value(port)')"
 
-        gcloud sql users set-password "$_SQL_USER" \
-          --instance "$_SQL_INSTANCE" \
-          --project "$PROJECT_ID" \
-          --password "$resolved_db_password" \
-          --quiet
+        if [ -n "$_DB_PASSWORD" ]; then
+          gcloud sql users set-password "$_SQL_USER" \
+            --instance "$_SQL_INSTANCE" \
+            --project "$PROJECT_ID" \
+            --password "$resolved_db_password" \
+            --quiet
+        else
+          echo "Using DB password from existing Cloud Run configuration; skipping Cloud SQL password rotation."
+        fi
 
         project_number="$(gcloud projects describe "$PROJECT_ID" \
           --format='value(projectNumber)')"

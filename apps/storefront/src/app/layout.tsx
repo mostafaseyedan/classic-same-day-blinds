@@ -46,7 +46,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={`${bodyFont.variable} ${displayFont.variable} font-sans antialiased`}>
+      <body suppressHydrationWarning className={`${bodyFont.variable} ${displayFont.variable} font-sans antialiased`}>
         <Suspense fallback={null}><NavigationProgressBar /></Suspense>
         <script
           dangerouslySetInnerHTML={{
